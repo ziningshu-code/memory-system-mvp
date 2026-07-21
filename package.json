@@ -1,0 +1,30 @@
+{
+  "name": "topic-memory",
+  "version": "0.1.0",
+  "description": "A standalone TypeScript SDK that adds topic-based long-term conversation memory to existing LLM applications.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "README.zh-CN.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "test": "node -e \"require('fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc -p tsconfig.test.json && node --test .test-dist/tests/*.test.js",
+    "smoke:consumer": "node scripts/consumer-smoke.mjs",
+    "prepack": "npm run build"
+  },
+  "keywords": ["llm", "memory", "conversation", "typescript", "sdk"],
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "fake-indexeddb": "^6.2.2",
+    "typescript": "^5.9.3"
+  }
+}
