@@ -16,6 +16,7 @@
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "test": "node -e \"require('fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc -p tsconfig.test.json && node --test .test-dist/tests/*.test.js",
+    "smoke:consumer": "node scripts/consumer-smoke.mjs",
     "prepack": "npm run build"
   },
   "keywords": ["llm", "memory", "conversation", "typescript", "sdk"],
