@@ -1,6 +1,6 @@
 # Topic Memory
 
-[English](./README.md)
+[English](./README.md) · [详细接入指南](./docs/USAGE.zh-CN.md)
 
 一个用于给现有 LLM 应用接入长期对话记忆的独立 TypeScript SDK。
 
@@ -67,6 +67,8 @@ await memory.completeExchange({
 
 await memory.maybeRunTopicWorker();
 ```
+
+如果要看完整的现有 App 接入方式、失败处理、存储选择和 prompt 注入示例，请看 [docs/USAGE.zh-CN.md](./docs/USAGE.zh-CN.md)。
 
 ## 调用时序
 
@@ -226,8 +228,11 @@ v0.1 不管理 Main LLM、不包含 Persona、Big Five、Relationship、Proactiv
 npm run build
 npm run typecheck
 npm test
-npm pack
+npm pack --dry-run
+npm run smoke:consumer
 ```
+
+GitHub Actions 会在 push 到 `main`、`release/**` 以及针对 `main` 的 Pull Request 上自动执行同一套检查。`smoke:consumer` 会把 SDK 打成 tarball，安装进一个全新的临时 Node 项目，只从 public package exports 导入，然后验证完整 memory pipeline 和模拟宿主 Main LLM 能收到非空 `memoryContext`。
 
 ## License
 
