@@ -1,17 +1,129 @@
 # Topic Memory
 
-[简体中文](./README.zh-CN.md) · [Detailed integration guide](./docs/USAGE.md)
+**A drop-in long-term memory layer for LLM apps.**
 
-A standalone TypeScript SDK that adds long-term topic memory to an existing LLM application.
+[简体中文](./README.zh-CN.md) · [Integration guide](./docs/USAGE.md) · [Architecture & capacity notes](./docs/ARCHITECTURE.md)
 
-It stores a canonical conversation history, periodically groups older completed exchanges into recoverable topics, selects relevant topics before your next reply, and returns a `memoryContext` string for your own Main LLM.
+Topic Memory gives an existing chat app or agent a structured way to remember old conversations without sending the entire transcript to the model on every request.
 
-**Memory LLM** → runs the Topic Worker and Memory Selector.  
-**Your Main LLM** → still generates the user-facing reply. The SDK does not own or call it.
+It keeps the full conversation as the source of truth, organizes older exchanges into topic-based memory, retrieves only the topics that matter for the current message, and returns a ready-to-inject `memoryContext` for your own Main LLM.
+
+> **What it is:** a memory plugin/SDK for an LLM application.  
+> **What it is not:** a chatbot, a model provider, or a replacement for your Main LLM.
+
+## What can it do?
+
+Topic Memory is useful when your AI needs to remember things that happened far earlier in a conversation, for example:
+
+- user preferences, recurring habits, names, places, and personal context;
+- decisions made hundreds or thousands of exchanges ago;
+- project history, requirements, previous attempts, and unresolved tasks;
+- earlier events where the exact wording or timing may matter;
+- long-running conversations where replaying the full transcript would become expensive or exceed the model context window.
+
+Unlike a single rolling summary, Topic Memory keeps the canonical transcript. A retrieved topic can therefore reopen the original exchanges behind that topic instead of relying only on a compressed summary.
+
+## The model roles — important
+
+There are two layers, and they should not be confused:
+
+### Memory LLM
+
+The **Memory LLM** powers the memory system itself.
+
+By default, the same Memory LLM instance performs two jobs:
+
+1. **Topic Worker** — organizes completed conversation exchanges into topic instances and writes a lightweight topic index.
+2. **Memory Selector** — reads the current user message, recent context, and Topic Directory, then chooses up to three older topics to reopen.
+
+You may configure separate models for these two jobs, but most integrations can use one Memory LLM for both.
+
+### Your Main LLM
+
+Your **Main LLM** is still your own user-facing chat model.
+
+Topic Memory never generates the final reply and never takes ownership of your Main LLM. It returns `memoryContext`; your application decides how to inject that context into the Main LLM prompt.
+
+```text
+User message
+    │
+    ├─→ Topic Memory retrieves relevant old context
+    │       ├─ Recent 5 completed exchanges
+    │       ├─ Topic Directory
+    │       └─ Opened Topic Packets
+    │
+    └─→ Your Main LLM receives memoryContext and writes the reply
+```
+
+## How it works
+
+The v0.1 pipeline is intentionally simple:
+
+1. **Canonical Transcript**  
+   Every exchange is stored as `pending`, `completed`, or `failed`. The full transcript remains the source of truth.
+
+2. **Topic Worker**  
+   After at least six completed exchanges exist, the Topic Worker processes the active tail of the conversation. It groups related exchanges into topic instances and stores:
+   - topic keywords;
+   - retrieval terms;
+   - exact transcript spans;
+   - topic status and timing metadata.
+
+3. **Topic Directory**  
+   The SDK builds a compact index of available topics. The Main LLM does not need the entire historical transcript just to decide what to remember.
+
+4. **Memory Selector**  
+   Before a new reply, the selector sees the current message, the latest five completed exchanges, and the Topic Directory. It selects at most three relevant topic IDs.
+
+5. **Opened Topic Packets**  
+   Selected topics are reopened from their exact Canonical Transcript spans. When timing matters, exchange timestamps can be included.
+
+6. **Main LLM**  
+   Topic Memory returns the restored material as `memoryContext`. Your own Main LLM uses it only when relevant to the current message.
+
+```text
+Canonical Transcript
+        │
+        ▼
+   Topic Worker
+        │
+        ▼
+   Topic Store ─────→ Topic Directory
+                         │
+Current message ─────────┤
+Recent 5 exchanges ──────┤
+                         ▼
+                  Memory Selector
+                         │
+                  up to 3 topic IDs
+                         │
+                         ▼
+                 Open Topic Packets
+                         │
+                         ▼
+                    memoryContext
+                         │
+                         ▼
+                  Your Main LLM
+```
+
+Selector failure safely degrades to an empty long-term `memoryContext`; it does not have to block the host chat flow.
+
+## Why not just keep appending the entire transcript?
+
+A large context window is still a finite prompt budget, and long-context models do not always use information uniformly well across very long inputs. Topic Memory instead separates **how much history you store** from **how much history you send on one request**.
+
+Under one illustrative 128k-context workload, a raw-history design with about 200 tokens per completed exchange reaches roughly 600 exchanges when ~120k tokens are reserved for conversation history. With Topic Memory, a 5,000-exchange archive grouped at roughly eight exchanges per topic can be represented by a Topic Directory plus at most three reopened topics in roughly 43k–45k memory-related tokens under the assumptions documented in the appendix.
+
+That is approximately **8.3× more represented conversation history** in this example, while sending substantially less historical text per request than replaying all 5,000 exchanges.
+
+**This is a theoretical sizing example, not a guaranteed hard limit or benchmark result.** Actual capacity depends on message length, tokenization, topic size, model context window, and how many topics accumulate. v0.1's main scaling constraint is that the Topic Directory grows with the number of topics.
+
+See [Architecture & capacity notes](./docs/ARCHITECTURE.md) for the formula, assumptions, caveats, and related research.
 
 ## Install
 
-This repository is currently published as source code. Clone it or install from a packed tarball generated with `npm pack`.
+This repository is currently distributed as source code. Clone it directly or build a tarball with `npm pack`.
 
 ```bash
 npm install
@@ -19,9 +131,9 @@ npm run build
 npm pack
 ```
 
-## Environment
+## Configure a Memory LLM
 
-For the included OpenAI-compatible adapter:
+The built-in adapter uses an OpenAI-compatible `/chat/completions` endpoint:
 
 ```bash
 MEMORY_LLM_BASE_URL=https://your-openai-compatible-endpoint.example/v1
@@ -29,7 +141,7 @@ MEMORY_LLM_API_KEY=replace-me
 MEMORY_LLM_MODEL=your-memory-model
 ```
 
-Do not place a paid provider key in a public browser bundle. Use a backend or trusted proxy when needed.
+Keep paid provider credentials on a trusted backend or proxy. Do not ship them inside a public browser bundle.
 
 ## 5-minute Quick Start
 
@@ -51,24 +163,39 @@ const memory = createMemory({
   llm: memoryLlm,
 });
 
-const pending = await memory.begin(userMessage);
-const retrieved = await memory.retrieve({ userMessage });
+async function handleUserMessage(userMessage: string) {
+  const pending = await memory.begin(userMessage);
 
-// Replace this with your existing Main LLM call.
-const assistantReply = await myOwnMainLlm({
-  userMessage,
-  memoryContext: retrieved.memoryContext,
-});
+  try {
+    const retrieved = await memory.retrieve({ userMessage });
 
-await memory.completeExchange({
-  exchangeId: pending.id,
-  assistantText: assistantReply,
-});
+    // This is YOUR existing user-facing model call.
+    const assistantReply = await myOwnMainLlm({
+      userMessage,
+      memoryContext: retrieved.memoryContext,
+      recentContext: retrieved.recentContext,
+    });
 
-await memory.maybeRunTopicWorker();
+    await memory.completeExchange({
+      exchangeId: pending.id,
+      assistantText: assistantReply,
+    });
+
+    await memory.maybeRunTopicWorker();
+    return assistantReply;
+  } catch (error) {
+    await memory.failExchange({
+      exchangeId: pending.id,
+      failureReason: error instanceof Error ? error.message : String(error),
+    });
+    throw error;
+  }
+}
 ```
 
-For a complete existing-app integration pattern, failure handling, persistence choices, and prompt injection examples, see [docs/USAGE.md](./docs/USAGE.md).
+The SDK does **not** call `myOwnMainLlm`; that function represents the Main LLM integration your application already has.
+
+For a complete integration walkthrough, see [docs/USAGE.md](./docs/USAGE.md).
 
 ## Integration timing
 
@@ -81,29 +208,17 @@ User message
 → memory.maybeRunTopicWorker()
 ```
 
-If your Main LLM request fails, call `memory.failExchange(...)` instead of `completeExchange(...)`.
+If the Main LLM request fails after `begin()`, call `memory.failExchange(...)`.
 
-## Six-exchange behavior
+## The first six completed exchanges
 
-Topic Worker does not run until at least **6 completed exchanges** exist. Before that:
+Topic Worker does not run until at least **6 completed exchanges** exist. Before then:
 
-- `recentContext` is still available.
-- `memoryContext` may be empty.
-- This is expected behavior, not an installation failure.
+- Canonical Transcript is still recorded;
+- `recentContext` still returns recent completed history;
+- `memoryContext` may be empty because no topic has been created yet.
 
-## How it works
-
-The v0.1 pipeline is based on the stable Memory MVP behavior extracted from the original application baseline `desktop-tutorial@a70d767`:
-
-1. **Canonical Transcript** stores pending, completed, and failed exchanges as the source of truth.
-2. **Recent Context** uses the latest 5 completed live exchanges.
-3. **Topic Worker** runs after the 6-completed-exchange gate, validates strict JSON, preserves finalized topics, and only reprocesses the active tail after the latest finalized span.
-4. **Topic Directory** exposes lightweight topic metadata to the selector.
-5. **Memory Selector** chooses at most 3 topic IDs and decides whether time metadata is needed.
-6. **Opened Topic Packets** restore exact transcript spans from Canonical Transcript.
-7. **`memoryContext`** is returned to your host application for optional injection into your Main LLM prompt.
-
-Selector failure safely degrades to empty long-term memory and does not block your Main LLM.
+This is expected behavior.
 
 ## Public API
 
@@ -144,76 +259,53 @@ clear
 }
 ```
 
-## Provider
-
-`createOpenAICompatibleMemoryLlm()` calls:
-
-```text
-<baseUrl>/chat/completions
-```
-
-It sends `model`, system/user messages, `temperature`, `top_p`, and `max_tokens`, and reads `choices[0].message.content`.
-
-This describes protocol compatibility only. It is not a claim of official certification by any specific provider.
-
 ## Storage
 
-Use `InMemoryStorage` for Node examples and tests.
-
-Use `IndexedDbMemoryStorage` in browser environments:
+For demos and tests:
 
 ```ts
-const memory = createMemory({
-  storage: new IndexedDbMemoryStorage(),
-  llm: memoryLlm,
-});
+new InMemoryStorage()
 ```
 
-You can implement the exported `MemoryStorage` interface for another persistence layer.
+For browser persistence:
+
+```ts
+new IndexedDbMemoryStorage()
+```
+
+For production backends, implement the exported `MemoryStorage` interface and connect your own database.
 
 ## Advanced configuration
 
-Use separate models for Topic Worker and Selector:
+Default: one Memory LLM handles Topic Worker and Selector.
 
 ```ts
-const memory = createMemory({
+createMemory({ storage, llm: memoryLlm })
+```
+
+Advanced: split the two memory jobs.
+
+```ts
+createMemory({
   storage,
-  topicWorker,
-  selector,
+  topicWorker: topicWorkerLlm,
+  selector: selectorLlm,
 });
 ```
 
-For normal use, `createMemory({ storage, llm })` reuses one Memory LLM for both roles.
+Again, neither configuration replaces your Main LLM.
 
-## Failure handling
+## Failure behavior
 
-- Main LLM failure: call `failExchange`.
-- Topic Worker provider/parse failure: recorded in the latest worker run; existing topics are not replaced.
-- Topic Worker validation rejection: invalid topics are rejected.
-- Selector failure: `memoryContext` becomes empty and retrieval returns a trace error.
-
-## Troubleshooting
-
-**Topic Worker does not run**  
-Confirm there are at least 6 completed exchanges in the active tail.
-
-**`memoryContext` is empty**  
-This is valid when no topic exists, the selector decides memory is unnecessary, or selector retrieval fails.
-
-**Browser storage fails**  
-Use `IndexedDbMemoryStorage` only where IndexedDB is available, or inject a custom `MemoryStorage`.
-
-## Security
-
-Keep provider credentials outside public client bundles. The SDK accepts custom headers and an OpenAI-compatible endpoint, so a backend/proxy can own secrets.
-
-## Non-goals
-
-v0.1 does not manage your Main LLM, persona, Big Five traits, relationship state, proactive messaging, UI, vector databases, embeddings, or semantic vector search.
+- **Main LLM fails:** call `failExchange`.
+- **Topic Worker provider fails:** the failure is recorded and existing topics remain.
+- **Topic Worker returns invalid structure:** the output is rejected and not written to Topic Store.
+- **Selector fails:** long-term `memoryContext` falls back to empty.
+- **No older topic is relevant:** `memoryContext` is empty by design.
 
 ## Validation
 
-The release branch includes automated coverage for one-model and split-model configuration, provider success/failure cases, canonical lifecycle, 6-exchange gate, finalized active-tail behavior, selector fallback, time metadata, InMemory/IndexedDB contracts, and a host-owned Main LLM end-to-end path.
+The repository CI validates the package as an actual consumer would use it:
 
 ```bash
 npm run build
@@ -223,7 +315,11 @@ npm pack --dry-run
 npm run smoke:consumer
 ```
 
-The GitHub Actions workflow runs the same checks on pushes to `main` and `release/**`, and on pull requests targeting `main`. `smoke:consumer` installs the packed tarball into a fresh temporary Node project and verifies public-package imports plus end-to-end delivery of non-empty `memoryContext` to a simulated host Main LLM.
+`smoke:consumer` packs the SDK, installs the tarball into a fresh temporary Node project, imports only public package exports, runs the memory pipeline, and verifies that a simulated host-owned Main LLM receives a non-empty `memoryContext`.
+
+## Non-goals
+
+v0.1 does not manage persona, Big Five traits, relationship state, proactive messaging, UI, embeddings, vector databases, or the host application's Main LLM.
 
 ## License
 
