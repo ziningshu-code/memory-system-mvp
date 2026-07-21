@@ -1,6 +1,6 @@
 # Topic Memory
 
-[简体中文](./README.zh-CN.md)
+[简体中文](./README.zh-CN.md) · [Detailed integration guide](./docs/USAGE.md)
 
 A standalone TypeScript SDK that adds long-term topic memory to an existing LLM application.
 
@@ -67,6 +67,8 @@ await memory.completeExchange({
 
 await memory.maybeRunTopicWorker();
 ```
+
+For a complete existing-app integration pattern, failure handling, persistence choices, and prompt injection examples, see [docs/USAGE.md](./docs/USAGE.md).
 
 ## Integration timing
 
@@ -217,8 +219,11 @@ The release branch includes automated coverage for one-model and split-model con
 npm run build
 npm run typecheck
 npm test
-npm pack
+npm pack --dry-run
+npm run smoke:consumer
 ```
+
+The GitHub Actions workflow runs the same checks on pushes to `main` and `release/**`, and on pull requests targeting `main`. `smoke:consumer` installs the packed tarball into a fresh temporary Node project and verifies public-package imports plus end-to-end delivery of non-empty `memoryContext` to a simulated host Main LLM.
 
 ## License
 
