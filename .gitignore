@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.test-dist/
+.site-dist/
+.env
+.env.*
+!.env.example
+*.tgz
+benchmark-results/
+

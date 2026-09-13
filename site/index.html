@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Topic Memory — reopen the conversation behind the answer</title>
+  <meta name="description" content="Explore a TypeScript memory SDK that retrieves original conversations by topic. Try a transparent, no-key walkthrough with inspectable evidence.">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="./"><span class="brand-mark" aria-hidden="true">tm</span>Topic Memory</a><nav aria-label="Main"><a href="https://github.com/ziningshu-code/memory-system-mvp">GitHub ↗</a><button id="language" type="button">中文</button></nav></header>
+  <main>
+    <section class="intro"><div><p class="eyebrow" data-i18n="eyebrow">CONVERSATION MEMORY / TYPESCRIPT SDK</p><h1 data-i18n="title">Go back to what<br>was actually said.</h1><p class="lead" data-i18n="lead">Keep the conversation. Find the topic. Reopen the original words when they matter again.</p></div><div class="install"><span data-i18n="install">Add to your application</span><div><code>npm install topic-memory</code><button id="copy" type="button" aria-label="Copy install command">Copy</button></div><a href="https://github.com/ziningshu-code/memory-system-mvp#quick-start" data-i18n="guide">Open the quick start ↗</a></div></section>
+    <section class="lab" aria-labelledby="lab-title">
+      <div class="lab-heading"><div><p class="eyebrow" data-i18n="walkthrough">INTERACTIVE WALKTHROUGH</p><h2 id="lab-title" data-i18n="labTitle">24 exchanges later. The details are still there.</h2></div><span class="badge" data-i18n="badge">No API key</span></div>
+      <p class="disclosure" data-i18n="disclosure">Scripted model responses + the real SDK. This demonstrates retrieval mechanics, not AI answer quality. All conversations are synthetic.</p>
+      <div id="questions" class="questions" role="group" aria-label="Choose a question"></div>
+      <div class="question-box"><span data-i18n="ask">ASK AGAIN</span><p id="question"></p><button id="retrieve" type="button" data-i18n="retrieve">Retrieve memory</button></div>
+      <div class="workspace">
+        <section class="recent-panel"><div class="panel-heading"><h3 data-i18n="recent">Recent context</h3><span data-i18n="lastFive">Last 5 exchanges</span></div><p class="panel-note" data-i18n="recentNote">The conversation has moved on to astronomy.</p><div id="recent"></div></section>
+        <section class="directory-panel"><div class="panel-heading"><h3 data-i18n="directory">Topic directory</h3><span>4 topics</span></div><div id="topics"></div><p class="directory-note" data-i18n="directoryNote">The selector chooses topic IDs. The SDK then opens their original transcript spans.</p></section>
+        <section class="evidence-panel"><div class="panel-heading"><h3 data-i18n="evidence">Recovered evidence</h3><span id="selection"></span></div><div id="evidence" aria-live="polite"></div></section>
+      </div>
+      <div class="result-bar" id="status" role="status"></div>
+      <details class="raw"><summary data-i18n="inspect">Inspect the exact SDK output</summary><pre id="raw"></pre></details>
+    </section>
+    <section class="verification"><div><p class="eyebrow" data-i18n="verification">WHAT HAS BEEN VERIFIED</p><h2 data-i18n="verifiedTitle">Inspect the evidence.<br>Keep the claims small.</h2></div><div><p data-i18n="verifiedBody">The published package can be installed in a fresh Node project. Four scripted cases check original-text recovery and empty memory for an unknown fact. Real-model accuracy, speed and token costs need a separate evaluation.</p><div class="links"><a href="./evaluation/scripted.json" data-i18n="results">Read the recorded checks ↗</a><a href="https://github.com/ziningshu-code/memory-system-mvp/blob/main/docs/EVALUATION.md" data-i18n="method">Run the real-model comparison ↗</a></div></div></section>
+    <section class="limits"><h2 data-i18n="limitsTitle">Designed for a clear, narrow job.</h2><p data-i18n="limits">Topic Memory returns context to your existing model. Topics begin after six completed exchanges. In-memory storage is temporary; browser persistence uses IndexedDB, and backend persistence needs your own storage adapter. The topic directory grows with the archive.</p></section>
+  </main>
+  <footer><span>Topic Memory · MIT</span><a href="https://github.com/ziningshu-code/memory-system-mvp/issues/new?template=try-it.yml" data-i18n="feedback">Tried it? Share what happened ↗</a></footer>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
+

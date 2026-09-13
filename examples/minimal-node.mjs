@@ -1,34 +1,15 @@
+import assert from 'node:assert/strict';
 import { createMemory, InMemoryStorage } from 'topic-memory';
-
-const fakeMemoryLlm = {
-  async complete({ system }) {
-    if (system.includes('Topic Worker')) {
-      return JSON.stringify({
-        topics: [{
-          status: 'provisional',
-          labelTerms: ['travel', 'Tokyo'],
-          retrievalTerms: ['Tokyo', 'hotel', 'Shibuya'],
-          spans: [{ startSequence: 1, endSequence: 6 }],
-        }],
-      });
-    }
-    return JSON.stringify({ needsMemory: true, topicIds: ['T1'], needsTimeMetadata: false });
-  },
-};
-
-const memory = createMemory({ storage: new InMemoryStorage(), llm: fakeMemoryLlm });
-
-for (let i = 1; i <= 6; i++) {
-  const pending = await memory.begin(`user message ${i}`);
-  await memory.completeExchange({ exchangeId: pending.id, assistantText: `assistant reply ${i}` });
-}
-
-await memory.maybeRunTopicWorker();
-const retrieved = await memory.retrieve({ userMessage: 'What did we decide about Tokyo?' });
-
-// Replace this function with your existing Main LLM call.
-async function myOwnMainLlm({ userMessage, memoryContext }) {
-  return `Main LLM received ${memoryContext.length} memory characters for: ${userMessage}`;
-}
-
-console.log(await myOwnMainLlm({ userMessage: 'What did we decide about Tokyo?', memoryContext: retrieved.memoryContext }));
+import { createScriptedLlm, questions, seedConversation } from './scenario.mjs';
+const memory = createMemory({ storage: new InMemoryStorage(), llm: createScriptedLlm() });
+await seedConversation(memory);
+assert.equal((await memory.maybeRunTopicWorker()).reason, 'accepted');
+const result = await memory.retrieve({ userMessage: questions[0].question });
+assert.deepEqual(result.selectedTopicIds, ['T1']);
+assert.ok(result.memoryContext.includes('14000 yen'));
+assert.ok(!result.recentContext.some(e => e.userText.includes('14000 yen')));
+console.log('SCRIPTED DEMO — real SDK, fixed model responses; not an AI benchmark.');
+console.log('Question:', questions[0].question);
+console.log('Last 5 exchanges contain the hotel budget: no');
+console.log('Selected topics:', result.selectedTopicIds.join(', '));
+console.log('Restored original conversation:\n' + result.memoryContext);

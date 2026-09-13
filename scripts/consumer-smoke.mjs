@@ -3,10 +3,11 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
-const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCli = process.env.npm_execpath;
+if (!npmCli) throw new Error('Run this check with npm run smoke:consumer.');
 const root = process.cwd();
 
-const packed = JSON.parse(execFileSync(npm, ['pack', '--json'], {
+const packed = JSON.parse(execFileSync(process.execPath, [npmCli, 'pack', '--json'], {
   cwd: root,
   encoding: 'utf8',
 }));
@@ -23,7 +24,7 @@ writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({
   type: 'module',
 }, null, 2));
 
-execFileSync(npm, ['install', '--ignore-scripts', tarballPath], {
+execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', tarballPath], {
   cwd: consumerDir,
   stdio: 'inherit',
 });

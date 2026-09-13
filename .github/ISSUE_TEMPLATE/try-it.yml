@@ -1,0 +1,32 @@
+name: First-use feedback / 首次试用反馈
+description: Tell us what you tried, what worked, and where you got stuck.
+title: "[Try-out] "
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for trying Topic Memory. Do not include API keys or private conversations. / 感谢试用，请勿上传密钥或私人对话。"
+  - type: textarea
+    id: use-case
+    attributes:
+      label: What did you want the app to remember? / 希望记住什么？
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: How far did you get? / 试用到了哪一步？
+      options:
+        - Read the README / 阅读介绍
+        - Ran the scripted demo / 运行预设演示
+        - Connected a real model / 接入真实模型
+        - Integrated into an app / 接入自己的应用
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: What worked or failed? / 哪里有效或失败？
+      description: Include the first confusing step or a sanitized example. State the model and Node version if relevant.
+    validations:
+      required: true
+

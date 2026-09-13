@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-13T06:44:15.776Z",
+  "mode": "scripted-mechanics",
+  "model": null,
+  "dataset": "synthetic-24-exchanges-v1",
+  "exchanges": 24,
+  "worker": {
+    "reason": "accepted",
+    "error": null
+  },
+  "limitations": [
+    "Four hand-authored questions over 24 synthetic exchanges; not a long-conversation benchmark.",
+    "One model run per method; no statistical significance or production-quality claim.",
+    "Topic construction is a single batch over the archive; continuous ingestion is not evaluated.",
+    "Character counts are not token counts. Provider token usage is reported only when supplied.",
+    "Worker and selector responses are fixed. No real model answer quality, latency or cost is measured."
+  ],
+  "cases": [
+    {
+      "id": "hotel",
+      "question": "Which Tokyo area and nightly budget did I choose for my hotel?",
+      "expectedEvidenceSequences": [
+        2
+      ],
+      "selectedTopicIds": [
+        "T1"
+      ],
+      "selectorError": null,
+      "evidencePresent": true,
+      "mechanicsPass": true,
+      "recentContextHasEvidence": false,
+      "memoryCharacters": 920,
+      "selectorInputCharacters": 1519,
+      "retrievedMemory": "MEMORY_SECTION_FROM_TOPIC_STORE\nUse this restored older context only if it is relevant to the user's current message.\n\nCurrent time: 2026-09-13T06:44:15.778Z\n\nTopic ID: T1\nKeywords: Tokyo｜hotel\nIncludes: Ueno｜14000 yen｜four nights\nStarted: 2026-01-10T10:00:00.000Z\nEnded: 2026-01-10T10:10:01.000Z\nRelative time: 8 months ago\n\n#1\nuser: I am planning a trip to Tokyo in November.\nassistant: Let us keep the Tokyo plans together.\n\n#2\nuser: Book a hotel in Ueno, not Shibuya. My limit is 14000 yen per night.\nassistant: Ueno, with a nightly budget of 14000 yen.\n\n#3\nuser: I would like a quiet room near a train station.\nassistant: A quiet room with good train access.\n\n#4\nuser: I will stay for four nights.\nassistant: Four nights in Tokyo.\n\n#5\nuser: No breakfast package, please.\nassistant: We will leave breakfast out of the hotel booking.\n\n#6\nuser: That settles the hotel plan.\nassistant: The Tokyo hotel plan is recorded.",
+      "retrievalMs": null,
+      "retrievalCalls": [],
+      "answers": []
+    },
+    {
+      "id": "allergy",
+      "question": "What food allergy did I tell you about?",
+      "expectedEvidenceSequences": [
+        8
+      ],
+      "selectedTopicIds": [
+        "T2"
+      ],
+      "selectorError": null,
+      "evidencePresent": true,
+      "mechanicsPass": true,
+      "recentContextHasEvidence": false,
+      "memoryCharacters": 864,
+      "selectorInputCharacters": 1496,
+      "retrievedMemory": "MEMORY_SECTION_FROM_TOPIC_STORE\nUse this restored older context only if it is relevant to the user's current message.\n\nCurrent time: 2026-09-13T06:44:15.781Z\n\nTopic ID: T2\nKeywords: food｜preferences\nIncludes: peanuts｜vegetarian｜oat milk\nStarted: 2026-01-10T10:12:00.000Z\nEnded: 2026-01-10T10:22:01.000Z\nRelative time: 8 months ago\n\n#7\nuser: Please remember my food preferences.\nassistant: Tell me what I should take into account.\n\n#8\nuser: I am allergic to peanuts.\nassistant: I will keep your peanut allergy in mind when discussing food.\n\n#9\nuser: I prefer vegetarian lunches.\nassistant: Vegetarian lunches are your preference.\n\n#10\nuser: I like mild food, not very spicy dishes.\nassistant: Mild food works for you.\n\n#11\nuser: For coffee, I use oat milk.\nassistant: Oat milk for coffee.\n\n#12\nuser: Those are my food notes.\nassistant: Your food notes are recorded.",
+      "retrievalMs": null,
+      "retrievalCalls": [],
+      "answers": []
+    },
+    {
+      "id": "release",
+      "question": "What is the first export format for Project Lantern, and when is its demo?",
+      "expectedEvidenceSequences": [
+        14,
+        15
+      ],
+      "selectedTopicIds": [
+        "T3"
+      ],
+      "selectorError": null,
+      "evidencePresent": true,
+      "mechanicsPass": true,
+      "recentContextHasEvidence": false,
+      "memoryCharacters": 952,
+      "selectorInputCharacters": 1531,
+      "retrievedMemory": "MEMORY_SECTION_FROM_TOPIC_STORE\nUse this restored older context only if it is relevant to the user's current message.\n\nCurrent time: 2026-09-13T06:44:15.782Z\n\nTopic ID: T3\nKeywords: Project Lantern｜release\nIncludes: CSV｜Wednesday｜one workspace\nStarted: 2026-01-10T10:24:00.000Z\nEnded: 2026-01-10T10:34:01.000Z\nRelative time: 8 months ago\n\n#13\nuser: Let us decide the next release of Project Lantern.\nassistant: What should the release include?\n\n#14\nuser: The first export format will be CSV. PDF export can wait.\nassistant: CSV first; PDF is deferred.\n\n#15\nuser: We are aiming for Wednesday for the demo.\nassistant: The Project Lantern demo is planned for Wednesday.\n\n#16\nuser: The first version only needs one workspace.\nassistant: One workspace is enough for this version.\n\n#17\nuser: We will test with synthetic data.\nassistant: The demo will use synthetic data.\n\n#18\nuser: That is the release scope.\nassistant: The Project Lantern scope is recorded.",
+      "retrievalMs": null,
+      "retrievalCalls": [],
+      "answers": []
+    },
+    {
+      "id": "unknown",
+      "question": "What is my passport number?",
+      "expectedEvidenceSequences": [],
+      "selectedTopicIds": [],
+      "selectorError": null,
+      "evidencePresent": null,
+      "mechanicsPass": true,
+      "recentContextHasEvidence": null,
+      "memoryCharacters": 0,
+      "selectorInputCharacters": 1484,
+      "retrievedMemory": "",
+      "retrievalMs": null,
+      "retrievalCalls": [],
+      "answers": []
+    }
+  ],
+  "calls": [],
+  "summary": {
+    "mechanicsPassed": 4,
+    "total": 4
+  }
+}
