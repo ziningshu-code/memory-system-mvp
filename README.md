@@ -1,125 +1,87 @@
 # Topic Memory
 
-**Find the topic. Reopen the original conversation.**
+**Persistent conversation memory for your own model. Set up on one local page.**
 
-[简体中文](./README.zh-CN.md) · [Integration guide](./docs/USAGE.md) · [Evaluation](./docs/EVALUATION.md) · [Architecture](./docs/ARCHITECTURE.md)
+[中文说明](./README.zh-CN.md) · [Plugin guide](./docs/PLUGIN.md) · [SDK guide](./docs/USAGE.md) · [Architecture](./docs/ARCHITECTURE.md)
 
-Topic Memory is a TypeScript SDK for chat apps and agents that need older conversation details. It groups history into topics, selects relevant topics for a new question, and returns the original exchanges as `memoryContext` for your existing model.
+Topic Memory is a local memory plugin and TypeScript SDK. It keeps original conversations, builds a topic index, and restores source passages for your model. Bring your own endpoint; no author's shared API key or hosted account is required.
 
-For example, a user chooses **Ueno, 14,000 yen per night** for a Tokyo hotel. After the conversation moves on to food, a project release and astronomy, the SDK can reopen the hotel discussion when that plan becomes relevant again. The source text stays available for inspection.
+## One command, one page
 
-## Install
+Install [Node.js](https://nodejs.org/) **20.6+**, then run in a folder you will keep:
+
+```bash
+npx --yes topic-memory@0.2.0
+```
+
+On Windows PowerShell use `npx.cmd --yes topic-memory@0.2.0`. Open **http://127.0.0.1:4318**:
+
+1. Enter your provider Base URL, model ID and API key; save. Local unauthenticated models may leave the key blank.
+2. Test the connection and chat on the same page.
+3. To use an existing local chat client, copy the page's session Base URL, local connection key and model ID into its OpenAI-compatible settings.
+
+No `.env` editing. Use a new session URL for every independent conversation. The UI currently uses Chinese labels.
+
+## Download from GitHub
+
+Choose **Code → Download ZIP**, extract, then double-click **`start.cmd`** on Windows. Or run in the extracted folder:
+
+```bash
+npm ci
+npm start
+```
+
+Use `npm.cmd` in PowerShell if script execution is restricted. Keep the terminal open. Ctrl+C stops it; restarting in the same folder restores configuration and memory.
+
+## Compatibility
+
+This is a local **OpenAI-compatible Chat Completions gateway**, not a native extension for every chat application. Clients must allow a custom endpoint, key and model. Specific third-party clients have not been certified by the protocol tests.
+
+- Text Chat Completions and model listing; independent durable memory at `/sessions/SESSION_ID/v1`.
+- `stream: true` returns SSE **after the full answer is generated and stored**, not incremental tokens.
+- No images, tool/function calls, Responses API, structured output, multiple candidates or editing/branching old messages. Start a new session when branching.
+- Loopback only (`127.0.0.1`), one local user. Cross-origin browser clients, containers and cloud apps cannot directly use this setup.
+- Recent five exchanges work immediately; topics start after six completed exchanges, with up to three selected topics. Indexing and directory costs still grow with history.
+
+## Data and credentials
+
+Configuration, conversations and reports live in **`.topic-memory` under the launch folder**. The page shows the absolute path. Back it up before upgrading, and preserve the directory. A fixed path can be selected:
+
+```bash
+npx --yes topic-memory@0.2.0 --data-dir ./my-memory
+```
+
+The configuration contains a plaintext provider key; protect this directory. The UI never reads the provider key back. Git/npm exclude local data. Conversation evidence is sent to your chosen provider, not the author. One process owns each directory and same-session turns are serialized.
+
+## Verification
+
+Automated tests cover SDK behavior, interleaved indexing coverage, restart persistence, session isolation, concurrent turns, authentication, redacted errors and SSE. Protocol tests use a local fixture and **are not model-quality evidence**.
+
+The page's real-model comparison calls your provider for topic indexing, selection and answers: 24 public synthetic exchanges, repeated indexing during ingestion, four questions, recent-five/full-transcript/topic-memory methods. About 23 requests can incur charges. Reports contain raw answers, worker errors, latency and provider usage. Literal checks can misgrade paraphrases. This diagnostic does not establish general accuracy, savings or production readiness.
+
+The legacy `npm run demo` and static `npm run build:site` use scripted responses and only illustrate mechanics.
+
+## SDK
 
 ```bash
 npm install topic-memory
 ```
 
-ES modules; SDK requires Node.js 18+. The live example commands below require **Node.js 20.6+** for `--env-file`. The published `topic-memory@0.1.0` was installed and exercised in a fresh Node 24 project on 2026-09-13.
-
-## Try the walkthrough — no API key
-
-```bash
-git clone https://github.com/ziningshu-code/memory-system-mvp.git
-cd memory-system-mvp
-npm ci
-npm run demo
-```
-
-The demo loads **24 synthetic exchanges**, retrieves the old hotel topic, and prints the exact restored conversation. It uses the real SDK with **scripted worker and selector responses**. This is a mechanics demo, not evidence of real-model retrieval quality.
-
-To open the interactive, English/Chinese browser version:
-
-```bash
-npm run build:site
-npm run preview
-```
-
-Visit `http://127.0.0.1:4173`. Switch between hotel, food, project and missing-information questions; inspect the topic selection and original source text. Everything in this walkthrough runs locally in the browser, with no credentials or model requests.
-
-## Quick start
-
-Your application supplies a memory model and keeps its existing user-facing model. Pass **both** recent conversation and retrieved older evidence to that model:
-
 ```ts
-import { createMemory, createOpenAICompatibleMemoryLlm, InMemoryStorage } from 'topic-memory';
-
+import { createMemory, createOpenAICompatibleMemoryLlm } from 'topic-memory';
+import { FileMemoryStorage } from 'topic-memory/node';
 const memory = createMemory({
-  storage: new InMemoryStorage(),
-  llm: createOpenAICompatibleMemoryLlm({
-    baseUrl: process.env.MEMORY_LLM_BASE_URL!,
-    apiKey: process.env.MEMORY_LLM_API_KEY,
-    model: process.env.MEMORY_LLM_MODEL!,
-  }),
+  storage: new FileMemoryStorage('./data/conversation.json'),
+  llm: createOpenAICompatibleMemoryLlm({ baseUrl, model, apiKey }),
 });
-
-const pending = await memory.begin(userMessage);
-const context = await memory.retrieve({ userMessage });
-
-// Call your existing model with current input, context.recentContext,
-// and context.memoryContext. The complete runnable integration is linked below.
-const assistantReply = await yourMainModel(userMessage, context);
-await memory.completeExchange({ exchangeId: pending.id, assistantText: assistantReply });
-await memory.maybeRunTopicWorker();
 ```
 
-`yourMainModel` is application-owned. For a **complete executable integration**, use [examples/chat.mjs](./examples/chat.mjs) and its [provider helper](./examples/provider.mjs); they include the actual model request, recent-context injection, errors, and the pending/completed/failed lifecycle.
+Browser apps can use the existing `topic-memory` in-memory/IndexedDB exports. The filesystem adapter is Node-only. Hosts own the main-model call and must serialize complete turns per store. See the [SDK lifecycle guide](./docs/USAGE.md).
 
-## Try it with a real model
-
-In the cloned repository, copy `.env.example` to `.env` and set your OpenAI-compatible endpoint, model and API key. Keep this file local. The examples send your input to that provider and may use paid credits.
-
-```bash
-npm run demo:chat
-```
-
-Or preload the public synthetic conversation, then ask about the hotel plan:
-
-```bash
-npm run demo:chat -- --seed
-```
-
-The seeded conversation is synthetic; topic organization, selection and final answers use the **real configured model**. Type `/exit` to leave. Example storage is in-memory and resets when the process exits.
-
-## What is verified?
-
-| Check | Status / meaning |
-| --- | --- |
-| Published npm package | Fresh installation and old-text recovery checked on Node 24 |
-| SDK lifecycle, storage, adapter and retrieval tests | Automated checks in CI |
-| Four scripted walkthrough cases | Old-text recovery and empty memory for a missing fact; [recorded output](./docs/evaluation/scripted.json) |
-| Real-model comparison | Runnable harness provided; **no real-model performance result claimed** |
-
-Run `npm run evaluate` for the scripted checks or `npm run evaluate:live` for a small, real-model comparison of **recent five exchanges**, **full transcript**, and **topic retrieval**. The live report includes raw answers, literal fact-check scores, request latency, and provider token counts when available. [Read the method and limitations](./docs/EVALUATION.md).
-
-The earlier **8.3×** figure is an illustrative capacity calculation, **not a measured improvement in accuracy or usable memory**. Its assumptions remain in [Architecture & capacity notes](./docs/ARCHITECTURE.md).
-
-## How it works
-
-```text
-Saved conversation → Topic Worker → Topic directory
-New question + recent conversation + directory → Selector
-Selected topic IDs → Original transcript spans → Your model
-```
-
-One memory LLM can handle both worker and selector; separate models are also supported. Topic Memory does not generate the final answer or replace your main model. It requires no embeddings or vector database.
-
-## Current boundaries
-
-- Topic creation starts after **six completed exchanges**. Before that, recent context still works and long-term memory can be empty.
-- The selector opens **up to three topics**. Selection can miss evidence; inspect `retrieve().trace`.
-- A selector error falls back to empty long-term memory. Your app must still handle request timeouts and storage failures.
-- `InMemoryStorage` is temporary. `IndexedDbMemoryStorage` persists in a browser. Backend persistence and user/conversation isolation require your own `MemoryStorage` implementation.
-- Serialize turns and worker runs for a given memory store; concurrent writers are not coordinated by the SDK.
-- The full topic directory grows with the archive. v0.1 does not enforce a total token budget.
-- Treat historical text as untrusted evidence, not system instructions.
-
-[Integration guide](./docs/USAGE.md) · [Public API and architecture](./docs/ARCHITECTURE.md)
-
-## Development checks
+## Development
 
 ```bash
 npm ci
-npm run build
 npm run typecheck
 npm test
 npm run smoke:consumer
@@ -127,10 +89,6 @@ npm run evaluate
 npm run build:site
 ```
 
-## Help test it
+After saving web configuration, `npm run evaluate:plugin` writes `benchmark-results/plugin-live.json`. Never commit credentials or private conversations.
 
-Try one real conversation from your own development workflow, then [report what happened](https://github.com/ziningshu-code/memory-system-mvp/issues/new?template=try-it.yml): what you asked it to remember, whether you could install it, and the first point where retrieval helped or failed. Remove credentials and private conversation details from public reports.
-
-## License
-
-MIT
+MIT License.

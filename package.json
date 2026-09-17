@@ -1,18 +1,22 @@
 {
   "name": "topic-memory",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A standalone TypeScript SDK that adds topic-based long-term conversation memory to existing LLM applications.",
   "type": "module",
+  "bin": { "topic-memory": "./bin/topic-memory.mjs" },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    }
+    },
+    "./node": { "types": "./dist/node.d.ts", "import": "./dist/node.js" }
   },
   "files": [
     "dist",
+    "bin",
+    "plugin",
     "docs",
     "README.md",
     "README.zh-CN.md",
@@ -21,8 +25,12 @@
     "CHANGELOG.md"
   ],
   "scripts": {
+    "start": "npm run build && node bin/topic-memory.mjs",
+    "start:built": "node bin/topic-memory.mjs",
+    "evaluate:plugin": "node scripts/evaluate-plugin.mjs",
     "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "pretest": "npm run build",
     "test": "node -e \"require('fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc -p tsconfig.test.json && node --test .test-dist/tests/*.test.js && node --test tests/*.test.mjs",
     "smoke:consumer": "node scripts/consumer-smoke.mjs",
     "prepack": "npm run build",
@@ -60,7 +68,7 @@
     "provenance": true
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.6"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",

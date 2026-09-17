@@ -4,6 +4,8 @@
 
 这份文档只讲一件事：**怎么把 Topic Memory 接进你已经存在的聊天 App 或 Agent。**
 
+v0.2 提供自动调用主模型、单页配置的本地插件，请先看[插件指南](./PLUGIN.md)。下面的生命周期适用于开发者直接接入 SDK。
+
 它的接入思路很简单：
 
 > 你的 App 本来就会调用 Main LLM。Topic Memory 只是在这次调用旁边加一层长期记忆：先找回相关旧信息，再把 `memoryContext` 交给你。
@@ -62,6 +64,8 @@ const memory = createMemory({
 `InMemoryStorage` 适合 demo 和测试，进程退出后会清空。
 
 浏览器持久化使用 `IndexedDbMemoryStorage`。正式服务端产品可以实现导出的 `MemoryStorage` interface，接自己的数据库。
+
+小型 Node 应用可从 `topic-memory/node` 导入 `FileMemoryStorage`，使用 `new FileMemoryStorage('./data/session.json')`。每个会话使用独立文件，接入方需保证单文件单进程拥有、完整对话轮次串行执行；本地插件已处理这些限制。
 
 ## 3. 包住一轮正常聊天
 

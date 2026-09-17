@@ -1,5 +1,7 @@
 # Architecture & Capacity Notes
 
+v0.2 adds a local plugin, single-page provider setup, durable per-session files and serialized turns; see the [plugin guide](./PLUGIN.md). The worker now excludes actual finalized spans rather than everything before the latest finalized endpoint, preserving interleaved open topics. Spans cannot cross missing sequences. The v0.1 capacity calculations below remain hypothetical, not measured performance.
+
 [简体中文](./ARCHITECTURE.zh-CN.md)
 
 This appendix explains the design assumptions behind Topic Memory v0.1. It is not required for installation or integration.

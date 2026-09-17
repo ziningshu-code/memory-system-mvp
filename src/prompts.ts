@@ -18,7 +18,7 @@ Each topic must contain only: status, labelTerms, retrievalTerms, spans.
 Allowed status values: open, provisional, finalized.
 labelTerms must contain 2–5 short keyword phrases.
 retrievalTerms must contain 3–12 transcript-grounded phrases.
-spans must contain existing input sequences and every input exchange must belong to exactly one span.
+spans must contain existing input sequences and every input exchange must belong to exactly one span. Sequence numbers may have gaps: never span a gap; use separate spans instead.
 
 Compression rules:
 - Merge low-content exchanges such as “嗯”, “好”, “哈哈”, “等一下”, “继续”, short acknowledgements, or brief logistics into the nearest substantive topic.

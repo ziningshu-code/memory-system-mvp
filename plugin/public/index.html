@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Topic Memory · 本地记忆插件</title><link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script></head>
+<body><header><div class="mark">tm<span>●</span></div><div><strong>Topic Memory</strong><span class="muted">本地记忆插件 / Local memory plugin</span></div><span id="connection" class="badge">尚未配置</span></header>
+<main><section class="intro"><p class="eyebrow">YOUR MODEL. YOUR MEMORY.</p><h1>让自己的模型，<br>记住聊过的事。</h1><p>填入模型服务，测试连接，即可开始。配置和对话保存在这台电脑；模型请求只发送到你填写的服务商。</p></section>
+<div class="layout"><aside>
+<section class="card"><div class="section-title"><span class="step">01</span><h2>连接你的模型</h2></div>
+<form id="config-form"><label for="base-url">模型 Base URL</label><input id="base-url" type="url" placeholder="https://你的服务商/v1" required autocomplete="off"><small>填写兼容 Chat Completions 的接口；本机模型也可以。</small>
+<label for="model">聊天模型名称</label><input id="model" placeholder="服务商提供的模型 ID" required autocomplete="off">
+<label for="api-key">API Key <span class="muted">（本机服务可留空）</span></label><input id="api-key" type="password" placeholder="只保存在本机，不回显" autocomplete="new-password"><small id="key-state">没有保存的 Key。</small>
+<details><summary>可选设置</summary><label for="memory-model">记忆模型名称</label><input id="memory-model" placeholder="留空使用同一个模型" autocomplete="off"><label class="checkbox"><input type="checkbox" id="clear-key">此服务不需要 Key，清除已保存的 Key</label></details>
+<div class="actions"><button type="submit" id="save">保存配置</button><button type="button" id="test" class="secondary">测试连接</button></div></form><p id="config-status" role="status" class="status">先保存，再测试。测试会调用你自己的模型。</p></section>
+<section class="card"><div class="section-title"><span class="step">02</span><h2>接入其他聊天工具</h2></div><p class="muted">在支持自定义 OpenAI 兼容地址的工具中，复制以下三项。也可以直接使用右侧聊天。</p>
+<label>当前会话的 Base URL</label><div class="copy-row"><input id="local-url" readonly><button class="copy secondary" data-copy="local-url" aria-label="复制本地模型地址">复制</button></div>
+<label>本地连接 Key</label><div class="copy-row"><input id="local-key" type="password" readonly><button class="copy secondary" data-copy="local-key" aria-label="复制本地连接 Key">复制</button></div>
+<label>模型名称</label><div class="copy-row"><input id="local-model" readonly><button class="copy secondary" data-copy="local-model" aria-label="复制模型名称">复制</button></div>
+<p class="note">每个独立聊天请使用一个新会话地址。插件需保持运行，仅供本机应用连接。支持纯文本 Chat Completions；流式兼容输出会在完整回答后一次返回。此版本不支持图片、工具调用和旧消息编辑分支。</p></section>
+<details class="card"><summary>存储与版本边界</summary><p>数据目录：<code id="data-dir"></code></p><p>关闭后记忆仍保留。配置文件内含 Key，请保护此目录；不要上传或分享。网页不会把服务商 Key 回传到浏览器。</p><p>本地文件存储面向个人使用，单进程运行。真实模型效果取决于模型和聊天内容；长历史的索引成本仍会增长。</p></details>
+</aside><div class="workspace">
+<section class="card chat-card"><div class="section-title"><span class="step">03</span><h2>直接试聊</h2><button id="new-session" class="secondary compact">新会话</button></div>
+<div class="session-row"><label for="session">当前会话</label><select id="session"></select></div><p class="note">最近对话立即可用；完成 6 轮后开始建立话题记忆。切换会话时，记忆彼此独立。</p>
+<div id="messages" aria-live="polite" class="messages"><p class="empty">保存模型配置后，从这里开始一段真实对话。</p></div>
+<form id="chat-form"><label class="sr-only" for="message">聊天内容</label><textarea id="message" rows="3" placeholder="例如：我在做一个项目，请记住它的名字……" required maxlength="16000"></textarea><div class="actions"><span id="chat-status" role="status" class="status"></span><button id="send" type="submit">发送</button></div></form>
+<details><summary>本次找回的记忆 / 话题目录</summary><pre id="trace">还没有检索记录。</pre></details></section>
+<section class="card"><div class="section-title"><span class="step">04</span><h2>真实模型对比</h2></div><p>用 24 轮公开虚构素材、4 个问题，对比“最近 5 轮”“完整历史”和“话题记忆”。整理、选择和回答都调用你的真实模型。</p><p class="note">一次测试约 23 次模型请求，可能计费且需要数分钟。它是小样本诊断，不代表普遍准确率；原始回答和失败也会展示。不会读取你的聊天记录。</p><button id="evaluate" class="secondary">运行真实对比测试</button><p id="eval-status" role="status" class="status">尚未运行，暂无真实效果结论。</p><pre id="eval-summary"></pre><details><summary>原始回答、耗时和用量</summary><pre id="eval-detail"></pre></details><button id="download" class="secondary compact" hidden>下载测试报告</button></section>
+</div></div></main><footer>Topic Memory · 0.2.0 · 使用自己的模型 · 数据保存在本机</footer></body></html>

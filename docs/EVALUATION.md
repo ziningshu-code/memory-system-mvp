@@ -1,6 +1,14 @@
 # Evaluation / 效果验证
 
-## Current evidence
+## v0.2 plugin diagnostics
+
+The local plugin offers real-model testing on its setup page without `.env` editing. Save your model settings, then run the comparison; alternatively run `npm run evaluate:plugin`. The live test performs repeated topic indexing during sequential ingestion (turns 6, 9, 12, 15, 18, 21 and 24), and compares four questions against recent-five/full-transcript/topic-memory context. Reports include raw answers, worker errors and all provider calls. It uses synthetic material but real models for indexing, selection and answers. See [plugin guide](./PLUGIN.md).
+
+On 2026-09-17, the v0.2 source passed 21 automated tests and an installed-package startup check locally on Windows/Node 24. These tests use controlled local providers to check protocols and logic, not model quality. The interleaved-topic regression checks that early open-topic spans remain indexed when a later topic is finalized. File persistence, restart recovery, session isolation, request serialization, local authentication and SSE format are also exercised. CI validates the release commit separately.
+
+No general model-accuracy or cost-improvement claim follows from these tests. A live report is not available until a user configures a provider and runs it.
+
+## Earlier v0.1 evidence
 
 On 2026-09-13, the public `topic-memory@0.1.0` package was installed into a fresh Node 24 project and used to retrieve an old hotel exchange with a scripted model adapter. The source build, 14 existing SDK tests and fresh-consumer tarball test passed locally on Windows. See CI for checks against the latest revision.
 

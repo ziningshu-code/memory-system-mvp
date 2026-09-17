@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -14,6 +14,11 @@ const packed = JSON.parse(execFileSync(process.execPath, [npmCli, 'pack', '--jso
 
 const tarballName = packed?.[0]?.filename;
 if (!tarballName) throw new Error('npm pack did not return a tarball filename');
+const filePaths = packed[0].files.map(file => file.path);
+for (const required of ['bin/topic-memory.mjs','plugin/server.mjs','plugin/public/index.html','plugin/public/app.js','dist/node.js','examples/provider.mjs','examples/scenario.mjs']) {
+  if (!filePaths.includes(required)) throw new Error(`Published plugin is missing ${required}`);
+}
+if (filePaths.some(path => /(^|\/)\.env($|\.)|\.topic-memory|benchmark-results/.test(path))) throw new Error('Private local files must not be published');
 
 const tarballPath = resolve(root, tarballName);
 const consumerDir = mkdtempSync(join(tmpdir(), 'topic-memory-consumer-'));
@@ -31,6 +36,11 @@ execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', tarballPa
 
 const smokeSource = String.raw`
 import { createMemory, InMemoryStorage } from 'topic-memory';
+import { FileMemoryStorage } from 'topic-memory/node';
+
+const persistent = new FileMemoryStorage('./persistent-memory.json');
+await persistent.replaceTopics([]);
+if ((await new FileMemoryStorage('./persistent-memory.json').listTopics()).length !== 0) throw new Error('Node storage export failed');
 
 const fakeMemoryLlm = {
   async complete(input) {
@@ -114,3 +124,21 @@ execFileSync(process.execPath, ['smoke.mjs'], {
   cwd: consumerDir,
   stdio: 'inherit',
 });
+
+// Launch the installed package, not the source checkout, with no provider credentials.
+const child = spawn(process.execPath, ['node_modules/topic-memory/bin/topic-memory.mjs','--port','0','--data-dir',join(consumerDir,'plugin-data')], { cwd:consumerDir, stdio:['ignore','pipe','pipe'], windowsHide:true });
+try {
+  const url = await new Promise((resolve,reject) => {
+    let output='';
+    const timer=setTimeout(()=>reject(new Error('Installed plugin did not start within 15 seconds')),15000);
+    child.once('error',error=>{clearTimeout(timer);reject(error);});
+    child.once('exit',code=>{clearTimeout(timer);reject(new Error(`Installed plugin exited early: ${code}`));});
+    child.stdout.on('data',data=>{output+=data;const match=/Open: (http:\/\/127\.0\.0\.1:\d+)/.exec(output);if(match){clearTimeout(timer);resolve(match[1]);}});
+  });
+  const response=await fetch(url);
+  if(!response.ok || !(await response.text()).includes('config-form'))throw new Error('Installed plugin page failed');
+  console.log('Installed plugin startup and setup page PASS');
+} finally {
+  child.kill('SIGTERM');
+  await new Promise(resolve=>{if(child.exitCode!==null)resolve();else child.once('exit',resolve);});
+}

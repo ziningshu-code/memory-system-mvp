@@ -7,4 +7,6 @@ dist/
 !.env.example
 *.tgz
 benchmark-results/
+.topic-memory/
+*.tmp
 
