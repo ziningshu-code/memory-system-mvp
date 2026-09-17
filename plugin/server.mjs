@@ -112,7 +112,10 @@ export async function startServer({ dataDir = resolve('.topic-memory'), port = 4
       if (req.method === 'GET' && path === '/api/config') { json(res,200,safeConfig()); return; }
       if (req.method === 'POST' && path === '/api/config') {
         if (active || evaluating) throw new Error('请求运行中，请结束后再修改配置。');
-        const next = validateConfig(await body(req),config); await writeJson(join(dataDir,'config.json'),next); config=next;
+        const next = validateConfig(await body(req),config);
+        const target = new URL(next.baseUrl);
+        if (['127.0.0.1','localhost','[::1]'].includes(target.hostname) && target.port === new URL(origin).port) throw new Error('这里需要填写真实模型服务地址，不能填写插件自己的本地接入地址。');
+        await writeJson(join(dataDir,'config.json'),next); config=next;
         json(res,200,safeConfig()); return;
       }
       if (req.method === 'POST' && path === '/api/test') {

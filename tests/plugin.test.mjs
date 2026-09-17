@@ -29,6 +29,7 @@ test('plugin setup, authenticated model proxy, persistent isolated sessions, err
     let setup=await request('/api/config',undefined,{Cookie:cookie});const token=setup.data.localToken;
     const auth={Authorization:`Bearer ${token}`};
     assert.equal((await request('/api/config',{baseUrl:`http://127.0.0.1:${upstream.address().port}/v1`,model:'main',memoryModel:'small',apiKey:'private-provider-key'},auth)).status,200);
+    assert.equal((await request('/api/config',{baseUrl:app.url+'/v1',model:'main',clearKey:true},auth)).status,400);
     assert.ok(!JSON.stringify((await request('/api/config',undefined,auth)).data).includes('private-provider-key'));
     assert.equal((await request('/api/test',{},auth)).data.ok,true);
     assert.equal(received[0].body.model,'main');assert.equal(received[1].body.model,'small');assert.equal(received[0].auth,'Bearer private-provider-key');
