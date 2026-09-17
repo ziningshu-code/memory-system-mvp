@@ -6,6 +6,7 @@ export interface OpenAICompatibleMemoryLlmOptions {
   apiKey?: string;
   headers?: Record<string, string>;
   fetchImpl?: typeof fetch;
+  timeoutMs?: number;
 }
 
 export function createOpenAICompatibleMemoryLlm(options: OpenAICompatibleMemoryLlmOptions): MemoryLlm {
@@ -16,6 +17,7 @@ export function createOpenAICompatibleMemoryLlm(options: OpenAICompatibleMemoryL
   return {
     async complete(input: MemoryLlmRequest): Promise<string> {
       const response = await fetchImpl(endpoint, {
+        signal: AbortSignal.timeout(options.timeoutMs ?? 60000),
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,7 +36,7 @@ export function createOpenAICompatibleMemoryLlm(options: OpenAICompatibleMemoryL
         }),
       });
       const text = await response.text();
-      if (!response.ok) throw new Error(`Memory LLM HTTP ${response.status}: ${text.slice(0, 500)}`);
+      if (!response.ok) throw new Error(`Memory LLM HTTP ${response.status}`);
       let json: unknown;
       try { json = JSON.parse(text); }
       catch { throw new Error('Memory LLM returned invalid JSON'); }

@@ -74,6 +74,6 @@ export interface RetrieveResult {
 
 export interface TopicWorkerResult {
   ran: boolean;
-  reason: 'completed_exchange_gate' | 'active_tail_gate' | 'accepted' | 'rejected' | 'failed';
+  reason: 'completed_exchange_gate' | 'active_tail_gate' | 'unchanged_input' | 'accepted' | 'rejected' | 'failed';
   run: LatestTopicWorkerRun | null;
 }

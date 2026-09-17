@@ -83,11 +83,17 @@ export class MemoryEngine {
 
     const previousTopics = await this.storage.listTopics();
     const finalizedTopics = previousTopics.filter((topic) => topic.status === 'finalized');
-    const finalizedEnd = finalizedTopics.flatMap((topic) => topic.spans.map((span) => span.endSequence)).reduce((max, seq) => Math.max(max, seq), 0);
-    const activeTail = completed.filter((e) => e.sequence > finalizedEnd);
+    // Topics can interleave: a finalized topic does not finalize everything before it.
+    const isFinalized = (sequence: number) => finalizedTopics.some(topic =>
+      topic.spans.some(span => sequence >= span.startSequence && sequence <= span.endSequence));
+    const activeTail = completed.filter((e) => !isFinalized(e.sequence));
     if (activeTail.length < 6) return { ran: false, reason: 'active_tail_gate', run: null };
 
     const inputText = buildWorkerInput(activeTail);
+    const previousRun = await this.storage.getLatestTopicWorkerRun();
+    if (previousRun?.validationStatus === 'accepted' && previousRun.inputText === inputText) {
+      return { ran: false, reason: 'unchanged_input', run: previousRun };
+    }
     const inputTextBySequence = new Map(activeTail.map((e) => [e.sequence, `${e.userText}\n${stripCanonicalAssistantProtocolTags(e.assistantText)}`]));
     const topicIdOffset = previousTopics.reduce((max, topic) => {
       const match = /^T(\d+)$/.exec(topic.topicId);
@@ -150,7 +156,7 @@ export class MemoryEngine {
     try {
       const selectorRawOutput = await this.selector.complete({ system: MEMORY_SELECTOR_PROMPT_V1, user: selectorInput, maxTokens: 400, temperature: 0.1, topP: 0.9 });
       const parsed = JSON.parse(selectorRawOutput) as { needsMemory?: unknown; topicIds?: unknown; needsTimeMetadata?: unknown };
-      const requestedIds = Array.isArray(parsed.topicIds) ? parsed.topicIds.filter((id): id is string => typeof id === 'string').slice(0, 3) : [];
+      const requestedIds = Array.isArray(parsed.topicIds) ? [...new Set(parsed.topicIds.filter((id): id is string => typeof id === 'string'))].slice(0, 3) : [];
       const selectedTopics = parsed.needsMemory === true
         ? requestedIds.map((id) => topics.find((topic) => topic.topicId === id)).filter((topic): topic is CanonicalTopic => Boolean(topic))
         : [];
@@ -242,7 +248,7 @@ function validateTopicWorkerOutput(rawOutput: string, inputSequences: number[], 
       if (start > end) { errors.push(`${topicLabel} span ${spanIndex + 1}: startSequence must be <= endSequence`); continue; }
       if (!inputSet.has(start) || !inputSet.has(end)) errors.push(`${topicLabel} span ${spanIndex + 1}: sequence endpoints must exist in worker input`);
       for (let sequence = start; sequence <= end; sequence++) {
-        if (!inputSet.has(sequence)) continue;
+        if (!inputSet.has(sequence)) { errors.push(`${topicLabel}: span crosses an unavailable sequence ${sequence}; use separate spans`); continue; }
         const existing = assigned.get(sequence);
         if (existing) errors.push(`sequence ${sequence} overlaps between ${existing} and ${topicLabel}`);
         else assigned.set(sequence, topicLabel);
@@ -269,7 +275,7 @@ function validateTopicWorkerOutput(rawOutput: string, inputSequences: number[], 
   }
   for (const topic of topicDrafts) {
     const latestEnd = topic.spans.length ? Math.max(...topic.spans.map((span) => span.endSequence)) : 0;
-    if (topic.status === 'finalized' && maxSequence - latestEnd < 4) errors.push(`${topic.topicId}: finalized topic needs at least four later completed exchanges outside the topic`);
+    if (topic.status === 'finalized' && inputSequences.filter(sequence => sequence > latestEnd).length < 4) errors.push(`${topic.topicId}: finalized topic needs at least four later completed exchanges outside the topic`);
   }
   return { ok: errors.length === 0, errors, topicDrafts: errors.length === 0 ? topicDrafts : [] };
 }

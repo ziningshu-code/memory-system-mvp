@@ -4,6 +4,8 @@
 
 This is the practical guide for wiring Topic Memory into an existing chat app or agent.
 
+For the v0.2 local plugin with one-page setup and automatic main-model calls, use the [plugin guide](./PLUGIN.md). The lifecycle below applies to direct SDK integration.
+
 The integration model is deliberately narrow:
 
 > **Your app already knows how to call a Main LLM. Topic Memory runs beside that call, restores relevant older context, and hands the result back to you.**
@@ -56,6 +58,8 @@ const memory = createMemory({
 `InMemoryStorage` is good for tests and demos. It resets when the process exits.
 
 For browser persistence, use `IndexedDbMemoryStorage`. For a production backend, implement the exported `MemoryStorage` interface and connect your own database.
+
+For a small Node application, v0.2 includes `import { FileMemoryStorage } from 'topic-memory/node'`. Pass `new FileMemoryStorage('./data/session.json')` as storage and use a separate file per session. The host must serialize complete turns and use one owner per file; the local plugin already does this.
 
 ## 3. Wrap one normal chat turn
 

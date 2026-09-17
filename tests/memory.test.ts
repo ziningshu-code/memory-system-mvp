@@ -143,6 +143,38 @@ test('selector failure safely degrades to empty long-term memory', async () => {
   assert.equal(result.memoryContext, ''); assert.match(result.trace.selectorError ?? '', /selector down/);
 });
 
+test('interleaved open topics retain older spans across repeated indexing', async () => {
+  let count = 0;
+  const inputs: string[] = [];
+  const make = (status: string, spans: number[][]) => ({ status, labelTerms: ['project', 'travel'], retrievalTerms: ['project','travel','plan'], spans: spans.map(([startSequence,endSequence])=>({startSequence,endSequence})) });
+  const memory=createMemory({storage:new InMemoryStorage(),llm:{complete:async input=>{
+    inputs.push(input.user);
+    return JSON.stringify({topics: count++ === 0 ? [make('open',[[1,3],[7,12]]),make('finalized',[[4,6]])] : [make('open',[[1,3],[7,13]])]});
+  }}});
+  await addCompleted(memory,12);
+  assert.equal((await memory.maybeRunTopicWorker()).reason,'accepted');
+  const e=await memory.begin('another project detail');await memory.completeExchange({exchangeId:e.id,assistantText:'recorded'});
+  assert.equal((await memory.maybeRunTopicWorker()).reason,'accepted');
+  assert.ok(inputs[1].includes('#1\n'));assert.ok(!inputs[1].includes('#4\n'));
+  const covered=new Set((await memory.listTopics()).flatMap(t=>t.spans.flatMap(s=>Array.from({length:s.endSequence-s.startSequence+1},(_,i)=>s.startSequence+i))));
+  assert.deepEqual([...covered].sort((a,b)=>a-b),Array.from({length:13},(_,i)=>i+1));
+  assert.equal((await memory.maybeRunTopicWorker()).reason,'unchanged_input');assert.equal(count,2);
+});
+
+test('worker cannot span finalized gaps or count failed exchanges toward finalization',async()=>{
+  const storage=new InMemoryStorage();
+  const memory=createMemory({storage,llm:{complete:async()=>JSON.stringify({topics:[{status:'provisional',labelTerms:['new','topic'],retrievalTerms:['new','topic','active'],spans:[{startSequence:1,endSequence:8}]}]})}});
+  await addCompleted(memory,8);
+  await storage.replaceTopics([{topicId:'T1',status:'finalized',labelTerms:['old','topic'],retrievalTerms:['old','topic','done'],spans:[{startSequence:3,endSequence:4}],startedAt:0,endedAt:0,updatedAt:0,source:'topic_worker_v1'}]);
+  const run=await memory.maybeRunTopicWorker();assert.equal(run.reason,'rejected');assert.match(run.run?.validationError||'',/unavailable sequence/);
+  assert.equal((await memory.listTopics()).length,1);
+  const second=createMemory({storage:new InMemoryStorage(),llm:{complete:async()=>JSON.stringify({topics:[{status:'finalized',labelTerms:['old','topic'],retrievalTerms:['old','topic','done'],spans:[{startSequence:1,endSequence:4}]},{status:'open',labelTerms:['new','topic'],retrievalTerms:['new','topic','active'],spans:[{startSequence:10,endSequence:11}]}]})}});
+  await addCompleted(second,4);
+  for(let i=0;i<5;i++){const e=await second.begin('failed');await second.failExchange({exchangeId:e.id,failureReason:'test'});}
+  await addCompleted(second,2);
+  const rejected=await second.maybeRunTopicWorker();assert.equal(rejected.reason,'rejected');assert.match(rejected.run?.validationError||'',/four later completed/);
+});
+
 test('time metadata is included when the user asks about timing', async () => {
   const memory = createMemory({ storage: new InMemoryStorage(), llm: dualPurposeLlm() });
   await addCompleted(memory); await memory.maybeRunTopicWorker();
