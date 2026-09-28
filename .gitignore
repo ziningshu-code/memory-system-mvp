@@ -1,6 +1,7 @@
 node_modules/
+.npm-cache/
 dist/
-.test-dist/
+.test-dist*/
 .site-dist/
 .env
 .env.*
@@ -9,4 +10,5 @@ dist/
 benchmark-results/
 .topic-memory/
 *.tmp
+integrations/*/topic-memory/integrations/
 

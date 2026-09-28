@@ -43,9 +43,3 @@ jobs:
 
       - name: Fresh consumer smoke test
         run: npm run smoke:consumer
-
-      - name: Scripted retrieval evaluation
-        run: npm run evaluate
-
-      - name: Build static walkthrough
-        run: npm run build:site

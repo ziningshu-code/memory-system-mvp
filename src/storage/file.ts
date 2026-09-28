@@ -11,7 +11,7 @@ export class FileMemoryStorage implements MemoryStorage {
   constructor(path: string) { this.path = resolve(path); }
   private async read(): Promise<State> {
     try {
-      const data = JSON.parse(await readFile(this.path, 'utf8')) as State;
+      const data = JSON.parse(await retryBusy(() => readFile(this.path, 'utf8'))) as State;
       if (data.version !== 1 || !Array.isArray(data.exchanges) || !Array.isArray(data.topics)) throw new Error('Invalid memory store');
       return data;
     } catch (error) {
@@ -25,7 +25,7 @@ export class FileMemoryStorage implements MemoryStorage {
       await mkdir(dirname(this.path), { recursive: true });
       const temporary = `${this.path}.${randomUUID()}.tmp`;
       await writeFile(temporary, JSON.stringify(state), { mode: 0o600, flag: 'wx' });
-      await rename(temporary, this.path);
+      await retryBusy(() => rename(temporary, this.path));
     });
     this.queue = next.catch(() => undefined);
     return next;
@@ -43,4 +43,19 @@ export class FileMemoryStorage implements MemoryStorage {
   async getLatestTopicWorkerRun(): Promise<LatestTopicWorkerRun | null> { return (await this.snapshot()).latestRun; }
   async saveLatestTopicWorkerRun(run: LatestTopicWorkerRun): Promise<void> { const record = structuredClone(run); return this.change(s => { s.latestRun = record; }); }
   async clearLatestTopicWorkerRun(): Promise<void> { return this.change(s => { s.latestRun = null; }); }
+  async commitIndex(topics: CanonicalTopic[], run: LatestTopicWorkerRun): Promise<void> {
+    const records = structuredClone(topics), record = structuredClone(run);
+    return this.change(s => { s.topics = records; s.latestRun = record; });
+  }
+}
+
+// Windows scanners may briefly hold an otherwise writable file open during replacement.
+async function retryBusy<T>(operation: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try { return await operation(); }
+    catch (error) {
+      if (attempt >= 8 || !['EBUSY', 'EPERM', 'EACCES'].includes((error as NodeJS.ErrnoException).code ?? '')) throw error;
+      await new Promise(resolve => setTimeout(resolve, 25 * (attempt + 1)));
+    }
+  }
 }

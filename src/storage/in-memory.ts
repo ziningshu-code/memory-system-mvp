@@ -21,6 +21,10 @@ export class InMemoryStorage implements MemoryStorage {
   async getLatestTopicWorkerRun(): Promise<LatestTopicWorkerRun | null> { return this.latestRun ? clone(this.latestRun) : null; }
   async saveLatestTopicWorkerRun(run: LatestTopicWorkerRun): Promise<void> { this.latestRun = clone(run); }
   async clearLatestTopicWorkerRun(): Promise<void> { this.latestRun = null; }
+  async commitIndex(topics: CanonicalTopic[], run: LatestTopicWorkerRun): Promise<void> {
+    const records = topics.map(clone), record = clone(run);
+    this.topics = new Map(records.map(t => [t.topicId,t])); this.latestRun = record;
+  }
 }
 
 function clone<T>(value: T): T { return structuredClone(value); }

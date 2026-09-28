@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 — experimental
+
+- Add `createTopicMemory`: immutable originals, batched new-record indexing, short directory selection only when requested, and exact evidence paging.
+- Group immutable segments into short Topic Family indexes. Find candidates using local keywords and optional cached card vectors; use bounded recency/frequency/length ranking. Long selected families can open at a matching middle original or return bounded first/latest comparison windows, without losing full archive paging. Large redundant span lists are omitted from evidence pages. Legacy custom workers can retain the segment-only protocol.
+- Resolve family links with exact source excerpts and conflict checks; allow optional one-hop retrieval of related families within the existing selection budget. These checks do not certify the model's semantic choices.
+- Add opt-in JSON output constraints and lossless folding of extra short keyword labels. Preserve failed model outputs; program validation remains required.
+- Add Codex capture hooks, MCP search/open tools, a local installer, and a Claude Code adapter. Claude Code is not live-validated.
+- Change the default command from the 0.2 setup website to native configuration/status commands. Exclude the old gateway and demo examples from the package; preserve the old SDK API.
+- Handle transient Windows file locks and resolve installed Codex MCP paths automatically.
+- Record a small real-model comparison. Both topic retrieval and simple keyword search answered 6/6 historical questions; all-stage token use was higher for topic retrieval. No savings or broad compatibility claim.
+- Keep package publication manually triggered; a source merge does not automatically publish to npm.
+
 ## 0.2.0
 
 - Add a local plugin launcher (`npx topic-memory` / GitHub ZIP `start.cmd`) and a single-page setup, real chat, session selector and live comparison. Users provide their own endpoint and key; no `.env` is required.

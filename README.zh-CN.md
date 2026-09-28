@@ -1,101 +1,52 @@
 # Topic Memory
 
-**用自己的模型，在一个页面配置可持久保存的聊天记忆。**
+0.3.0 增加了带原文引文的话题关联和可选语义候选检索。在一组小规模真实模型检索中，当前 Worker 和 Selector 对两道问题都找齐了必需原文，尽管话题分组不完全一致。这不是长对话或最终回答质量测试。尚未证明长文本优势或总 token 节省，见[当前测试状态](./docs/EVALUATION.md)。
 
-[English](./README.md) · [插件接入与常见问题](./docs/PLUGIN.md) · [SDK 接入](./docs/USAGE.zh-CN.md) · [架构](./docs/ARCHITECTURE.zh-CN.md)
+保存对话原文，用简短话题目录按需找回历史。
 
-Topic Memory 是本地记忆插件，也是 TypeScript SDK。它保存原始聊天，建立话题索引，在新问题需要时找回原文，再交给你自己的模型回答。没有作者的共享 API Key，没有托管账号，也不会代替你支付模型费用。
+[安装](./docs/PLUGIN.md) · [开发者接入](./docs/USAGE.zh-CN.md) · [真实测试](./docs/EVALUATION.md)
 
-## 最快开始：一条命令、一个页面
+**0.3.0 是实验版。** 包含记忆核心和 Codex 插件。配置后仍在原来的 Codex 对话中使用，没有额外聊天页或配置网页。
 
-先安装 [Node.js](https://nodejs.org/)（20.6 或以上）。在准备长期使用的文件夹打开 PowerShell，运行：
+对话完成后保存原文和时间；Topic Worker 分批整理新增内容；主模型需要历史信息时调用记忆工具，Selector 先读简短目录，再返回相关原文。两种后台角色可以使用同一个模型。
 
-```powershell
-npx.cmd --yes topic-memory@0.2.0
-```
+## Codex 安装
 
-macOS / Linux 使用 `npx --yes topic-memory@0.2.0`。打开终端显示的 **http://127.0.0.1:4318**：
+需要 Node.js 20.6+、支持插件和 hooks 的 Codex CLI，以及下载者自己的模型访问权限。实际安装测试环境为 Windows、Node 24.15.0、Codex CLI 0.155.0-alpha.2.6、gpt-5.6-luna；其他版本未实测。
 
-1. 填写你自己的 **Base URL、模型名称、API Key**，点击「保存配置」。本机无鉴权模型可以不填 Key。可选的记忆模型使用同一服务商与 Key。
-2. 点击「测试连接」，通过后直接在同一页面聊天。
-3. 接入已有聊天工具时，复制页面上的 **当前会话 Base URL、本地连接 Key、模型名称** 到该工具的 OpenAI 兼容服务设置。
-
-**不需要寻找或编辑 `.env`。** 页面自动创建本机配置。每个独立聊天请创建新会话，使用对应的独立地址。
-
-## 从 GitHub 下载
-
-点击 **Code → Download ZIP**，解压后，Windows 双击 **`start.cmd`**。它会安装依赖、构建并启动，随后打开终端显示的地址。
-
-也可以在解压后的项目文件夹运行：
+下载并解压这一版本的源码，在该文件夹打开 PowerShell，执行：
 
 ```powershell
 npm.cmd ci
-npm.cmd start
+npm.cmd run build:native
+node integrations/runtime/cli.mjs configure --provider codex --model gpt-5.6-luna
+node integrations/runtime/cli.mjs install-codex
 ```
 
-macOS / Linux 去掉 `.cmd`。保留终端窗口；停止时按 Ctrl+C。下次从同一个文件夹启动，配置与记忆会恢复。升级前备份 `.topic-memory`，升级后使用相同的数据目录。
+模型名称可换成自己账户可用的模型。上述方式使用下载者已有的 Codex 登录和额度，不需要作者的 API Key。重新打开 Codex，按提示认可两个自动保存 hooks 和记忆工具，然后在同一个项目目录中继续聊天。
 
-## 实际呈现与兼容范围
+[安装说明](./docs/PLUGIN.md)包含自己的 API、数据位置与卸载方法。Claude Code 适配包目前只做了程序和协议检查，没有真实 Claude 账户验证；也不能据此宣称普通 ChatGPT 聊天或所有 VS Code 助手均受支持。
 
-一个页面完成模型配置、连接测试、真实聊天、会话切换、复制接入信息和真实模型对比。
+## 旧片段版本的实测结论
 
-这是通过 **OpenAI-compatible Chat Completions 本地接口**接入的插件。它适用于允许自定义接口地址、Key 和模型名的本机客户端；并非任何软件商店都能直接安装的原生扩展，尚未宣称对具体第三方客户端完成认证测试。
+此前片段版本使用 12 条事先编写的用户测试消息，回复、话题整理和检索均调用真实 Luna 模型；检索题在全新上下文中回答：
 
-| 支持 | 当前边界 |
-| --- | --- |
-| 自己的远程模型或本机兼容模型 | 远程地址需要 HTTPS；HTTP 仅限本机 |
-| 纯文本 Chat Completions、模型列表 | 不支持图片、工具调用、Responses API、结构化输出和多候选 |
-| `stream: true` 的 SSE 格式 | 完整生成并保存后一次返回，暂不逐 token 推送 |
-| 会话独立保存，重启恢复 | 同一地址对应同一会话；新聊天需要新会话地址 |
-| 单人本机使用，同会话串行处理 | 不面向多用户部署；容器及云端应用不能直接访问本机地址 |
-| 最近 5 轮 + 找回的旧话题 | 至少完成 6 轮开始整理长期话题；最多选 3 个话题 |
+- 6 道有历史答案的问题：话题方案 6/6，简单分块关键词搜索 6/6，无历史 0/6。
+- 两种检索方案均没有编造不存在的航班号；2 道普通问题没有调用检索。
+- 加上整理与选择，话题方案成功流程共 128,607 个输入与输出 token；简单搜索为 111,856，前者在本小样本中约多 15%。
 
-## 数据放在哪里？
+因此，当前证据支持“能找回当前上下文没有的原文”，不支持“已经比简单搜索更省 token、更准确”。没有测出模型最多能记住多少回合，也没有把短对话测试冒称为超长上下文压力测试。完整口径见[测试说明](./docs/EVALUATION.md)。
 
-默认保存在**启动目录的 `.topic-memory` 文件夹**，页面显示完整路径。包括模型配置、会话记录和本地测试报告。Key 不会在配置接口中回显，不会发往作者服务；模型请求和选中的聊天证据会发送到你配置的模型服务。配置文件在磁盘上包含明文 Key，请保护数据目录；Git 和 npm 打包排除它。
+## 运行方式
 
-更换工作目录时可指定固定数据路径：
+默认积累 8 条未索引对话后整理，后台会连续处理已就绪的批次；已整理的原文片段不再重写。临时传输错误最多在后续整理机会延迟自动重试一次，语义校验失败不自动反复请求。检索时每页最多选择 3 个话题。选中的话题过长时，本地词语命中可让首包从相关原文开始；`memory_open` 的偏移量 0 仍可按所选顺序读取整组。普通对话不逐轮调用 Selector，也不读取模型隐藏的思考过程。
 
-```powershell
-npx.cmd --yes topic-memory@0.2.0 --data-dir "D:\MyMemory"
-```
+自行开发的聊天程序可接入[核心 SDK](./docs/USAGE.zh-CN.md)，并使用自己的模型接口。
 
-## 验证到了哪里？
+## 数据与限制
 
-- 自动测试覆盖 SDK 生命周期、交错话题索引保留、断档校验、重启持久化、会话隔离、并发排队、鉴权、错误处理和 SSE 响应。协议集成测试使用本地测试服务，**不作为真实模型效果证据**。
-- 页面「真实模型对比」使用你配置的模型：24 轮公开虚构对话、连续多次话题整理、4 个问题，比较最近 5 轮、完整历史、话题记忆。约 23 次模型请求，可能计费；报告包含原始回答、整理错误、耗时和服务商返回的 token 用量。
-- 这是小样本诊断，字面评分可能误判同义表达。**没有凭此宣称普遍准确率、成本优势或生产可靠性。**
-- 旧的 `npm run demo` 与 `npm run build:site` 是预设机制演示，不是上述真实插件，也不是效果证据。
+原文以未加密文件保存在用户目录下的 `.topic-memory`，按项目路径隔离。新对话批次、检索目录和必要原文会发送给所配置的模型服务。卸载插件不会删除原始记录。
 
-## 开发者 SDK
+本仓库暂时保留 0.2 的旧网关、网页、演示和测试源码作为历史材料；它们不是 0.3 的安装入口，也不是新版本的效果证明。新版安装包不包含旧网关和演示示例。旧 `createMemory` SDK 接口仍保留。
 
-```bash
-npm install topic-memory
-```
-
-```ts
-import { createMemory, createOpenAICompatibleMemoryLlm } from 'topic-memory';
-import { FileMemoryStorage } from 'topic-memory/node';
-
-const memory = createMemory({
-  storage: new FileMemoryStorage('./data/conversation.json'),
-  llm: createOpenAICompatibleMemoryLlm({ baseUrl, model, apiKey }),
-});
-```
-
-接入方负责在主模型调用前检索、回答后保存，并串行运行同一会话。[完整 SDK 生命周期](./docs/USAGE.zh-CN.md)。浏览器继续使用 `topic-memory` 入口的内存或 IndexedDB 存储。
-
-## 开发检查
-
-```bash
-npm ci
-npm run typecheck
-npm test
-npm run smoke:consumer
-npm run evaluate
-npm run build:site
-```
-
-保存网页模型配置后，运行 `npm run evaluate:plugin` 生成 `benchmark-results/plugin-live.json`。不要上传配置和私人聊天。
-
-MIT License.
+MIT 许可证。

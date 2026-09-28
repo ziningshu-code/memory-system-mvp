@@ -1,0 +1,18 @@
+{
+  "name": "topic-memory",
+  "version": "0.3.0",
+  "description": "Save conversation originals locally and retrieve relevant topics on demand.",
+  "author": {
+    "name": "ziningshu-code"
+  },
+  "interface": {
+    "displayName": "Topic Memory",
+    "shortDescription": "Recall earlier conversations from their originals.",
+    "longDescription": "Capture completed conversation text, index new topic segments, and retrieve original evidence when requested.",
+    "developerName": "ziningshu-code",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": ["Find the original conversation behind an earlier decision."]
+  },
+  "mcpServers": "./.mcp.json"
+}

@@ -1,0 +1,609 @@
+{
+  "date": "2026-09-18",
+  "model": "gpt-5.6-luna",
+  "fixture": "Authored fictional user prompts; real model replies; timestamps are prescribed test metadata.",
+  "protocol": "Each retrieval question was asked in a fresh context with native memory disabled. No-history, fixed-chunk keyword search, and on-demand topic selection share the same source archive.",
+  "history": [
+    {
+      "sequence": 1,
+      "user": "我在做东京旅行计划，第一版住宿定在上野，住松灯旅舍，每晚预算13760日元。请简短确认。",
+      "assistant": "已确认：东京旅行第一版住宿定在上野的松灯旅舍，每晚预算 13,760 日元。",
+      "userSentAt": 1789700400000,
+      "assistantCompletedAt": 1789700401000
+    },
+    {
+      "sequence": 2,
+      "user": "说另一件事：我的软件项目代号是青鹭，第一版交接编号是QH-7391。请记下，暂时不用建议。",
+      "assistant": "已记下：软件项目代号为“青鹭”，第一版交接编号是 QH-7391。",
+      "userSentAt": 1789700460000,
+      "assistantCompletedAt": 1789700461000
+    },
+    {
+      "sequence": 3,
+      "user": "东京行程补充：我想优先坐地铁，住宿预算仍按刚才的第一版。简单确认即可。",
+      "assistant": "已确认：东京行程优先乘坐地铁，住宿仍按上野松灯旅舍第一版预算，每晚 13,760 日元。",
+      "userSentAt": 1789700520000,
+      "assistantCompletedAt": 1789700521000
+    },
+    {
+      "sequence": 4,
+      "user": "饮食方面，我对腰果过敏。我们暂定去木舟食堂，订餐凭条编号是MZ-6184。请确认。",
+      "assistant": "已确认：你对腰果过敏，暂定去木舟食堂，订餐凭条编号为 MZ-6184。",
+      "userSentAt": 1789700580000,
+      "assistantCompletedAt": 1789700581000
+    },
+    {
+      "sequence": 5,
+      "user": "我们切回青鹭项目，例会定在周四16:20。只需要确认这个安排。",
+      "assistant": "已确认：青鹭项目例会定于周四 16:20。",
+      "userSentAt": 1789700640000,
+      "assistantCompletedAt": 1789700641000
+    },
+    {
+      "sequence": 6,
+      "user": "今天还准备给阳台的薄荷浇水，这与旅行和软件项目都没有关系。请简短回应。",
+      "assistant": "已确认：今天给阳台的薄荷浇水。",
+      "userSentAt": 1789700700000,
+      "assistantCompletedAt": 1789700701000
+    },
+    {
+      "sequence": 7,
+      "user": "旅行的小提醒：我带黑色的登机箱，白天主要步行。暂时没有其他调整。",
+      "assistant": "已记下：旅行带黑色登机箱，白天主要步行，其他安排暂不调整。",
+      "userSentAt": 1789700760000,
+      "assistantCompletedAt": 1789700761000
+    },
+    {
+      "sequence": 8,
+      "user": "工作上的小提醒：文档使用 Markdown 格式，会议记录用中文。请简短确认。",
+      "assistant": "已确认：文档使用 Markdown 格式，会议记录使用中文。",
+      "userSentAt": 1789700820000,
+      "assistantCompletedAt": 1789700821000
+    },
+    {
+      "sequence": 9,
+      "user": "东京住宿有调整：区域改成神田，每晚预算改为18240日元。保留第一版的记录，方便以后比较。",
+      "assistant": "已确认：东京住宿调整为神田，每晚预算 18,240 日元；上野松灯旅舍每晚 13,760 日元的第一版记录保留，便于比较。",
+      "userSentAt": 1789700880000,
+      "assistantCompletedAt": 1789700881000
+    },
+    {
+      "sequence": 10,
+      "user": "青鹭项目交接编号更正为QH-4826，原编号作废，例会时间不变。请确认。",
+      "assistant": "已确认：青鹭项目交接编号更正为 QH-4826，原编号 QH-7391 作废；例会仍为周四 16:20。",
+      "userSentAt": 1789700940000,
+      "assistantCompletedAt": 1789700941000
+    },
+    {
+      "sequence": 11,
+      "user": "订餐的地点和凭条都不变。过敏事项也照原来的执行。请简短确认。",
+      "assistant": "已确认：仍去木舟食堂，订餐凭条为 MZ-6184；继续执行腰果过敏注意事项（#4）。",
+      "userSentAt": 1789701000000,
+      "assistantCompletedAt": 1789701001000
+    },
+    {
+      "sequence": 12,
+      "user": "这些事项暂时确定了。以后查具体数字时请以我明确说过的记录为准。现在只需回复收到。",
+      "assistant": "收到。",
+      "userSentAt": 1789701060000,
+      "assistantCompletedAt": 1789701061000
+    }
+  ],
+  "results": [
+    {
+      "question": "original",
+      "method": "none",
+      "query": "我们最开始给东京住宿定的是哪个区域、每晚多少日元？",
+      "answer": "我不知道；当前对话中没有这条信息。",
+      "reviewedValuePass": false,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 4232,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 145,
+        "reasoning_output_tokens": 85
+      },
+      "elapsedMs": 16801
+    },
+    {
+      "question": "original",
+      "method": "raw",
+      "query": "我们最开始给东京住宿定的是哪个区域、每晚多少日元？",
+      "answer": "最开始定在**上野**，每晚预算 **13,760 日元**。（序列 1）",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13531,
+        "cached_input_tokens": 7424,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 132,
+        "reasoning_output_tokens": 15
+      },
+      "elapsedMs": 19948
+    },
+    {
+      "question": "original",
+      "method": "topic",
+      "query": "我们最开始给东京住宿定的是哪个区域、每晚多少日元？",
+      "answer": "最开始定在**上野**，每晚预算 **13,760 日元**。（记忆序列 1）",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13802,
+        "cached_input_tokens": 3584,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 134,
+        "reasoning_output_tokens": 16
+      },
+      "elapsedMs": 27474
+    },
+    {
+      "question": "current",
+      "method": "none",
+      "query": "现在去东京住宿，区域和每晚预算最终按什么执行？",
+      "answer": "目前对东京住宿的区域和每晚预算没有可确认的最终方案。",
+      "reviewedValuePass": false,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 4232,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 106,
+        "reasoning_output_tokens": 40
+      },
+      "elapsedMs": 14239
+    },
+    {
+      "question": "current",
+      "method": "raw",
+      "query": "现在去东京住宿，区域和每晚预算最终按什么执行？",
+      "answer": "最终按**神田**住宿执行，每晚预算 **18,240 日元**（序列9）。上野及 **13,760日元**为第一版备选记录。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13523,
+        "cached_input_tokens": 3584,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 145,
+        "reasoning_output_tokens": 13
+      },
+      "elapsedMs": 21181
+    },
+    {
+      "question": "current",
+      "method": "topic",
+      "query": "现在去东京住宿，区域和每晚预算最终按什么执行？",
+      "answer": "最终按：**神田区域，每晚预算 18,240 日元**执行。上野松灯旅舍和 13,760 日元是保留的第一版记录。〔序列号 9〕",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13233,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 152,
+        "reasoning_output_tokens": 15
+      },
+      "elapsedMs": 30867
+    },
+    {
+      "question": "change",
+      "method": "none",
+      "query": "我们给日本住宿安排作过什么修改？把最初和现在的金额、区域都列出来。",
+      "answer": "我目前没有找到关于日本住宿安排的历史记录，因此无法可靠列出最初与现在的金额和区域。",
+      "reviewedValuePass": false,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 4243,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 123,
+        "reasoning_output_tokens": 50
+      },
+      "elapsedMs": 12255
+    },
+    {
+      "question": "change",
+      "method": "raw",
+      "query": "我们给日本住宿安排作过什么修改？把最初和现在的金额、区域都列出来。",
+      "answer": "日本住宿安排的修改：\n\n| 项目 | 最初 | 现在 |\n|---|---|---|\n| 区域 | 上野 | 神田 |\n| 每晚金额 | 13,760 日元 | 18,240 日元 |\n\n也就是从上野的松灯旅舍调整为神田，预算每晚增加 4,480 日元。依据：序列 1、9。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13991,
+        "cached_input_tokens": 7424,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 232,
+        "reasoning_output_tokens": 47
+      },
+      "elapsedMs": 16981
+    },
+    {
+      "question": "change",
+      "method": "topic",
+      "query": "我们给日本住宿安排作过什么修改？把最初和现在的金额、区域都列出来。",
+      "answer": "日本住宿安排做过一次调整：\n\n| 版本 | 区域 | 金额 |\n|---|---|---:|\n| 最初 | 上野（松灯旅舍） | 每晚 13,760 日元 |\n| 现在 | 神田 | 每晚 18,240 日元 |\n\n也就是从上野改到了神田，每晚增加 **4,480 日元**。依据：记录第 1、9 条。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13820,
+        "cached_input_tokens": 5376,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 203,
+        "reasoning_output_tokens": 15
+      },
+      "elapsedMs": 26641
+    },
+    {
+      "question": "project",
+      "method": "none",
+      "query": "青鹭的交接编号先后是什么？例会时间是怎么定的？",
+      "answer": "我目前没有找到关于“青鹭”交接编号先后或例会时间确定方式的记录，无法确认。",
+      "reviewedValuePass": false,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 4233,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 137,
+        "reasoning_output_tokens": 64
+      },
+      "elapsedMs": 15025
+    },
+    {
+      "question": "project",
+      "method": "raw",
+      "query": "青鹭的交接编号先后是什么？例会时间是怎么定的？",
+      "answer": "青鹭交接编号先后为：**QH-7391（第一版）→ QH-4826（更正后，原编号作废）**（第2、10条）。\n\n例会时间定为**每周四 16:20**；编号更正时确认时间不变（第5、10条）。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 14536,
+        "cached_input_tokens": 6656,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 232,
+        "reasoning_output_tokens": 66
+      },
+      "elapsedMs": 20933
+    },
+    {
+      "question": "project",
+      "method": "topic",
+      "query": "青鹭的交接编号先后是什么？例会时间是怎么定的？",
+      "answer": "- 交接编号：先是 **QH-7391**，后更正为 **QH-4826**，原编号作废（序列 2、10）。\n- 例会时间：定在 **每周四 16:20**，更正编号后不变（序列 5、10）。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13768,
+        "cached_input_tokens": 8448,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 218,
+        "reasoning_output_tokens": 54
+      },
+      "elapsedMs": 25722
+    },
+    {
+      "question": "paraphrase",
+      "method": "none",
+      "query": "帮我提醒餐厅避开我不能吃的东西，同时给我核对订餐用的那串编号。",
+      "answer": "可以，请发我两项信息：\n\n1. 不能吃的食物或过敏原  \n2. 订餐编号\n\n我会帮你整理给餐厅，并核对编号。",
+      "reviewedValuePass": false,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 4265,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 176,
+        "reasoning_output_tokens": 75
+      },
+      "elapsedMs": 13315
+    },
+    {
+      "question": "paraphrase",
+      "method": "raw",
+      "query": "帮我提醒餐厅避开我不能吃的东西，同时给我核对订餐用的那串编号。",
+      "answer": "提醒餐厅：请避开腰果，我对腰果过敏（序列 4、11）。\n\n订餐凭条编号已核对：**MZ-6184**（序列 4、11）。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 14020,
+        "cached_input_tokens": 5376,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 209,
+        "reasoning_output_tokens": 57
+      },
+      "elapsedMs": 18879
+    },
+    {
+      "question": "paraphrase",
+      "method": "topic",
+      "query": "帮我提醒餐厅避开我不能吃的东西，同时给我核对订餐用的那串编号。",
+      "answer": "提醒餐厅：请务必避开腰果，我对腰果过敏。\n\n订餐凭条编号已核对：**MZ-6184**（第 4、11 条记录）。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13023,
+        "cached_input_tokens": 3584,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 226,
+        "reasoning_output_tokens": 67
+      },
+      "elapsedMs": 27463
+    },
+    {
+      "question": "time",
+      "method": "none",
+      "query": "东京第一版住宿和后来调整分别是在几点记录的？请按 UTC HH:mm 表示。",
+      "answer": "我不知道，当前没有可用的记忆记录来确认这两个时间。",
+      "reviewedValuePass": false,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 4239,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 127,
+        "reasoning_output_tokens": 63
+      },
+      "elapsedMs": 13627
+    },
+    {
+      "question": "time",
+      "method": "raw",
+      "query": "东京第一版住宿和后来调整分别是在几点记录的？请按 UTC HH:mm 表示。",
+      "answer": "- 第一版住宿：**03:00 UTC**（序列 1）\n- 后来调整：**03:08 UTC**（序列 9）",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 14545,
+        "cached_input_tokens": 5376,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 364,
+        "reasoning_output_tokens": 239
+      },
+      "elapsedMs": 24996
+    },
+    {
+      "question": "time",
+      "method": "topic",
+      "query": "东京第一版住宿和后来调整分别是在几点记录的？请按 UTC HH:mm 表示。",
+      "answer": "- 第一版住宿：**03:00 UTC**（序列 1）\n- 后来调整：**03:08 UTC**（序列 9）",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 13248,
+        "cached_input_tokens": 5376,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 465,
+        "reasoning_output_tokens": 342
+      },
+      "elapsedMs": 38741
+    },
+    {
+      "question": "unknown",
+      "method": "none",
+      "query": "我之前预订的航班号是什么？",
+      "answer": "我不知道，你之前的航班号不在当前对话中。",
+      "reviewedValuePass": true,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 4219,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 106,
+        "reasoning_output_tokens": 43
+      },
+      "elapsedMs": 14710
+    },
+    {
+      "question": "unknown",
+      "method": "raw",
+      "query": "我之前预订的航班号是什么？",
+      "answer": "我查不到你之前预订的航班号。",
+      "reviewedValuePass": true,
+      "toolCalls": 2,
+      "usage": {
+        "input_tokens": 20588,
+        "cached_input_tokens": 5376,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 184,
+        "reasoning_output_tokens": 29
+      },
+      "elapsedMs": 24159
+    },
+    {
+      "question": "unknown",
+      "method": "topic",
+      "query": "我之前预订的航班号是什么？",
+      "answer": "我不知道，当前记忆中没有找到你之前预订的航班号。",
+      "reviewedValuePass": true,
+      "toolCalls": 1,
+      "usage": {
+        "input_tokens": 9630,
+        "cached_input_tokens": 6400,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 161,
+        "reasoning_output_tokens": 43
+      },
+      "elapsedMs": 33764
+    },
+    {
+      "question": "ordinary",
+      "method": "none",
+      "query": "把“你好”翻译成英文。",
+      "answer": "Hello.",
+      "reviewedValuePass": true,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 2072,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 6,
+        "reasoning_output_tokens": 0
+      },
+      "elapsedMs": 7838
+    },
+    {
+      "question": "ordinary",
+      "method": "raw",
+      "query": "把“你好”翻译成英文。",
+      "answer": "Hello.",
+      "reviewedValuePass": true,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 2802,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 6,
+        "reasoning_output_tokens": 0
+      },
+      "elapsedMs": 8519
+    },
+    {
+      "question": "ordinary",
+      "method": "topic",
+      "query": "把“你好”翻译成英文。",
+      "answer": "Hello.",
+      "reviewedValuePass": true,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 2802,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 6,
+        "reasoning_output_tokens": 0
+      },
+      "elapsedMs": 7277
+    },
+    {
+      "question": "visible",
+      "method": "none",
+      "query": "现在给你一个新数字：23。请计算它乘以4的结果。",
+      "answer": "23 × 4 = 92。",
+      "reviewedValuePass": true,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 2081,
+        "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 12,
+        "reasoning_output_tokens": 0
+      },
+      "elapsedMs": 7178
+    },
+    {
+      "question": "visible",
+      "method": "raw",
+      "query": "现在给你一个新数字：23。请计算它乘以4的结果。",
+      "answer": "92",
+      "reviewedValuePass": true,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 2811,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 5,
+        "reasoning_output_tokens": 0
+      },
+      "elapsedMs": 6522
+    },
+    {
+      "question": "visible",
+      "method": "topic",
+      "query": "现在给你一个新数字：23。请计算它乘以4的结果。",
+      "answer": "23 × 4 = **92**",
+      "reviewedValuePass": true,
+      "toolCalls": 0,
+      "usage": {
+        "input_tokens": 2811,
+        "cached_input_tokens": 1792,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 12,
+        "reasoning_output_tokens": 0
+      },
+      "elapsedMs": 7038
+    }
+  ],
+  "methods": [
+    {
+      "method": "none",
+      "known": 0,
+      "knownTotal": 6,
+      "unknown": true,
+      "ordinaryNoRecall": 2,
+      "mainUsage": {
+        "input_tokens": 33816,
+        "output_tokens": 938,
+        "cached_input_tokens": 7168,
+        "reasoning_output_tokens": 420
+      },
+      "mainMs": 114988
+    },
+    {
+      "method": "raw",
+      "known": 6,
+      "knownTotal": 6,
+      "unknown": true,
+      "ordinaryNoRecall": 2,
+      "mainUsage": {
+        "input_tokens": 110347,
+        "output_tokens": 1509,
+        "cached_input_tokens": 44800,
+        "reasoning_output_tokens": 466
+      },
+      "mainMs": 162118
+    },
+    {
+      "method": "topic",
+      "known": 6,
+      "knownTotal": 6,
+      "unknown": true,
+      "ordinaryNoRecall": 2,
+      "mainUsage": {
+        "input_tokens": 96137,
+        "output_tokens": 1577,
+        "cached_input_tokens": 38144,
+        "reasoning_output_tokens": 552
+      },
+      "mainMs": 224987
+    }
+  ],
+  "worker": {
+    "calls": 3,
+    "usage": {
+      "input_tokens": 8945,
+      "output_tokens": 1229,
+      "cached_input_tokens": 0,
+      "reasoning_output_tokens": 358
+    },
+    "successfulCommittedBatches": 2,
+    "failedStorageAttempts": 1
+  },
+  "selector": {
+    "calls": 8,
+    "usage": {
+      "input_tokens": 23523,
+      "output_tokens": 567,
+      "cached_input_tokens": 0,
+      "reasoning_output_tokens": 326
+    }
+  },
+  "topicSuccessfulUsage": {
+    "input_tokens": 125638,
+    "output_tokens": 2969,
+    "cached_input_tokens": 38144,
+    "reasoning_output_tokens": 1115
+  },
+  "topicIncludingFailedCommitUsage": {
+    "input_tokens": 128605,
+    "output_tokens": 3373,
+    "cached_input_tokens": 38144,
+    "reasoning_output_tokens": 1236
+  },
+  "limitations": [
+    "Small development fixture, not a held-out population benchmark.",
+    "Does not measure context-window limits or the number of turns a model can remember.",
+    "No demonstrated accuracy or token-cost advantage over the simpler keyword baseline.",
+    "CLI usage includes provider/instruction overhead; no dollar-price inference.",
+    "Claude Code and VS Code surfaces were not live-tested."
+  ]
+}

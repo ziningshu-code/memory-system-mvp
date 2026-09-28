@@ -17,7 +17,7 @@ body:
       label: How far did you get? / 试用到了哪一步？
       options:
         - Read the README / 阅读介绍
-        - Ran the scripted demo / 运行预设演示
+        - Installed the native plugin / 安装原生插件
         - Connected a real model / 接入真实模型
         - Integrated into an app / 接入自己的应用
     validations:

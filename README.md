@@ -1,94 +1,56 @@
 # Topic Memory
 
-**Persistent conversation memory for your own model. Set up on one local page.**
+Version 0.3.0 adds Topic Families with source-cited links and optional semantic candidate search. In a small real-model retrieval check, the current Worker and Selector recovered all required originals for two questions even though related subjects were grouped imperfectly. This is not a long-history or answer-quality benchmark. No long-context advantage or total-token saving has been established. See [evaluation status](./docs/EVALUATION.md).
 
-[中文说明](./README.zh-CN.md) · [Plugin guide](./docs/PLUGIN.md) · [SDK guide](./docs/USAGE.md) · [Architecture](./docs/ARCHITECTURE.md)
+Local conversation originals, short topic indexes, and on-demand recall.
 
-Topic Memory is a local memory plugin and TypeScript SDK. It keeps original conversations, builds a topic index, and restores source passages for your model. Bring your own endpoint; no author's shared API key or hosted account is required.
+[中文](./README.zh-CN.md) · [Installation](./docs/PLUGIN.md) · [SDK](./docs/USAGE.md) · [Test results](./docs/EVALUATION.md)
 
-## One command, one page
+**0.3.0 is experimental.** It has a TypeScript core and a Codex plugin. You continue chatting in the host application; there is no separate chat or configuration page.
 
-Install [Node.js](https://nodejs.org/) **20.6+**, then run in a folder you will keep:
+A completed exchange is saved with its timestamps. A Topic Worker indexes new records in batches. When the host model requests memory, a Selector reads short topic cards and returns selected original records. Worker and Selector can use the same model.
 
-```bash
-npx --yes topic-memory@0.2.0
+## Use with Codex
+
+Prerequisites: Node.js 20.6+, a Codex CLI supporting plugins and hooks, and your own working model access. Native installation and recall were tested on Windows with Codex CLI **0.155.0-alpha.2.6**, Node **24.15.0**, and **gpt-5.6-luna**. Other versions are unverified.
+
+After downloading and extracting this source revision, open a terminal in its folder:
+
+```powershell
+npm.cmd ci
+npm.cmd run build:native
+node integrations/runtime/cli.mjs configure --provider codex --model gpt-5.6-luna
+node integrations/runtime/cli.mjs install-codex
 ```
 
-On Windows PowerShell use `npx.cmd --yes topic-memory@0.2.0`. Open **http://127.0.0.1:4318**:
+Choose a model available to your own Codex account. The configuration above uses your existing Codex login and its quota; it does not require the author's API key. Restart Codex and approve the plugin's two capture hooks and memory tools when prompted. Continue chatting in the same project directory.
 
-1. Enter your provider Base URL, model ID and API key; save. Local unauthenticated models may leave the key blank.
-2. Test the connection and chat on the same page.
-3. To use an existing local chat client, copy the page's session Base URL, local connection key and model ID into its OpenAI-compatible settings.
+The [installation guide](./docs/PLUGIN.md) covers other providers, data location and removal. Claude Code has a packaged adapter and protocol checks, **not a live Claude validation**. ChatGPT's ordinary chat interface and every VS Code assistant are not covered by this test.
 
-No `.env` editing. Use a new session URL for every independent conversation. The UI currently uses Chinese labels.
+## Earlier segment-only test
 
-## Download from GitHub
+A small live test used 12 authored user prompts, real Luna replies, real indexing and real retrieval in fresh contexts. Both Topic Memory and a simpler fixed-chunk keyword-search baseline answered **6/6 historical questions**; without history, the model answered **0/6**. Both retrieval methods abstained on an unknown fact and skipped retrieval for two ordinary questions.
 
-Choose **Code → Download ZIP**, extract, then double-click **`start.cmd`** on Windows. Or run in the extracted folder:
+Including indexing and selection, Topic Memory used **128,607 input + output tokens** for the successful run, versus **111,856** for the simpler baseline. These are reported token counts, not prices. This sample demonstrates recovery of unavailable history; **it does not establish token savings, superiority over simple search, or a model's maximum memory length**. See the [protocol, costs and limitations](./docs/EVALUATION.md).
 
-```bash
-npm ci
-npm start
-```
+## Developer use
 
-Use `npm.cmd` in PowerShell if script execution is restricted. Keep the terminal open. Ctrl+C stops it; restarting in the same folder restores configuration and memory.
+Import `createTopicMemory` and give it persistent storage plus your own model adapter. Your application saves completed exchanges, schedules indexing, and exposes recall as a model tool. It keeps control of the main model's normal context. See the [SDK guide](./docs/USAGE.md).
 
-## Compatibility
+Defaults: index after 8 unindexed exchanges, drain ready batches in the background, select at most 3 topics per directory page, and page long original text explicitly. If a selected topic is too long for one evidence page, a local word match can start the page at the matching original; `memory_open` at offset 0 still reads the complete family in the requested order. A temporary transport failure gets at most one delayed automatic retry on a later indexing opportunity; invalid semantic output is not retried automatically. There is no per-turn Selector call or inspection of hidden model reasoning.
 
-This is a local **OpenAI-compatible Chat Completions gateway**, not a native extension for every chat application. Clients must allow a custom endpoint, key and model. Specific third-party clients have not been certified by the protocol tests.
+## Data
 
-- Text Chat Completions and model listing; independent durable memory at `/sessions/SESSION_ID/v1`.
-- `stream: true` returns SSE **after the full answer is generated and stored**, not incremental tokens.
-- No images, tool/function calls, Responses API, structured output, multiple candidates or editing/branching old messages. Start a new session when branching.
-- Loopback only (`127.0.0.1`), one local user. Cross-origin browser clients, containers and cloud apps cannot directly use this setup.
-- Recent five exchanges work immediately; topics start after six completed exchanges, with up to three selected topics. Indexing and directory costs still grow with history.
-
-## Data and credentials
-
-Configuration, conversations and reports live in **`.topic-memory` under the launch folder**. The page shows the absolute path. Back it up before upgrading, and preserve the directory. A fixed path can be selected:
-
-```bash
-npx --yes topic-memory@0.2.0 --data-dir ./my-memory
-```
-
-The configuration contains a plaintext provider key; protect this directory. The UI never reads the provider key back. Git/npm exclude local data. Conversation evidence is sent to your chosen provider, not the author. One process owns each directory and same-session turns are serialized.
-
-## Verification
-
-Automated tests cover SDK behavior, interleaved indexing coverage, restart persistence, session isolation, concurrent turns, authentication, redacted errors and SSE. Protocol tests use a local fixture and **are not model-quality evidence**.
-
-The page's real-model comparison calls your provider for topic indexing, selection and answers: 24 public synthetic exchanges, repeated indexing during ingestion, four questions, recent-five/full-transcript/topic-memory methods. About 23 requests can incur charges. Reports contain raw answers, worker errors, latency and provider usage. Literal checks can misgrade paraphrases. This diagnostic does not establish general accuracy, savings or production readiness.
-
-The legacy `npm run demo` and static `npm run build:site` use scripted responses and only illustrate mechanics.
-
-## SDK
-
-```bash
-npm install topic-memory
-```
-
-```ts
-import { createMemory, createOpenAICompatibleMemoryLlm } from 'topic-memory';
-import { FileMemoryStorage } from 'topic-memory/node';
-const memory = createMemory({
-  storage: new FileMemoryStorage('./data/conversation.json'),
-  llm: createOpenAICompatibleMemoryLlm({ baseUrl, model, apiKey }),
-});
-```
-
-Browser apps can use the existing `topic-memory` in-memory/IndexedDB exports. The filesystem adapter is Node-only. Hosts own the main-model call and must serialize complete turns per store. See the [SDK lifecycle guide](./docs/USAGE.md).
+Original text is stored locally, unencrypted, under `~/.topic-memory`, separated by project path. New batches and selected evidence are sent to your configured model provider. Secrets use an environment variable, not a shared key. Uninstalling the plugin does not delete the archive.
 
 ## Development
 
 ```bash
 npm ci
-npm run typecheck
 npm test
 npm run smoke:consumer
-npm run evaluate
-npm run build:site
 ```
 
-After saving web configuration, `npm run evaluate:plugin` writes `benchmark-results/plugin-live.json`. Never commit credentials or private conversations.
+Program tests and package checks are separate from live model evaluation. Older 0.2 gateway, site, demo and evaluation sources remain in this checkout as legacy material; they are not the 0.3 installation path. The 0.3 package excludes the old gateway and demo examples. Existing `createMemory` SDK exports remain available.
 
 MIT License.

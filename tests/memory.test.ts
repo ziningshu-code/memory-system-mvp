@@ -143,6 +143,14 @@ test('selector failure safely degrades to empty long-term memory', async () => {
   assert.equal(result.memoryContext, ''); assert.match(result.trace.selectorError ?? '', /selector down/);
 });
 
+test('JSON output constraint is explicit; unsupported endpoints fail without silent retry',async()=>{
+  const bodies:Record<string,unknown>[]=[];
+  const llm=createOpenAICompatibleMemoryLlm({baseUrl:'https://example.test/v1',model:'m',jsonMode:true,
+    fetchImpl:async(_,init)=>{bodies.push(JSON.parse(String(init?.body)));return new Response('unsupported',{status:400});}});
+  await assert.rejects(llm.complete({system:'Return JSON',user:'x',maxTokens:10}),/HTTP 400/);
+  assert.equal(bodies.length,1);assert.deepEqual(bodies[0].response_format,{type:'json_object'});
+});
+
 test('interleaved open topics retain older spans across repeated indexing', async () => {
   let count = 0;
   const inputs: string[] = [];

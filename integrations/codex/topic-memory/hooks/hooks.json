@@ -1,0 +1,1 @@
+{"hooks":{"UserPromptSubmit":[{"hooks":[{"type":"command","command":"node \"${CLAUDE_PLUGIN_ROOT}/integrations/runtime/cli.mjs\" hook","timeout":15}]}],"Stop":[{"hooks":[{"type":"command","command":"node \"${CLAUDE_PLUGIN_ROOT}/integrations/runtime/cli.mjs\" hook","timeout":15}]}]}}

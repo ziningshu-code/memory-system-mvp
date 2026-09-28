@@ -1,144 +1,67 @@
-import { execFileSync, spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+// Packaging/protocol checks only. These do not measure a real model's recall.
+import {execFileSync,spawn} from 'node:child_process';
+import {mkdtempSync,writeFileSync,readFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import assert from 'node:assert/strict';
 
-const npmCli = process.env.npm_execpath;
-if (!npmCli) throw new Error('Run this check with npm run smoke:consumer.');
-const root = process.cwd();
-
-const packed = JSON.parse(execFileSync(process.execPath, [npmCli, 'pack', '--json'], {
-  cwd: root,
-  encoding: 'utf8',
-}));
-
-const tarballName = packed?.[0]?.filename;
-if (!tarballName) throw new Error('npm pack did not return a tarball filename');
-const filePaths = packed[0].files.map(file => file.path);
-for (const required of ['bin/topic-memory.mjs','plugin/server.mjs','plugin/public/index.html','plugin/public/app.js','dist/node.js','examples/provider.mjs','examples/scenario.mjs']) {
-  if (!filePaths.includes(required)) throw new Error(`Published plugin is missing ${required}`);
-}
-if (filePaths.some(path => /(^|\/)\.env($|\.)|\.topic-memory|benchmark-results/.test(path))) throw new Error('Private local files must not be published');
-
-const tarballPath = resolve(root, tarballName);
-const consumerDir = mkdtempSync(join(tmpdir(), 'topic-memory-consumer-'));
-
-writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({
-  name: 'topic-memory-consumer-smoke',
-  private: true,
-  type: 'module',
-}, null, 2));
-
-execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', tarballPath], {
-  cwd: consumerDir,
-  stdio: 'inherit',
-});
-
-const smokeSource = String.raw`
-import { createMemory, InMemoryStorage } from 'topic-memory';
-import { FileMemoryStorage } from 'topic-memory/node';
-
-const persistent = new FileMemoryStorage('./persistent-memory.json');
-await persistent.replaceTopics([]);
-if ((await new FileMemoryStorage('./persistent-memory.json').listTopics()).length !== 0) throw new Error('Node storage export failed');
-
-const fakeMemoryLlm = {
-  async complete(input) {
-    if (input.system.includes('Topic Worker')) {
-      return JSON.stringify({
-        topics: [{
-          status: 'provisional',
-          labelTerms: ['moving plans', 'new apartment'],
-          retrievalTerms: ['Shanghai', 'new apartment', 'moving next month'],
-          spans: [{ startSequence: 1, endSequence: 6 }],
-        }],
-      });
-    }
-
-    return JSON.stringify({
-      needsMemory: true,
-      topicIds: ['T1'],
-      needsTimeMetadata: false,
-    });
-  },
-};
-
-const memory = createMemory({
-  storage: new InMemoryStorage(),
-  llm: fakeMemoryLlm,
-});
-
-for (let i = 1; i <= 6; i += 1) {
-  const pending = await memory.begin(
-    i === 1
-      ? 'I am moving to a new apartment in Shanghai next month.'
-      : 'More details about the apartment and moving plan ' + i,
-  );
-
-  await memory.completeExchange({
-    exchangeId: pending.id,
-    assistantText: 'Acknowledged moving detail ' + i,
-  });
-}
-
-const worker = await memory.maybeRunTopicWorker();
-if (!worker.ran || worker.reason !== 'accepted') {
-  throw new Error('Topic Worker did not produce an accepted topic set');
-}
-
-const retrieved = await memory.retrieve({
-  userMessage: 'What did I tell you about my move?',
-});
-
-if (!retrieved.memoryContext.includes('MEMORY_SECTION_FROM_TOPIC_STORE')) {
-  throw new Error('Expected a non-empty restored memoryContext');
-}
-
-if (!retrieved.selectedTopicIds.includes('T1')) {
-  throw new Error('Expected selector to restore topic T1');
-}
-
-let hostReceivedMemory = '';
-async function myOwnMainLlm({ memoryContext }) {
-  hostReceivedMemory = memoryContext;
-  return 'Host model reply';
-}
-
-await myOwnMainLlm({
-  userMessage: 'What did I tell you about my move?',
-  memoryContext: retrieved.memoryContext,
-});
-
-if (!hostReceivedMemory.includes('MEMORY_SECTION_FROM_TOPIC_STORE')) {
-  throw new Error('Host Main LLM did not receive memoryContext');
-}
-
-console.log('Fresh consumer smoke test PASS');
-console.log('Selected topics:', retrieved.selectedTopicIds.join(', '));
-console.log('memoryContext chars:', retrieved.memoryContext.length);
+const npmCli=process.env.npm_execpath;
+if(!npmCli)throw new Error('Run with npm run smoke:consumer');
+const root=process.cwd();
+execFileSync(process.execPath,[npmCli,'run','build:native'],{cwd:root,stdio:'inherit'});
+const [packed]=JSON.parse(execFileSync(process.execPath,[npmCli,'pack','--ignore-scripts','--json'],{cwd:root,encoding:'utf8'}));
+const paths=packed.files.map(f=>f.path);
+for(const path of ['dist/index.js','dist/node.js','integrations/runtime/cli.mjs',
+  'integrations/codex/topic-memory/.codex-plugin/plugin.json','integrations/codex/topic-memory/.mcp.json',
+  'integrations/codex/topic-memory/hooks/hooks.json','integrations/codex/topic-memory/dist/index.js',
+  'integrations/codex/topic-memory/integrations/runtime/cli.mjs',
+  'integrations/claude-code/topic-memory/.claude-plugin/plugin.json','integrations/claude-code/topic-memory/.mcp.json'])assert.ok(paths.includes(path),`Missing ${path}`);
+assert.ok(!paths.some(p=>/(^|\/)\.env($|\.)|\.topic-memory|benchmark-results|memory\.json$|activity\.jsonl$/.test(p)),'Private files in package');
+assert.ok(!paths.some(p=>p.startsWith('plugin/')),'Retired setup dashboard in native package');
+const consumer=mkdtempSync(join(tmpdir(),'topic-memory-consumer-'));
+writeFileSync(join(consumer,'package.json'),JSON.stringify({name:'topic-memory-consumer-check',private:true,type:'module'}));
+execFileSync(process.execPath,[npmCli,'install','--offline','--ignore-scripts','--no-audit','--no-fund',resolve(root,packed.filename)],{cwd:consumer,stdio:'inherit'});
+const packageRoot=join(consumer,'node_modules/topic-memory');
+const meta=JSON.parse(readFileSync(join(packageRoot,'package.json'),'utf8'));
+assert.equal(meta.bin['topic-memory'],'./integrations/runtime/cli.mjs');
+const source=String.raw`
+import assert from 'node:assert/strict';
+import {createTopicMemory} from 'topic-memory';
+import {FileMemoryStorage} from 'topic-memory/node';
+const llm={complete:async()=>{throw new Error('No model expected in packaging check')}};
+const memory=createTopicMemory({storage:new FileMemoryStorage('./archive.json'),llm});
+await memory.append({sourceId:'packaging-fixture',userText:'literal 😀 source',assistantText:'fixture response',userSentAt:1000,assistantCompletedAt:2000});
+const reopened=createTopicMemory({storage:new FileMemoryStorage('./archive.json'),llm});
+const evidence=await reopened.open(['pending_1']);
+assert.ok(evidence[0].text.includes('literal 😀 source'));
+assert.equal((await reopened.status()).exchanges,1);
+console.log('Installed SDK persistence and exact originals PASS');
 `;
-
-writeFileSync(join(consumerDir, 'smoke.mjs'), smokeSource);
-
-execFileSync(process.execPath, ['smoke.mjs'], {
-  cwd: consumerDir,
-  stdio: 'inherit',
-});
-
-// Launch the installed package, not the source checkout, with no provider credentials.
-const child = spawn(process.execPath, ['node_modules/topic-memory/bin/topic-memory.mjs','--port','0','--data-dir',join(consumerDir,'plugin-data')], { cwd:consumerDir, stdio:['ignore','pipe','pipe'], windowsHide:true });
-try {
-  const url = await new Promise((resolve,reject) => {
-    let output='';
-    const timer=setTimeout(()=>reject(new Error('Installed plugin did not start within 15 seconds')),15000);
-    child.once('error',error=>{clearTimeout(timer);reject(error);});
-    child.once('exit',code=>{clearTimeout(timer);reject(new Error(`Installed plugin exited early: ${code}`));});
-    child.stdout.on('data',data=>{output+=data;const match=/Open: (http:\/\/127\.0\.0\.1:\d+)/.exec(output);if(match){clearTimeout(timer);resolve(match[1]);}});
+writeFileSync(join(consumer,'check.mjs'),source);
+execFileSync(process.execPath,['check.mjs'],{cwd:consumer,stdio:'inherit'});
+const env={...process.env,TOPIC_MEMORY_HOME:join(consumer,'test-data')};
+function run(script,args=[],input=''){
+  return new Promise((resolve,reject)=>{
+    const child=spawn(process.execPath,[script,...args],{cwd:consumer,env,windowsHide:true,stdio:['pipe','pipe','pipe']});
+    let out='',err='';const timer=setTimeout(()=>{child.kill();reject(new Error('Installed command timeout'));},15000);
+    child.stdout.on('data',b=>out+=b);child.stderr.on('data',b=>err+=b);child.once('error',reject);
+    child.once('close',code=>{clearTimeout(timer);code===0?resolve(out):reject(new Error(err));});child.stdin.end(input);
   });
-  const response=await fetch(url);
-  if(!response.ok || !(await response.text()).includes('config-form'))throw new Error('Installed plugin page failed');
-  console.log('Installed plugin startup and setup page PASS');
-} finally {
-  child.kill('SIGTERM');
-  await new Promise(resolve=>{if(child.exitCode!==null)resolve();else child.once('exit',resolve);});
 }
+const cli=join(packageRoot,'integrations/runtime/cli.mjs');
+assert.equal(JSON.parse(await run(cli)).exchanges,0);
+const event={cwd:consumer,session_id:'fixture-session',turn_id:'fixture-turn'};
+await run(cli,['hook'],JSON.stringify({...event,hook_event_name:'UserPromptSubmit',prompt:'Fixture question'}));
+await run(cli,['hook'],JSON.stringify({...event,hook_event_name:'Stop',last_assistant_message:'Fixture answer'}));
+assert.equal(JSON.parse(await run(cli,['status'])).exchanges,1);
+for(const host of ['codex','claude-code']){
+  const bundled=join(packageRoot,`integrations/${host}/topic-memory/integrations/runtime/cli.mjs`);
+  const reqs=[{jsonrpc:'2.0',id:1,method:'initialize',params:{protocolVersion:'2024-11-05'}},
+    {jsonrpc:'2.0',id:2,method:'tools/list'},
+    {jsonrpc:'2.0',id:3,method:'tools/call',params:{name:'memory_open',arguments:{topicIds:['pending_1']}}}];
+  const replies=(await run(bundled,['mcp'],reqs.map(q=>JSON.stringify(q)).join('\n')+'\n')).trim().split('\n').map(JSON.parse);
+  assert.equal(replies[0].result.serverInfo.name,'topic-memory');assert.equal(replies[1].result.tools.length,2);
+  assert.ok(JSON.parse(replies[2].result.content[0].text).evidence[0].text.includes('Fixture question'));
+}
+console.log('Fresh package: default command, capture hooks, and both bundled MCP servers PASS');
+console.log(JSON.stringify({tarball:packed.filename,files:paths.length,consumerDirectory:consumer}));

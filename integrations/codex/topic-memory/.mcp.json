@@ -1,0 +1,3 @@
+{
+  "mcpServers": {"topic-memory":{"command":"node","args":["${PLUGIN_ROOT}/integrations/runtime/cli.mjs","mcp"],"env_vars":["TOPIC_MEMORY_HOME","TOPIC_MEMORY_API_KEY"],"tool_timeout_sec":180}}
+}

@@ -1,73 +1,71 @@
-# Evaluation / 效果验证
+# Validation status — 2026-09-27
 
-## v0.2 plugin diagnostics
+Topic cards are short retrieval cues, not a claim that every conversation has one objectively correct grouping. The result that matters is whether the selected, timestamped originals contain the needed evidence within a bounded budget. The Worker indexes completed records in batches; the Selector runs only when the host requests historical memory. The core preserves old originals and validates card assignments and any source-cited links. Those structural checks cannot establish semantic accuracy.
 
-The local plugin offers real-model testing on its setup page without `.env` editing. Save your model settings, then run the comparison; alternatively run `npm run evaluate:plugin`. The live test performs repeated topic indexing during sequential ingestion (turns 6, 9, 12, 15, 18, 21 and 24), and compares four questions against recent-five/full-transcript/topic-memory context. Reports include raw answers, worker errors and all provider calls. It uses synthetic material but real models for indexing, selection and answers. See [plugin guide](./PLUGIN.md).
+The current code passed **95 core + 12 native program checks**. A fresh 232-file package installed in an empty directory and passed SDK persistence, exact-original, hook and bundled MCP checks. Offline regressions placed an answer in the middle of a 100-record family, covered 200 interleaved records whose span metadata could crowd out evidence, and checked first/latest plus two-ended comparison paging under a small budget. The public `open(offset)` interface still reconstructed the original archive in order. These check paging mechanics, not model reasoning or paraphrase retrieval.
 
-On 2026-09-17, the v0.2 source passed 21 automated tests and an installed-package startup check locally on Windows/Node 24. These tests use controlled local providers to check protocols and logic, not model quality. The interleaved-topic regression checks that early open-topic spans remain indexed when a later topic is finalized. File persistence, restart recovery, session isolation, request serialization, local authentication and SSE format are also exercised. CI validates the release commit separately.
+On 2026-09-27, the shorter Worker prompt and Selector were called through the NVIDIA `nvidia/nemotron-3-super-120b-a12b` Chat Completions API on **eight authored user/assistant record pairs**. The Worker output was accepted. Two historical questions each required three specific saved records; both returned all three exact originals. The travel question returned five records in 1,465 evidence bytes, and the pet-care question returned six in 1,929 bytes, under the fixed 8,000-byte evidence limit. The former included two extra records and the latter three; extra evidence is a budget cost, not an automatic retrieval failure. This run made **one Worker and two Selector requests**, with provider-reported **2,911 input + 2,536 output tokens**. The subsequent long-page changes above were checked offline, not by another model call. No main-model final answers were tested.
 
-No general model-accuracy or cost-improvement claim follows from these tests. A live report is not available until a user configures a provider and runs it.
+An earlier Worker output had placed travel and pet-care records in one broad family. Replaying that saved output through the real current Selector also recovered all three required originals for each of the same two questions. It used three Selector requests, **2,314 input + 1,193 output tokens**, and returned roughly 1.7 KB of evidence per question. This is a diagnostic of the old grouping, not an independent long-history result. An initial sandboxed attempt could not reach the API and reported no usage; unknown usage is not counted as zero. Earlier Node transport timeouts and superseded exact-family-count gates are historical diagnostics, not current semantic failures.
 
-## Earlier v0.1 evidence
+These are small, authored replay checks, **not 200 live chat turns**. The planned LoCoMo long-history comparison has 355 saved records and 30 questions, of which 24 have annotated evidence; current-code full indexing, retrieval, final-answer quality and total-token comparison have not been completed. There is no measured maximum stable history length, verified advantage over simple or hybrid search, or proof of total token savings. Missing literal or card terms can still miss a middle record; cross-record comparisons can require more than one evidence page. Earlier segment-only results below use a different implementation and cannot be credited to this family version.
 
-On 2026-09-13, the public `topic-memory@0.1.0` package was installed into a fresh Node 24 project and used to retrieve an old hotel exchange with a scripted model adapter. The source build, 14 existing SDK tests and fresh-consumer tarball test passed locally on Windows. See CI for checks against the latest revision.
+## Earlier segment-only live validation — 2026-09-18
 
-The checked-in [scripted result](./evaluation/scripted.json) covers four cases: Tokyo hotel details, a food allergy, a project decision, and an unknown passport number. The three positive facts occur outside the most recent five exchanges.
+This is a small development evaluation, not a population accuracy benchmark or a long-context limit measurement. Test scenarios are fictional and deliberately authored. Assistant replies, Topic Worker outputs, Selector outputs and final answers came from a real `gpt-5.6-luna` model through the existing Codex login.
 
-**These checks demonstrate mechanics. They do not establish real-model accuracy, latency, token savings, production readiness, or performance on long conversations.** No real-model result is published here yet.
+## Protocol
 
-中文：已验证公开包的安装和预设响应下的原文恢复。预设测试不等于真实模型效果；目前还没有发布真实模型的准确率、速度或费用结论。
+Twelve authored user messages were submitted sequentially, with previous real replies available during normal conversation. The SDK saved those exact replies. Two successful Worker batches (8 + 4 exchanges) produced eight immutable topic cards. The final four-record batch was explicitly flushed by the harness. Record timestamps were fixed test metadata, not the wall clock of model generation.
 
-## Reproduce the scripted checks
+Nine questions were then asked separately in fresh, ephemeral model contexts. Main-model native memory, shell, browsing, other plugins and unrelated tools were disabled for the formal comparison. Retrieval questions did not include their answers. The model chose when to invoke the memory tools.
 
-```bash
-npm ci
-npm run evaluate
-```
+Methods:
 
-The SDK ingests a public, synthetic, 24-exchange conversation. Its actual topic validation and span recovery run normally. Worker topic boundaries and selector choices are scripted. This makes the walkthrough stable and useful for debugging the integration, while explicitly removing model quality from the test.
+1. No previous history and no memory tools.
+2. The same original archive in fixed four-exchange chunks, local keyword/BM25 search, up to three chunks; no Worker or Selector model.
+3. The same archive through Topic Memory: short directory, model selection, optional original inspection, exact source return.
 
-For the missing fact, the scripted selector chooses no topic and the SDK returns an empty `memoryContext`. This does not prove that an arbitrary main model will abstain.
+The six historical questions cover initial facts, current facts, changes, multiple topics, paraphrases and record times. One question asks for an absent flight number. Two ordinary questions check unnecessary retrieval. Literal checks were reviewed against the real answers and returned sources; an abstention wording missed by the initial checker was corrected without rerunning models.
 
-## Run the real-model comparison
+## Results
 
-Requires Node 20.6+. Copy `.env.example` to `.env`, configure your provider, then run:
+| Method | Historical answers | Unknown fact | Ordinary questions without recall |
+|---|---:|---|---:|
+| No history | 0/6 | Abstained | 2/2 |
+| Fixed chunks + keyword search | 6/6 | Abstained | 2/2 |
+| Topic Memory | 6/6 | Abstained | 2/2 |
 
-```bash
-npm run evaluate:live
-```
+Both retrieval methods recovered unavailable history. This small archive did not demonstrate a quality advantage for the topic architecture over simple search.
 
-The command makes real provider requests and may incur charges. It sends only the checked-in synthetic dataset and questions, not private chat history. The API key stays in the request header and is not written into the report. Output is saved locally to the ignored `benchmark-results/live.json` file.
+## Complete token accounting
 
-The small comparison uses the **same final-answer model, system instruction and question** for:
+Reported input tokens include cached input. Reported output tokens include reasoning output; these are not added a second time. Shared history-generation cost is separated from the retrieval comparison.
 
-1. **Recent five:** only the latest five exchanges.
-2. **Full transcript:** all 24 exchanges.
-3. **Topic memory:** the latest five exchanges plus SDK-retrieved original topic packets.
+| Stage | Input tokens | Output tokens |
+|---|---:|---:|
+| Shared 12-turn history generation | 29,360 | 648 |
+| No-history answers | 33,816 | 938 |
+| Keyword-search answers, including tool continuations | 110,347 | 1,509 |
+| Topic Memory main answers, including tool continuations | 96,137 | 1,577 |
+| Topic Memory Selector: 8 requests | 23,523 | 567 |
+| Topic Memory Worker: 2 committed batches | 5,978 | 825 |
+| Additional Worker attempt whose file commit failed | 2,967 | 404 |
 
-The live worker constructs topics in one batch over the archive. The selector uses the actual model for each question. Questions are independent: their answers are not added back into the archive. Expected answers and scoring rules are never included in the model's input.
+Successful Topic Memory indexing + selection + answers total **128,607** input and output tokens, versus **111,856** for keyword search: about **15% more** in this sample. Including the failed Worker attempt, Topic Memory consumed **131,978**. Comparing only the main model would hide the additional memory-model cost.
 
-The run normally makes 1 worker request, 4 selector requests and 12 main-model requests (17 total). If topic construction fails, the report records this and the memory method can fall back to recent context; it is not silently counted as success.
+Main-answer elapsed totals were 225 seconds for Topic Memory and 162 seconds for keyword search. These sequential single-run timings are not performance guarantees. Codex protocol and instruction overhead is included. No API dollar price or Plus quota conversion is inferred. Earlier transport/configuration probes are excluded from quality scores and retained in the private development ledger.
 
-## What the report measures
+## Integration and packaging checks
 
-- Raw model answers for each question and method.
-- A transparent literal check for the expected facts. For the unknown fact, a conservative English abstention pattern is checked. Read the answers: this is not a semantic judge and may score a valid paraphrase incorrectly or miss a contradiction.
-- Selected topic IDs, recovered source text, expected evidence sequence numbers, and selector errors.
-- Per-request elapsed milliseconds, including network latency.
-- Input and output token usage **only when the provider reports it**. Missing usage is `null`, not zero.
+The Windows native Codex check used separate real sessions: one saved a fictional identifier; a fresh session recovered it through an actual MCP call without the answer in the question. The same save/restart/retrieve flow was checked after installing the actual plugin bundle, without manually adding project hooks or MCP settings. Tested host: Codex CLI 0.155.0-alpha.2.6, Node 24.15.0.
 
-For a fair total token comparison, count the one-time worker construction cost, all selector requests and all topic-memory main-model requests. Show construction separately if amortizing it across later queries. Do not compare the topic method's main-model tokens alone against a baseline's total spend. Prices are not hard-coded; apply the provider's actual rates to recorded usage if you need a monetary estimate.
+Initial installation exposed a literal plugin-path placeholder problem; the installer now resolves that path on the user's machine. Windows transient file locking was also observed and handled with bounded retries. Early headless hook probes did not capture automatically; headless automatic capture is not claimed as supported.
 
-The `memoryCharacters` and `selectorInputCharacters` fields are string lengths, **not token estimates**.
+Program tests cover exact originals, indexing gates, rejection, deduplication, frozen segments, interleaved spans, paging, persistence, concurrent capture, project isolation, MCP transport and installation conflicts. Package checks install the produced archive into an empty directory and run its own bundled code. Fixture-based program tests are not model-quality evidence.
 
-## Limits and next experiments
+Claude Code has no live validation. There is no measured maximum stable number of conversation turns, no claim that these 12 exchanges exceeded a context window, no long-term reliability estimate, and no verified superiority over built-in host memory.
 
-Four hand-written questions over 24 synthetic exchanges are a small integration evaluation. They are not representative of hundreds or thousands of turns. There is one run per method, no confidence interval, no summary/vector-search baseline, and no continuous-ingestion measurement.
+The prior 0.2 scripted walkthrough and `docs/evaluation/scripted.json` are legacy mechanics fixtures. They do not support any of the live results above.
 
-Before making performance claims, add held-out conversation sets with updates to facts, interleaved topics, similar names, time questions, irrelevant questions, and materially longer archives. Repeat runs and disclose the models, prompts, failures and complete provider usage. Compare against a rolling-summary or retrieval baseline appropriate to the host application.
-
-## The earlier 8.3× figure
-
-The [architecture appendix](./ARCHITECTURE.md) contains a capacity calculation under assumed message and topic sizes. It is not an empirical result and must not be presented as measured memory accuracy or capacity improvement.
-
+Machine-readable authored history, answers and usage: [live-0.3.json](./evaluation/live-0.3.json).
