@@ -1,5 +1,8 @@
 node_modules/
 dist/
+build-product/
+.npm-cache/
+.consumer-smoke/
 .test-dist/
 .site-dist/
 .env
