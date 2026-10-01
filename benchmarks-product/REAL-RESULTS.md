@@ -47,6 +47,17 @@ took about 0.69 seconds. These small local timings do not establish a speed
 advantage; product query handling was often slower because it resolves exact
 transcript rows after ranking.
 
+A replay after the app-specific `excludeTurnIds` addition reused all eight
+cached batches with **zero new embedding requests** and preserved the category
+results above (`results/live-2026-10-01T14-53-03-761Z/report.json`). That
+parameter was absent from the comparison calls, so this checks only for an
+unintended default-path regression. Across all benchmark operations, the
+report counts 106 document / 15 query logical embedding invocations upstream
+and 212 document / 23 query invocations in the product. These totals include
+the product-only rebuild and additional supported correction/recovery queries;
+they are **not a matched per-chat cost comparison**. An uncached rebuild can
+require paid re-embedding of authoritative sources.
+
 The correction comparison uses upstream's native heuristic
 `conflict_behavior=supersede` for user messages versus the product's explicit
 source-ID correction for both roles. It measures the supported API behaviors,
