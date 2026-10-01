@@ -34,10 +34,13 @@ are likewise **not evidence of real-model quality or speed**.
 
 The live harness is bounded to eight batched NVIDIA embedding requests for 108
 document strings and 16 query strings. Automatic approval review rejected that
-external run before any request was sent. Its stated reason was that sending
+initial external run before any request was sent. Its stated reason was that sending
 benchmark conversation content with a local credential to NVIDIA posed
 unacceptable risk, and it asserted the user had not authorized the payload and
 destination. An audit of existing local real-model records found **0/108** exact
 document vectors and **0/16** exact query vectors, so an offline replay with the
-requested model was not possible. Physical provider calls and measured provider
-tokens for this run were zero; monetary cost was not calculated.
+requested model was not possible at that time. A later authorized attempt completed
+all eight embedding batches but failed on a local Git trust check before writing a
+comparison report; that runner had no batch cache. The offline smoke run reported
+here used zero provider calls and zero provider tokens. Monetary cost was not
+calculated.

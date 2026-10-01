@@ -19,8 +19,13 @@ systems then receive the same normalized vectors from memory. The harness makes 
 generative-model calls, retries, or unplanned embedding calls. The live JSON report
 records physical request counts, observed prompt tokens if supplied, provider
 latency, per-side logical embedding calls, and engine-operation latency. It does
-not calculate a monetary amount from unverified pricing. Credentials and vectors
-are neither printed nor saved by the harness.
+not calculate a monetary amount from unverified pricing. Credentials and plaintext
+corpus are never written to the vector cache or report. Successful normalized
+vector batches are atomically saved in ignored `.vector-cache/` files named by a
+digest of the model, endpoint, purpose, and exact input strings. A rerun verifies
+and reuses matching batches before making any new request. The report separates
+new physical requests and their usage from reused batches and their original
+usage. Missing provider usage is recorded as unknown.
 
 The baseline corpus has 50 exchanges and 100 visible messages across two sessions.
 Each system receives the same exact strings, IDs, roles, timestamps, and session
@@ -36,10 +41,13 @@ report distinguishes node-ID-to-text fidelity from `source_trace.source_id`
 attribution, and tests surviving assistant echoes separately from user-source
 supersession.
 
-The attempted live run on 2026-10-01 was stopped by automatic approval review
+An initial live attempt on 2026-10-01 was stopped by automatic approval review
 before any request was sent. The review said transmitting benchmark conversation
 content with a local credential to NVIDIA posed unacceptable risk and asserted the
-user had not authorized that payload and destination. The existing local real-model
-cache covers **0/108** exact document inputs and **0/16** exact query inputs, so
-offline replay of this fixture is unavailable. No real-model comparison result is
-claimed from the smoke run.
+user had not authorized that payload and destination. A later authorized attempt
+completed the eight embedding batches but failed at a local Git trust check before
+writing a report; that earlier runner did not cache vectors. This revision moves
+the Git and import checks before provider work and saves each successful batch.
+No real-model comparison result is claimed from a smoke run. Before the later
+attempt, local historical cache coverage was **0/108** exact document inputs and
+**0/16** exact query inputs.

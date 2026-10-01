@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { performance } from 'node:perf_hooks';
@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process';
 import { buildUpstream } from './build-upstream.mjs';
 import { createEmbeddingPool, createSmokePool } from './embedding.mjs';
 import { productAdapter, upstreamAdapter } from './adapters.mjs';
+import { verifyVectorCache } from './cache-smoke.mjs';
 import {
   BASE_TIME, baselineTurns, recallCases, correctionTurns, correctionQueries,
   failureTurn, failureQuery, allEmbeddingInputs,
@@ -17,6 +18,28 @@ if (![...args].every((arg) => ['--prepare', '--smoke', '--live'].includes(arg)) 
   throw new Error('Use exactly one mode: node benchmarks-product/run.mjs --prepare | --smoke | --live');
 }
 const upstreamBuild = buildUpstream();
+const productDir = resolve(here, '..');
+const productCommit = execFileSync('git', [
+  '-c', `safe.directory=${productDir.replaceAll('\\', '/')}`, 'rev-parse', 'HEAD',
+], { cwd: productDir, encoding: 'utf8', windowsHide: true }).trim();
+// Resolve local source and imports before any provider request.
+const { create_memory } = await import(pathToFileURL(upstreamBuild.entry).href);
+// Exercise both SQLite/native entry points and result-directory writes before
+// provider work. An empty session never requests an embedding.
+const resultsRoot = join(here, 'results');
+mkdirSync(resultsRoot, { recursive: true });
+const preflightDir = mkdtempSync(join(resultsRoot, 'preflight-'));
+const noEmbedding = { name: 'preflight-only', dimension: 8,
+  embed: async () => { throw new Error('Unexpected embedding in local preflight'); } };
+const preflightProduct = productAdapter(preflightDir, noEmbedding);
+const preflightUpstream = upstreamAdapter(preflightDir, create_memory, noEmbedding);
+try {
+  await preflightProduct.history('empty');
+  await preflightUpstream.explain('empty', 'missing');
+  writeFileSync(join(preflightDir, 'ok.json'), JSON.stringify({ productCommit, upstreamCommit: upstreamBuild.head }));
+} finally {
+  await Promise.allSettled([preflightProduct.close(), preflightUpstream.close()]);
+}
 const fixtureSources = new Map([...baselineTurns, ...correctionTurns, failureTurn]
   .flatMap((turn) => ['user', 'assistant'].map((role) => [`${turn.turnId}:${role}`, {
     sessionId: turn.sessionId, turnId: turn.turnId, role, text: turn[role], recordedAt: turn.recordedAt,
@@ -43,18 +66,16 @@ const pool = smoke ? createSmokePool(allInputs) : await createEmbeddingPool(allI
   apiKey: process.env.NVIDIA_API_KEY,
   model, baseUrl: process.env.NVIDIA_BASE_URL ?? 'https://integrate.api.nvidia.com/v1', dimension: 2048,
 });
-const { create_memory } = await import(pathToFileURL(upstreamBuild.entry).href);
 const runId = `${smoke ? 'smoke' : 'live'}-${new Date().toISOString().replaceAll(':', '-').replaceAll('.', '-')}`;
 const outDir = join(here, 'results', runId);
 mkdirSync(outDir, { recursive: true });
+const cacheSelfTest = smoke ? await verifyVectorCache(join(outDir, 'cache-self-test')) : null;
 
 const report = {
   manifest: {
     mode: smoke ? 'offline harness smoke; no real-model quality claims' : 'live real-embedding comparison',
     upstreamCommit: upstreamBuild.head,
-    productCommit: execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: resolve(here, '..'), encoding: 'utf8', windowsHide: true,
-    }).trim(),
+    productCommit,
     embeddingProvider: smoke ? 'deterministic local hash for harness validation' : 'NVIDIA NIM',
     embeddingModel: model, dimension: smoke ? 64 : 2048,
     inputFairness: 'Both systems ingest the same exact user and assistant strings, IDs, roles, sessions, and timestamps. Explicit source correction and transcript recovery are product features; upstream receives its native conflict_behavior=supersede for correction.',
@@ -62,8 +83,11 @@ const report = {
       ? 'This smoke run uses local vectors only. Its retrieval quality and latency are not comparable to the requested real-model benchmark.'
       : 'The same real NVIDIA vectors are prefetched once and served from a shared in-memory cache. Operation latency excludes provider network time; provider latency is reported separately.',
     noGenerativeCalls: true,
+    ...(cacheSelfTest ? { cacheSelfTest } : {}),
   },
-  embeddings: { physical: pool.physical, uniqueInputs: pool.uniqueInputs, logical: pool.logical },
+  embeddings: { physical: pool.physical, reused: pool.reused, batches: pool.batches,
+    newPhysicalCalls: pool.physical.length, reusedBatches: pool.reused.length,
+    uniqueInputs: pool.uniqueInputs, logical: pool.logical },
   categories: {},
   caveats: [
     `The fixture has ${baselineTurns.length} baseline turns across two sessions, not production scale.`,
@@ -333,6 +357,14 @@ report.embeddings.physicalInputTokensObserved = pool.physical.length === 0
     ? usageBearingCalls.reduce((total, call) => total + call.promptTokens, 0)
     : null;
 report.embeddings.physicalInputTokensUsageCalls = usageBearingCalls.length;
+const reusedWithUsage = pool.reused.filter((batch) => batch.promptTokens !== null);
+report.embeddings.reusedOriginalInputTokensObserved = pool.reused.length === 0
+  ? 0
+  : reusedWithUsage.length === pool.reused.length
+    ? reusedWithUsage.reduce((total, batch) => total + batch.promptTokens, 0)
+    : null;
+report.embeddings.reusedOriginalInputTokensUsageBatches = reusedWithUsage.length;
+report.embeddings.missingUsageBatches = pool.batches.filter((batch) => batch.usage === 'unknown').length;
 report.embeddings.monetaryCost = 'not calculated; provider billing and current pricing were not independently verified';
 report.summary = Object.fromEntries(Object.entries(report.categories).map(([name, rows]) => [name, {
   cases: rows.length,
@@ -349,4 +381,6 @@ report.summary = Object.fromEntries(Object.entries(report.categories).map(([name
 }]));
 writeFileSync(join(outDir, 'report.json'), JSON.stringify(report, null, 2));
 console.log(JSON.stringify({ report: join(outDir, 'report.json'), summary: report.summary,
-  embeddingPhysicalCalls: pool.physical.length, embeddingLogicalCalls: pool.logical }, null, 2));
+  embeddingPhysicalCalls: pool.physical.length, embeddingReusedBatches: pool.reused.length,
+  embeddingPhysicalInputTokensObserved: report.embeddings.physicalInputTokensObserved,
+  embeddingLogicalCalls: pool.logical }, null, 2));
