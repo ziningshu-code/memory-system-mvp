@@ -70,6 +70,76 @@ test('explicit correction supersedes current evidence but retains exact history'
   await memory.close();
 });
 
+test('same turnId retries reject changed correction or explicit time metadata', async () => {
+  const memory = createMemory(config(db()));
+  await memory.remember({ sessionId: 'trip', turnId: 'A', recordedAt: 1000,
+    user: '东京酒店是 Sakura Hotel。', assistant: '收到。' });
+  await memory.remember({ sessionId: 'trip', turnId: 'X', recordedAt: 1100,
+    user: '巴黎酒店是 Blue Hotel。', assistant: '收到。' });
+  const correction = { sessionId: 'trip', turnId: 'B', recordedAt: 2000, validFrom: 1500,
+    supersedesSourceId: 'A:assistant', user: '东京酒店改为 Maple Hotel。', assistant: '收到。' };
+  await memory.remember(correction);
+  await memory.remember({ ...correction, supersedesSourceId: 'A:user' });
+  await assert.rejects(() => memory.remember({ ...correction, supersedesSourceId: 'X:user' }),
+    /different correction or time metadata/);
+  await assert.rejects(() => memory.remember({ ...correction, supersedesSourceId: undefined }),
+    /different correction or time metadata/);
+  await assert.rejects(() => memory.remember({ ...correction, recordedAt: 2001 }),
+    /different correction or time metadata/);
+  await assert.rejects(() => memory.remember({ ...correction, validFrom: 1600 }),
+    /different correction or time metadata/);
+  await assert.rejects(() => memory.remember({ ...correction, validFrom: undefined }),
+    /different correction or time metadata/);
+
+  await memory.remember({ sessionId: 'trip', turnId: 'plain', recordedAt: 3000,
+    user: '另外订了火车票。', assistant: '收到。' });
+  await memory.remember({ sessionId: 'trip', turnId: 'plain',
+    user: '另外订了火车票。', assistant: '收到。' });
+  assert.equal((await memory.history('trip')).filter((source) => source.turnId === 'plain').length, 2);
+  await memory.close();
+});
+
+test('restart repairs a correction edge after its predecessor embedding recovers', async () => {
+  const dbPath = db();
+  let predecessorUnavailable = true;
+  let correctionEmbeds = 0;
+  const embed = async (text) => {
+    if (text === '东京酒店是 Sakura Hotel。' && predecessorUnavailable) {
+      throw new Error('temporary embedding outage');
+    }
+    if (text === '东京酒店改为 Maple Hotel。') correctionEmbeds++;
+    return vector(text);
+  };
+  const first = createMemory(config(dbPath, embed));
+  assert.deepEqual((await first.remember({ sessionId: 'trip', turnId: 'A', recordedAt: 1000,
+    user: '东京酒店是 Sakura Hotel。', assistant: '收到。' })).failed, ['A:user']);
+  assert.deepEqual((await first.remember({ sessionId: 'trip', turnId: 'B', recordedAt: 2000,
+    supersedesSourceId: 'A:user', user: '东京酒店改为 Maple Hotel。', assistant: '收到。' })).failed, []);
+  await first.close();
+
+  const initialCorrectionEmbeds = correctionEmbeds;
+  const stillUnavailable = createMemory(config(dbPath, embed));
+  await stillUnavailable.history('trip');
+  assert.equal(correctionEmbeds, initialCorrectionEmbeds);
+  await stillUnavailable.close();
+
+  predecessorUnavailable = false;
+  const recovered = createMemory(config(dbPath, embed));
+  const history = await recovered.history('trip');
+  assert.equal(history.find((source) => source.sourceId === 'A:user').derivationStatus, 'indexed');
+  assert.equal(history.find((source) => source.sourceId === 'A:user').supersededBy, 'B:user');
+  assert.ok(!(await recovered.recall({ sessionId: 'trip', query: '东京酒店是哪家？' })).sources
+    .some((source) => source.sourceId === 'A:user'));
+  await recovered.close();
+
+  const { SqliteStore } = await import('../build-product/longmemory/stores/sqlite/sqlite_store.js');
+  const store = new SqliteStore(dbPath, { tenant_id: 'local', user_id: JSON.stringify(['default', 'trip']) });
+  assert.ok(store.load_edges().some((edge) => edge.type === 'supersedes'
+    && edge.from === 'B:user' && edge.to === 'A:user'));
+  assert.equal(store.load_node('A:user').state.status, 'superseded');
+  store.close();
+});
+
 test('embedding failure does not lose exact source and rebuild can repair it', async () => {
   const dbPath = db();
   let fail = true;

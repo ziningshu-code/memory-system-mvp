@@ -219,6 +219,22 @@ export function createMemory(config: MemoryConfig) {
     }
   };
 
+  const rebuildDerived = async (state: SessionState): Promise<{ indexed: number; failed: number }> => {
+    await state.engine.close();
+    try {
+      state.transcript.clearDerived();
+    } finally {
+      state.engine = openEngine(state.sessionId);
+    }
+    let indexed = 0;
+    let failed = 0;
+    for (const source of state.transcript.listDerivable(state.sessionId)) {
+      if (await derive(state, source)) indexed++;
+      else failed++;
+    }
+    return { indexed, failed };
+  };
+
   const openState = async (sessionId: string): Promise<SessionState> => {
     if (!sessionId || typeof sessionId !== 'string') throw new Error('sessionId is required');
     const existing = sessions.get(sessionId);
@@ -236,8 +252,19 @@ export function createMemory(config: MemoryConfig) {
     }
     const state: SessionState = { transcript, engine, sessionId };
     sessions.set(sessionId, state);
-    for (const source of transcript.listDerivable(sessionId)) {
-      if (source.derivationStatus !== 'indexed') await derive(state, source);
+    const sourcesAtOpen = transcript.listDerivable(sessionId);
+    const recovered = new Set<string>();
+    for (const source of sourcesAtOpen) {
+      if (source.derivationStatus !== 'indexed' && await derive(state, source)) {
+        recovered.add(source.sourceId);
+      }
+    }
+    // A previously indexed correction could not link to its predecessor while
+    // that predecessor's embedding was unavailable. Repair that graph once the
+    // predecessor recovers; a persistent outage does not trigger a rebuild.
+    if (recovered.size && sourcesAtOpen.some((source) => source.derivationStatus === 'indexed'
+      && source.supersedesSourceId && recovered.has(source.supersedesSourceId))) {
+      await rebuildDerived(state);
     }
     return state;
   };
@@ -255,7 +282,8 @@ export function createMemory(config: MemoryConfig) {
       return run(input.sessionId, async (state) => {
         const turnId = input.turnId ?? randomUUID();
         const recordedAt = input.recordedAt ?? Date.now();
-        const pair = state.transcript.recordExchange({ ...input, turnId, recordedAt });
+        const pair = state.transcript.recordExchange({ ...input, turnId, recordedAt,
+          recordedAtExplicit: input.recordedAt !== undefined });
         const indexed: string[] = [];
         const failed: string[] = [];
         for (const source of pair) {
@@ -359,21 +387,7 @@ export function createMemory(config: MemoryConfig) {
     },
 
     rebuild(sessionId: string) {
-      return run(sessionId, async (state) => {
-        await state.engine.close();
-        try {
-          state.transcript.clearDerived();
-        } finally {
-          state.engine = openEngine(sessionId);
-        }
-        let indexed = 0;
-        let failed = 0;
-        for (const source of state.transcript.listDerivable(sessionId)) {
-          if (await derive(state, source)) indexed++;
-          else failed++;
-        }
-        return { indexed, failed };
-      });
+      return run(sessionId, rebuildDerived);
     },
 
     erase(input: { sessionId: string; sourceId: string }) {

@@ -74,6 +74,7 @@ export class TranscriptStore {
     user: string;
     assistant: string;
     recordedAt: number;
+    recordedAtExplicit?: boolean;
     validFrom?: number;
     supersedesSourceId?: string;
   }): [ConversationSource, ConversationSource] {
@@ -92,6 +93,18 @@ export class TranscriptStore {
         if (existing.length !== 2 || existing[0].role !== 'user' || existing[1].role !== 'assistant'
           || existing[0].exact_text !== input.user || existing[1].exact_text !== input.assistant) {
           throw new Error('turnId already exists with different conversation text');
+        }
+        const selected = input.supersedesSourceId ? this.getSource(input.supersedesSourceId) : null;
+        const supersedesUserId = selected && selected.sessionId === input.sessionId
+          ? `${selected.turnId}:user` : null;
+        if ((input.supersedesSourceId && !supersedesUserId)
+          || existing[0].supersedes_source_id !== supersedesUserId
+          || existing[1].supersedes_source_id !== (supersedesUserId ? `${selected!.turnId}:assistant` : null)
+          || (input.recordedAtExplicit && (existing[0].recorded_at !== input.recordedAt
+            || existing[1].recorded_at !== input.recordedAt))
+          || existing[0].valid_from !== (input.validFrom ?? null)
+          || existing[1].valid_from !== (input.validFrom ?? null)) {
+          throw new Error('turnId already exists with different correction or time metadata');
         }
         return [fromRow(existing[0]), fromRow(existing[1])];
       }
