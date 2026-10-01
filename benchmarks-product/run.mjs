@@ -50,6 +50,16 @@ const allInputs = {
     'Do I currently live in Beijing?', 'Do I currently live in Shenzhen?',
     'Do I currently live in Shanghai?'],
 };
+// Added after seeing the first live correction misses. These negative
+// query/session pairs use vectors already in the fixed input pool; report them
+// separately as post-hoc stress checks, never as an independent holdout.
+const postHocNoMemoryCases = [
+  { id: 'residence-primary', sessionId: 'primary', query: 'Where do I live now?', expected: null },
+  { id: 'residence-secondary', sessionId: 'secondary', query: 'Where do I live now?', expected: null },
+  { id: 'beijing-primary', sessionId: 'primary', query: 'Do I currently live in Beijing?', expected: null },
+  { id: 'submarine-secondary', sessionId: 'secondary',
+    query: 'What is the serial number of my private submarine?', expected: null },
+];
 
 if (args.has('--prepare')) {
   console.log(JSON.stringify({ mode: 'prepared', upstreamCommit: upstreamBuild.head,
@@ -61,6 +71,10 @@ if (args.has('--prepare')) {
 }
 
 const smoke = args.has('--smoke');
+const productSimilarity = smoke ? 0 : Number(process.env.BENCH_PRODUCT_MIN_SIM ?? '0.35');
+if (!Number.isFinite(productSimilarity) || productSimilarity < 0 || productSimilarity > 1) {
+  throw new Error('BENCH_PRODUCT_MIN_SIM must be between 0 and 1');
+}
 const model = smoke ? 'smoke-hash-only (not a real embedding model)' : process.env.NVIDIA_EMBED_MODEL;
 const pool = smoke ? createSmokePool(allInputs) : await createEmbeddingPool(allInputs, {
   apiKey: process.env.NVIDIA_API_KEY,
@@ -78,6 +92,7 @@ const report = {
     productCommit,
     embeddingProvider: smoke ? 'deterministic local hash for harness validation' : 'NVIDIA NIM',
     embeddingModel: model, dimension: smoke ? 64 : 2048,
+    productMinSemanticSimilarity: productSimilarity,
     inputFairness: 'Both systems ingest the same exact user and assistant strings, IDs, roles, sessions, and timestamps. Explicit source correction and transcript recovery are product features; upstream receives its native conflict_behavior=supersede for correction.',
     warmVectorCaveat: smoke
       ? 'This smoke run uses local vectors only. Its retrieval quality and latency are not comparable to the requested real-model benchmark.'
@@ -96,6 +111,7 @@ const report = {
     'A correct node ID and exact raw text are reported separately from provenance source_trace.source_id.',
     'Correction cases compare upstream native heuristic conflict handling with the product explicit source-ID correction API; they do not supply equal correction hints.',
     'The paired-turn correction check only covers assistant messages in the explicitly corrected turn; unrelated later repetitions are outside this fixture.',
+    'Post-hoc no-memory query/session pairs reuse planned vectors and are diagnostic stress checks, not independent holdout validation.',
   ],
 };
 
@@ -131,7 +147,7 @@ function recallStatus(testCase, result, embeddingCalls) {
   const pass = found && isolated && !result.error;
   return status(pass, { expected: testCase.expected, ...checks,
     top1Expected: testCase.expected !== null && checks.ids[0] === testCase.expected,
-    error: result.error }, result.latencyMs, embeddingCalls);
+    error: result.error, trace: result.trace }, result.latencyMs, embeddingCalls);
 }
 function exactStatus(actual, expected, sequence) {
   const fields = {
@@ -151,7 +167,7 @@ function sequenceFor(turn, role) {
 
 const baselineDir = join(outDir, 'baseline');
 mkdirSync(baselineDir);
-const product = productAdapter(baselineDir, pool.providerFor('product'), smoke ? 0 : 0.45);
+const product = productAdapter(baselineDir, pool.providerFor('product'), productSimilarity);
 const upstream = upstreamAdapter(baselineDir, create_memory, pool.providerFor('upstream'));
 try {
   const ingestion = { upstream: [], product: [] };
@@ -209,6 +225,12 @@ try {
           && pSource.derivedTextMatchesId === pSource.returnedCount, pSource, p.latencyMs));
     }
   }
+  for (const item of postHocNoMemoryCases) {
+    const u = await upstream.recall(item.sessionId, item.query);
+    const p = await product.recall(item.sessionId, item.query);
+    add('post-hoc no-memory stress', item.id,
+      recallStatus(item, u, null), recallStatus(item, p, null));
+  }
 
   const historyBefore = await product.history('primary');
   const pBefore = calls('product');
@@ -233,7 +255,7 @@ try {
 
 const correctionDir = join(outDir, 'correction');
 mkdirSync(correctionDir);
-const correctionProduct = productAdapter(correctionDir, pool.providerFor('product'), smoke ? 0 : 0.45);
+const correctionProduct = productAdapter(correctionDir, pool.providerFor('product'), productSimilarity);
 const correctionUpstream = upstreamAdapter(correctionDir, create_memory, pool.providerFor('upstream'));
 try {
   for (let index = 0; index < correctionTurns.length; index++) {
@@ -250,7 +272,7 @@ try {
       { expected, forbidden: obsoleteUserIds, ...sourceChecks(u) }, u.latencyMs),
       status(p.sources.some((source) => source.id === expected)
         && obsoleteUserIds.every((id) => !p.sources.some((source) => source.id === id)),
-      { expected, forbidden: obsoleteUserIds, ...sourceChecks(p) }, p.latencyMs));
+      { expected, forbidden: obsoleteUserIds, ...sourceChecks(p), trace: p.trace }, p.latencyMs));
     if (index === 1) {
       const priorTime = BASE_TIME + 30_000;
       const historicalUpstream = await correctionUpstream.historical('correction', priorTime);
@@ -259,7 +281,7 @@ try {
       add('historical correction', 'asOf before Shanghai',
         status(upstreamIds.includes('beijing:user'), { ids: upstreamIds }),
         status(historicalProduct.sources.some((source) => source.id === 'beijing:user'),
-          sourceChecks(historicalProduct), historicalProduct.latencyMs));
+          { ...sourceChecks(historicalProduct), trace: historicalProduct.trace }, historicalProduct.latencyMs));
       const echoQuery = 'Do I currently live in Beijing?';
       const echoUpstream = await correctionUpstream.recall('correction', echoQuery);
       const echoProduct = await correctionProduct.recall('correction', echoQuery);
@@ -280,7 +302,7 @@ try {
       unsupported('Upstream has no source erase API'),
       status(current.sources.some((source) => source.id === expected)
         && !current.sources.some((source) => source.id === erased),
-      { expected, erased, ...sourceChecks(current) }, current.latencyMs));
+      { expected, erased, ...sourceChecks(current), trace: current.trace }, current.latencyMs));
     const echo = await correctionProduct.recall('correction', echoQuery);
     add('paired assistant echo', `assistant after erase ${erased}`,
       unsupported('Upstream has no source erase API'),
@@ -313,7 +335,7 @@ const failProvider = (side) => {
     return real.embed(text, context);
   } };
 };
-const failureProduct = productAdapter(failureDir, failProvider('product'), smoke ? 0 : 0.45);
+const failureProduct = productAdapter(failureDir, failProvider('product'), productSimilarity);
 const failureUpstream = upstreamAdapter(failureDir, create_memory, failProvider('upstream'));
 try {
   let upstreamError = null;

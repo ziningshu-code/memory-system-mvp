@@ -175,11 +175,12 @@ export function createMemory(config: MemoryConfig) {
   const ownerId = config.ownerId ?? 'default';
   if (!tenantId || !ownerId) throw new Error('tenantId and ownerId must be non-empty');
   const defaultBudget = config.maxEvidenceTokens ?? 512;
-  // This NVIDIA model has a narrower cross-language cosine range in the
-  // integration fixture. Other models retain a conservative default, and the
-  // caller can calibrate this value for their own provider and data.
+  // A fixed real-embedding fixture put relevant short correction sources at
+  // 0.37-0.44 and unrelated candidates below 0.14 for this NVIDIA model.
+  // Keep this model-specific and configurable; other providers retain the
+  // conservative default until their own positive/negative cases are tested.
   const minimumSimilarity = config.minSemanticSimilarity
-    ?? (config.embedding.kind === 'nvidia' && config.embedding.model === 'nvidia/nemotron-3-embed-1b' ? 0.45 : 0.62);
+    ?? (config.embedding.kind === 'nvidia' && config.embedding.model === 'nvidia/nemotron-3-embed-1b' ? 0.35 : 0.62);
   if (!Number.isSafeInteger(defaultBudget) || defaultBudget < 0) throw new Error('maxEvidenceTokens must be non-negative');
   if (!Number.isFinite(minimumSimilarity) || minimumSimilarity < 0 || minimumSimilarity > 1) throw new Error('minSemanticSimilarity must be between 0 and 1');
   const sessions = new Map<string, SessionState>();

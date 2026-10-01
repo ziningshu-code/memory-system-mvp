@@ -5,6 +5,9 @@ This harness compares the local product with the unmodified LongMemory core at c
 the sibling `upstream-longmemory-audit` checkout into ignored local output; it does
 not use the product's modified vendor copy as an upstream substitute. Run the
 product's ordinary build first so `build-product` reflects the current working tree.
+The first saved live comparison and subsequent cached-vector calibration are
+reported separately in [REAL-RESULTS.md](REAL-RESULTS.md); the earlier
+deterministic harness check remains in [OFFLINE-RESULTS.md](OFFLINE-RESULTS.md).
 
 `node benchmarks-product/run.mjs --prepare` validates the upstream commit, compiles
 it, and counts the fixture with **zero embedding calls**. `--smoke` exercises the
@@ -19,8 +22,9 @@ systems then receive the same normalized vectors from memory. The harness makes 
 generative-model calls, retries, or unplanned embedding calls. The live JSON report
 records physical request counts, observed prompt tokens if supplied, provider
 latency, per-side logical embedding calls, and engine-operation latency. It does
-not calculate a monetary amount from unverified pricing. Credentials and plaintext
-corpus are never written to the vector cache or report. Successful normalized
+not calculate a monetary amount from unverified pricing. Credentials are never
+written to the cache or report; the local report can include synthetic test
+queries and source IDs. Plaintext inputs are not written to the vector cache. Successful normalized
 vector batches are atomically saved in ignored `.vector-cache/` files named by a
 digest of the model, endpoint, purpose, and exact input strings. A rerun verifies
 and reuses matching batches before making any new request. The report separates
@@ -42,12 +46,11 @@ attribution, and tests surviving assistant echoes separately from user-source
 supersession.
 
 An initial live attempt on 2026-10-01 was stopped by automatic approval review
-before any request was sent. The review said transmitting benchmark conversation
-content with a local credential to NVIDIA posed unacceptable risk and asserted the
-user had not authorized that payload and destination. A later authorized attempt
-completed the eight embedding batches but failed at a local Git trust check before
-writing a report; that earlier runner did not cache vectors. This revision moves
-the Git and import checks before provider work and saves each successful batch.
-No real-model comparison result is claimed from a smoke run. Before the later
-attempt, local historical cache coverage was **0/108** exact document inputs and
-**0/16** exact query inputs.
+before any request was sent. After the user explicitly authorized it, the first
+eight-batch run reached NVIDIA but failed at a local Git trust check before
+writing a report; that runner did not cache vectors. The repaired runner checks
+Git and imports first and saves each successful batch. The user then authorized
+one more eight-batch run, which completed and produced the real comparison in
+[REAL-RESULTS.md](REAL-RESULTS.md). Later analyses reused those vectors without
+additional provider requests. Before the first authorized attempt, historical
+cache coverage was **0/108** exact document inputs and **0/16** exact query inputs.
