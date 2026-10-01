@@ -47,6 +47,21 @@ test('session isolation and no-memory rejection', async () => {
   await memory.close();
 });
 
+test('recent turns are excluded before exact evidence is budgeted', async () => {
+  const memory = createMemory(config(db()));
+  await memory.remember({ sessionId: 'trip', turnId: 'older',
+    user: '东京酒店是 Sakura Hotel。', assistant: '记住了 Sakura Hotel。' });
+  await memory.remember({ sessionId: 'trip', turnId: 'recent',
+    user: '东京酒店刚改成 Maple Hotel。', assistant: '好的，Maple Hotel。' });
+  const result = await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？',
+    excludeTurnIds: ['recent'], limit: 2, maxEvidenceTokens: 100 });
+  assert.ok(result.sources.length > 0);
+  assert.ok(result.sources.every((source) => source.turnId === 'older'));
+  assert.ok(result.trace.rejected.some((item) => item.reason === 'already supplied in recent context'));
+  assert.ok(!result.context.includes('Maple Hotel'));
+  await memory.close();
+});
+
 test('explicit correction supersedes current evidence but retains exact history', async () => {
   const dbPath = db();
   const memory = createMemory(config(dbPath));

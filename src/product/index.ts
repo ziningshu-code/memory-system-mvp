@@ -52,6 +52,8 @@ export type RecallInput = {
   query: string;
   limit?: number;
   maxEvidenceTokens?: number;
+  /** Turns already supplied by the host application's recent-chat window. */
+  excludeTurnIds?: string[];
   /** What the memory system had recorded at this time. */
   asOf?: number;
   /** Only sources explicitly given validFrom can satisfy this filter. */
@@ -306,6 +308,11 @@ export function createMemory(config: MemoryConfig) {
         }
         if (input.asOf !== undefined && !Number.isSafeInteger(input.asOf)) throw new Error('asOf must be a millisecond timestamp');
         if (input.validAt !== undefined && !Number.isSafeInteger(input.validAt)) throw new Error('validAt must be a millisecond timestamp');
+        if (input.excludeTurnIds !== undefined && (!Array.isArray(input.excludeTurnIds)
+          || !input.excludeTurnIds.every((id) => typeof id === 'string'))) {
+          throw new Error('excludeTurnIds must be an array of turn IDs');
+        }
+        const excludedTurns = new Set(input.excludeTurnIds ?? []);
         const trace: RecallResult['trace'] = {
           candidates: 0, ranked: [], rejected: [], omitted: [], tokensUsed: 0, budget,
           mode: input.asOf === undefined && input.validAt === undefined ? 'strict' : 'historical',
@@ -360,6 +367,10 @@ export function createMemory(config: MemoryConfig) {
           const source = state.transcript.getSource(candidate.sourceId);
           if (!source || source.sessionId !== input.sessionId || !sourceVisibleAt(source, input.asOf, input.validAt)) {
             trace.rejected.push({ sourceId: candidate.sourceId, reason: 'source unavailable at requested time' });
+            continue;
+          }
+          if (excludedTurns.has(source.turnId)) {
+            trace.rejected.push({ sourceId: candidate.sourceId, reason: 'already supplied in recent context' });
             continue;
           }
           if ((candidate.semantic ?? 0) < minimumSimilarity
