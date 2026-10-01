@@ -41,7 +41,7 @@ export type RememberInput = {
   assistant: string;
   turnId?: string;
   recordedAt?: number;
-  /** Use only when this new user statement explicitly replaces an older source. */
+  /** The new completed exchange explicitly replaces the older source's exchange. */
   supersedesSourceId?: string;
   /** An evidence-backed validity date, never inferred by the SDK. */
   validFrom?: number;
@@ -361,8 +361,11 @@ export function createMemory(config: MemoryConfig) {
     rebuild(sessionId: string) {
       return run(sessionId, async (state) => {
         await state.engine.close();
-        state.transcript.clearDerived();
-        state.engine = openEngine(sessionId);
+        try {
+          state.transcript.clearDerived();
+        } finally {
+          state.engine = openEngine(sessionId);
+        }
         let indexed = 0;
         let failed = 0;
         for (const source of state.transcript.listDerivable(sessionId)) {
@@ -376,9 +379,17 @@ export function createMemory(config: MemoryConfig) {
     erase(input: { sessionId: string; sourceId: string }) {
       return run(input.sessionId, async (state) => {
         await state.engine.close();
-        const erased = state.transcript.eraseSource(input.sourceId, Date.now());
-        state.engine = openEngine(input.sessionId);
-        for (const source of state.transcript.listDerivable(input.sessionId)) await derive(state, source);
+        let erased = false;
+        try {
+          erased = state.transcript.eraseSource(input.sourceId, Date.now());
+        } finally {
+          // A rejected erase rolls back its transaction; reopen the previous
+          // derived state rather than leaving this session with a closed engine.
+          state.engine = openEngine(input.sessionId);
+        }
+        if (erased) {
+          for (const source of state.transcript.listDerivable(input.sessionId)) await derive(state, source);
+        }
         return { erased };
       });
     },

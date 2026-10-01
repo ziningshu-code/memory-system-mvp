@@ -95,6 +95,22 @@ export class TranscriptStore {
         }
         return [fromRow(existing[0]), fromRow(existing[1])];
       }
+      const predecessors: Partial<Record<SourceRole, SourceRow>> = {};
+      if (input.supersedesSourceId) {
+        const selected = this.getSource(input.supersedesSourceId);
+        if (!selected || selected.deletedAt !== null || selected.sessionId !== input.sessionId
+          || selected.recordedAt > input.recordedAt) {
+          throw new Error('superseded source must be an earlier live source in the same session');
+        }
+        const previousTurn = this.upstream.database.prepare(`SELECT * FROM conversation_sources
+          WHERE tenant_id = ? AND user_id = ? AND session_id = ? AND turn_id = ?
+            AND deleted_at IS NULL ORDER BY sequence`)
+          .all(tenant, owner, input.sessionId, selected.turnId) as SourceRow[];
+        for (const source of previousTurn) {
+          if (source.superseded_at !== null) throw new Error('source is already superseded');
+          predecessors[source.role] = source;
+        }
+      }
       const next = (this.upstream.database.prepare(`SELECT COALESCE(MAX(sequence), 0) + 1 AS next
         FROM conversation_sources WHERE tenant_id = ? AND user_id = ? AND session_id = ?`)
         .get(tenant, owner, input.sessionId) as { next: number }).next;
@@ -103,20 +119,20 @@ export class TranscriptStore {
         (tenant_id, user_id, session_id, source_id, turn_id, sequence, role, exact_text, recorded_at, valid_from, supersedes_source_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
       insert.run(tenant, owner, input.sessionId, sourceIds[0], input.turnId, next, 'user', input.user,
-        input.recordedAt, input.validFrom ?? null, input.supersedesSourceId ?? null);
+        input.recordedAt, input.validFrom ?? null, predecessors.user?.source_id ?? null);
       insert.run(tenant, owner, input.sessionId, sourceIds[1], input.turnId, next + 1, 'assistant', input.assistant,
-        input.recordedAt, input.validFrom ?? null, null);
+        input.recordedAt, input.validFrom ?? null, predecessors.assistant?.source_id ?? null);
       if (input.supersedesSourceId) {
-        const old = this.getSource(input.supersedesSourceId);
-        if (!old || old.sessionId !== input.sessionId || old.recordedAt > input.recordedAt) {
-          throw new Error('superseded source must be an earlier source in the same session');
-        }
-        const changed = this.upstream.database.prepare(`UPDATE conversation_sources
+        const update = this.upstream.database.prepare(`UPDATE conversation_sources
           SET superseded_by = ?, superseded_at = ?
           WHERE tenant_id = ? AND user_id = ? AND session_id = ? AND source_id = ?
-            AND deleted_at IS NULL AND superseded_at IS NULL`)
-          .run(sourceIds[0], input.recordedAt, tenant, owner, input.sessionId, input.supersedesSourceId).changes;
-        if (changed !== 1) throw new Error('supersedesSourceId is missing, deleted, or already superseded');
+            AND deleted_at IS NULL AND superseded_at IS NULL`);
+        for (const [role, old] of Object.entries(predecessors) as [SourceRole, SourceRow][]) {
+          const replacement = sourceIds[role === 'user' ? 0 : 1];
+          if (update.run(replacement, input.recordedAt, tenant, owner, input.sessionId, old.source_id).changes !== 1) {
+            throw new Error('supersedesSourceId is missing, deleted, or already superseded');
+          }
+        }
       }
       return [this.getSource(sourceIds[0])!, this.getSource(sourceIds[1])!];
     });
@@ -131,7 +147,7 @@ export class TranscriptStore {
 
   listSession(sessionId: string): ConversationSource[] {
     return (this.upstream.database.prepare(`SELECT * FROM conversation_sources
-      WHERE tenant_id = ? AND user_id = ? AND session_id = ? ORDER BY sequence`)
+      WHERE tenant_id = ? AND user_id = ? AND session_id = ? AND deleted_at IS NULL ORDER BY sequence`)
       .all(...this.scope, sessionId) as SourceRow[]).map(fromRow);
   }
 
@@ -192,16 +208,60 @@ export class TranscriptStore {
       WHERE tenant_id = ? AND user_id = ? AND deleted_at IS NULL`).run(...this.scope);
   }
 
-  /** Erase visible text and all derived copies in one transaction. */
+  /** Logically erase the completed turn containing a source and repair both correction chains. */
   eraseSource(sourceId: string, deletedAt: number): boolean {
     return this.upstream.transaction(() => {
-      const changed = this.upstream.database.prepare(`UPDATE conversation_sources
+      const target = this.getSource(sourceId);
+      if (!target || target.deletedAt !== null) return false;
+      const [tenant, owner] = this.scope;
+      const turn = this.upstream.database.prepare(`SELECT * FROM conversation_sources
+        WHERE tenant_id = ? AND user_id = ? AND session_id = ? AND turn_id = ?
+          AND deleted_at IS NULL ORDER BY sequence`)
+        .all(tenant, owner, target.sessionId, target.turnId) as SourceRow[];
+      const relink = this.upstream.database.prepare(`UPDATE conversation_sources
+        SET supersedes_source_id = ?
+        WHERE tenant_id = ? AND user_id = ? AND session_id = ?
+          AND supersedes_source_id = ? AND deleted_at IS NULL`);
+      const erase = this.upstream.database.prepare(`UPDATE conversation_sources
         SET exact_text = '', deleted_at = ?, derivation_status = 'pending',
-          derived_node_id = NULL, embedding_fingerprint = NULL
-        WHERE tenant_id = ? AND user_id = ? AND source_id = ? AND deleted_at IS NULL`)
-        .run(deletedAt, ...this.scope, sourceId).changes;
-      if (changed) this.clearDerivedInTransaction();
-      return changed === 1;
+          derived_node_id = NULL, embedding_fingerprint = NULL,
+          supersedes_source_id = NULL, superseded_by = NULL, superseded_at = NULL
+        WHERE tenant_id = ? AND user_id = ? AND source_id = ? AND deleted_at IS NULL`);
+      for (const source of turn) {
+        // A -> B -> C becomes A -> C when B is erased, for each visible role.
+        relink.run(source.supersedes_source_id, tenant, owner, target.sessionId, source.source_id);
+        if (erase.run(deletedAt, tenant, owner, source.source_id).changes !== 1) {
+          throw new Error('source changed during erase');
+        }
+      }
+
+      this.upstream.database.prepare(`UPDATE conversation_sources
+        SET superseded_by = NULL, superseded_at = NULL
+        WHERE tenant_id = ? AND user_id = ? AND session_id = ? AND deleted_at IS NULL`)
+        .run(tenant, owner, target.sessionId);
+      const survivors = this.upstream.database.prepare(`SELECT source_id, supersedes_source_id, recorded_at
+        FROM conversation_sources WHERE tenant_id = ? AND user_id = ?
+          AND session_id = ? AND deleted_at IS NULL ORDER BY sequence`)
+        .all(tenant, owner, target.sessionId) as Pick<SourceRow, 'source_id' | 'supersedes_source_id' | 'recorded_at'>[];
+      const known = new Set(survivors.map((row) => row.source_id));
+      const superseded = new Set<string>();
+      const update = this.upstream.database.prepare(`UPDATE conversation_sources
+        SET superseded_by = ?, superseded_at = ?
+        WHERE tenant_id = ? AND user_id = ? AND session_id = ?
+          AND source_id = ? AND deleted_at IS NULL`);
+      for (const row of survivors) {
+        const prior = row.supersedes_source_id;
+        if (!prior) continue;
+        if (!known.has(prior) || superseded.has(prior)) {
+          throw new Error('invalid supersession chain after erase');
+        }
+        superseded.add(prior);
+        if (update.run(row.source_id, row.recorded_at, tenant, owner, target.sessionId, prior).changes !== 1) {
+          throw new Error('unable to repair supersession chain');
+        }
+      }
+      this.clearDerivedInTransaction();
+      return true;
     });
   }
 

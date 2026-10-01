@@ -57,12 +57,15 @@ test('explicit correction supersedes current evidence but retains exact history'
   const current = await memory.recall({ sessionId: 'trip', query: '东京旅行的酒店是什么？' });
   assert.ok(current.sources.some((source) => source.sourceId === 'new:user'));
   assert.ok(!current.sources.some((source) => source.sourceId === 'old:user'));
+  assert.ok(!current.sources.some((source) => source.sourceId === 'old:assistant'));
   const before = await memory.recall({ sessionId: 'trip', query: '东京旅行酒店', asOf: 1500 });
   assert.ok(before.sources.some((source) => source.sourceId === 'old:user'));
   const { SqliteStore } = await import('../build-product/longmemory/stores/sqlite/sqlite_store.js');
   const store = new SqliteStore(dbPath, { tenant_id: 'local', user_id: JSON.stringify(['default', 'trip']) });
   assert.ok(store.load_edges().some((edge) => edge.type === 'supersedes' && edge.from === 'new:user' && edge.to === 'old:user'));
+  assert.ok(store.load_edges().some((edge) => edge.type === 'supersedes' && edge.from === 'new:assistant' && edge.to === 'old:assistant'));
   assert.equal(store.load_node('old:user').temporal.superseded_at, 2000);
+  assert.equal(store.load_node('old:assistant').temporal.superseded_at, 2000);
   store.close();
   await memory.close();
 });
@@ -91,9 +94,152 @@ test('erasure removes the exact source and its derived candidate', async () => {
   await memory.remember({ sessionId: 'trip', turnId: 'private',
     user: '东京酒店的私人代码是 ZX-938。', assistant: '知道了。' });
   assert.equal((await memory.erase({ sessionId: 'trip', sourceId: 'private:user' })).erased, true);
-  assert.equal((await memory.history('trip'))[0].exactText, '');
+  assert.deepEqual((await memory.history('trip')).map((source) => source.sourceId), []);
   const recalled = await memory.recall({ sessionId: 'trip', query: '东京酒店私人代码是什么？' });
   assert.ok(!recalled.context.includes('ZX-938'));
+  await memory.close();
+});
+
+test('erasing the newer correction restores the older source and derived graph', async () => {
+  const dbPath = db();
+  const memory = createMemory(config(dbPath));
+  await memory.remember({ sessionId: 'trip', turnId: 'A', recordedAt: 1000,
+    user: '东京酒店是 Sakura Hotel。', assistant: '收到。' });
+  await memory.remember({ sessionId: 'trip', turnId: 'B', recordedAt: 2000,
+    supersedesSourceId: 'A:user', user: '东京酒店改为 Maple Hotel。', assistant: '收到。' });
+  assert.equal((await memory.erase({ sessionId: 'trip', sourceId: 'B:user' })).erased, true);
+  const history = await memory.history('trip');
+  assert.equal(history.find((source) => source.sourceId === 'A:user').supersededBy, null);
+  assert.ok(!history.some((source) => source.sourceId === 'B:user'));
+  assert.ok(!history.some((source) => source.sourceId === 'B:assistant'));
+  assert.equal(history.find((source) => source.sourceId === 'A:assistant').supersededBy, null);
+  const current = await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？' });
+  assert.ok(current.sources.some((source) => source.sourceId === 'A:user'));
+  assert.ok(!current.sources.some((source) => source.sourceId === 'B:user'));
+  await memory.close();
+
+  const { SqliteStore } = await import('../build-product/longmemory/stores/sqlite/sqlite_store.js');
+  const store = new SqliteStore(dbPath, { tenant_id: 'local', user_id: JSON.stringify(['default', 'trip']) });
+  assert.equal(store.load_node('B:user'), null);
+  assert.equal(store.load_node('B:assistant'), null);
+  assert.equal(store.load_node('A:user').state.status, 'active');
+  assert.equal(store.load_node('A:assistant').state.status, 'active');
+  assert.ok(store.load_edges().every((edge) => !['B:user', 'B:assistant'].includes(edge.from)
+    && !['B:user', 'B:assistant'].includes(edge.to)));
+  store.close();
+
+  const reopened = createMemory(config(dbPath));
+  await reopened.rebuild('trip');
+  assert.ok((await reopened.recall({ sessionId: 'trip', query: '东京酒店是哪家？' })).sources
+    .some((source) => source.sourceId === 'A:user'));
+  await reopened.close();
+});
+
+test('erasing the older source leaves the newer source active without dangling links', async () => {
+  const dbPath = db();
+  const memory = createMemory(config(dbPath));
+  await memory.remember({ sessionId: 'trip', turnId: 'A', recordedAt: 1000,
+    user: '东京酒店是 Sakura Hotel。', assistant: '收到。' });
+  await memory.remember({ sessionId: 'trip', turnId: 'B', recordedAt: 2000,
+    supersedesSourceId: 'A:user', user: '东京酒店改为 Maple Hotel。', assistant: '收到。' });
+  assert.equal((await memory.erase({ sessionId: 'trip', sourceId: 'A:user' })).erased, true);
+  const current = await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？' });
+  assert.ok(current.sources.some((source) => source.sourceId === 'B:user'));
+  assert.ok(!current.sources.some((source) => source.sourceId === 'A:user'));
+  assert.ok(!current.sources.some((source) => source.sourceId === 'A:assistant'));
+  assert.equal((await memory.history('trip')).find((source) => source.sourceId === 'B:user').supersedesSourceId, null);
+  await memory.close();
+
+  const { SqliteStore } = await import('../build-product/longmemory/stores/sqlite/sqlite_store.js');
+  const store = new SqliteStore(dbPath, { tenant_id: 'local', user_id: JSON.stringify(['default', 'trip']) });
+  assert.equal(store.load_node('A:user'), null);
+  assert.equal(store.load_node('A:assistant'), null);
+  assert.equal(store.load_node('B:user').state.status, 'active');
+  assert.equal(store.load_node('B:assistant').state.status, 'active');
+  assert.ok(store.load_edges().every((edge) => !['A:user', 'A:assistant'].includes(edge.from)
+    && !['A:user', 'A:assistant'].includes(edge.to)));
+  store.close();
+});
+
+test('erasing a correction chain in reverse restores each surviving predecessor', async () => {
+  const dbPath = db();
+  const memory = createMemory(config(dbPath));
+  for (const [turnId, recordedAt, hotel, supersedesSourceId] of [
+    ['A', 1000, 'Sakura', undefined], ['B', 2000, 'Maple', 'A:user'], ['C', 3000, 'Pine', 'B:user'],
+  ]) {
+    await memory.remember({ sessionId: 'trip', turnId, recordedAt, supersedesSourceId,
+      user: `东京酒店是 ${hotel} Hotel。`, assistant: '收到。' });
+  }
+  await memory.erase({ sessionId: 'trip', sourceId: 'C:user' });
+  assert.equal((await memory.history('trip')).find((source) => source.sourceId === 'A:user').supersededBy, 'B:user');
+  assert.equal((await memory.history('trip')).find((source) => source.sourceId === 'B:user').supersededBy, null);
+  assert.ok((await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？' })).sources
+    .some((source) => source.sourceId === 'B:user'));
+  await memory.erase({ sessionId: 'trip', sourceId: 'B:user' });
+  assert.equal((await memory.history('trip')).find((source) => source.sourceId === 'A:user').supersededBy, null);
+  assert.ok((await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？' })).sources
+    .some((source) => source.sourceId === 'A:user'));
+  await memory.close();
+
+  const { SqliteStore } = await import('../build-product/longmemory/stores/sqlite/sqlite_store.js');
+  const store = new SqliteStore(dbPath, { tenant_id: 'local', user_id: JSON.stringify(['default', 'trip']) });
+  assert.equal(store.load_node('A:user').state.status, 'active');
+  assert.equal(store.load_node('B:user'), null);
+  assert.equal(store.load_node('B:assistant'), null);
+  assert.equal(store.load_node('C:user'), null);
+  assert.equal(store.load_node('C:assistant'), null);
+  assert.ok(store.load_edges().every((edge) => !['B:user', 'B:assistant', 'C:user', 'C:assistant'].includes(edge.from)
+    && !['B:user', 'B:assistant', 'C:user', 'C:assistant'].includes(edge.to)));
+  store.close();
+});
+
+test('erasing a middle correction relinks its surviving successor', async () => {
+  const dbPath = db();
+  const memory = createMemory(config(dbPath));
+  for (const [turnId, recordedAt, hotel, supersedesSourceId] of [
+    ['A', 1000, 'Sakura', undefined], ['B', 2000, 'Maple', 'A:user'], ['C', 3000, 'Pine', 'B:user'],
+  ]) {
+    await memory.remember({ sessionId: 'trip', turnId, recordedAt, supersedesSourceId,
+      user: `东京酒店是 ${hotel} Hotel。`, assistant: '收到。' });
+  }
+  await memory.erase({ sessionId: 'trip', sourceId: 'B:user' });
+  const history = await memory.history('trip');
+  assert.equal(history.find((source) => source.sourceId === 'C:user').supersedesSourceId, 'A:user');
+  assert.equal(history.find((source) => source.sourceId === 'A:user').supersededBy, 'C:user');
+  const current = await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？' });
+  assert.ok(current.sources.some((source) => source.sourceId === 'C:user'));
+  assert.ok(!current.sources.some((source) => source.sourceId === 'A:user'));
+  assert.ok(!current.sources.some((source) => source.sourceId === 'B:user'));
+  await memory.close();
+
+  const { SqliteStore } = await import('../build-product/longmemory/stores/sqlite/sqlite_store.js');
+  const store = new SqliteStore(dbPath, { tenant_id: 'local', user_id: JSON.stringify(['default', 'trip']) });
+  assert.equal(store.load_node('B:user'), null);
+  assert.equal(store.load_node('B:assistant'), null);
+  assert.ok(store.load_edges().some((edge) => edge.type === 'supersedes'
+    && edge.from === 'C:user' && edge.to === 'A:user'));
+  assert.ok(store.load_edges().some((edge) => edge.type === 'supersedes'
+    && edge.from === 'C:assistant' && edge.to === 'A:assistant'));
+  assert.ok(store.load_edges().every((edge) => !['B:user', 'B:assistant'].includes(edge.from)
+    && !['B:user', 'B:assistant'].includes(edge.to)));
+  store.close();
+});
+
+test('paired assistant echoes follow correction and turn-level erasure', async () => {
+  const memory = createMemory(config(db()));
+  await memory.remember({ sessionId: 'trip', turnId: 'A', recordedAt: 1000,
+    user: '东京酒店是 Sakura Hotel。', assistant: '你选的是 Sakura Hotel。' });
+  await memory.remember({ sessionId: 'trip', turnId: 'B', recordedAt: 2000,
+    supersedesSourceId: 'A:user', user: '东京酒店改为 Maple Hotel。', assistant: '收到。' });
+  const history = await memory.history('trip');
+  assert.equal(history.find((source) => source.sourceId === 'A:user').supersededBy, 'B:user');
+  assert.equal(history.find((source) => source.sourceId === 'A:assistant').supersededBy, 'B:assistant');
+  const current = await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？' });
+  assert.ok(!current.sources.some((source) => source.sourceId === 'A:assistant'));
+  await memory.erase({ sessionId: 'trip', sourceId: 'B:user' });
+  const restored = await memory.recall({ sessionId: 'trip', query: '东京酒店是哪家？' });
+  assert.ok(restored.sources.some((source) => source.sourceId === 'A:assistant'));
+  assert.ok(!(await memory.history('trip')).some((source) => source.turnId === 'B'));
   await memory.close();
 });
 
