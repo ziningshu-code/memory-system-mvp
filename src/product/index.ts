@@ -95,8 +95,8 @@ function providerFromConfig(config: EmbeddingConfig): { provider: configured_emb
   if (config.kind !== 'custom' && !config.model?.trim()) throw new Error('embedding.model is required');
   if (config.kind === 'openai' && !config.baseUrl?.trim()) throw new Error('embedding.baseUrl is required for OpenAI-compatible embeddings');
   const identity = config.kind === 'custom'
-    ? { kind: config.kind, id: config.id, dimension: config.dimension }
-    : { kind: config.kind, model: config.model, baseUrl: config.baseUrl ?? '', dimension: config.dimension };
+    ? { kind: config.kind, id: config.id, dimension: config.dimension, derivationVersion: 2 }
+    : { kind: config.kind, model: config.model, baseUrl: config.baseUrl ?? '', dimension: config.dimension, derivationVersion: 2 };
   const fingerprint = createHash('sha256').update(JSON.stringify(identity)).digest('hex');
   const common: embedding_provider_config = {
     provider: config.kind === 'custom' ? 'local' : config.kind,
@@ -212,6 +212,10 @@ export function createMemory(config: MemoryConfig) {
         ...(supersededNode ? { supersedes_source_id: source.supersedesSourceId! } : {}),
         source_ref: `conversation:${source.sessionId}:${source.sourceId}`,
         conflict_behavior: 'none',
+        // Recall authentic conversational utterances, not externally verified facts.
+        // Exact transcript resolution supplies provenance; this does not certify
+        // the factual truth of what either participant said.
+        contract: { requires_grounding: false },
         metadata: { turn_id: source.turnId, source_id: source.sourceId, sequence: source.sequence },
       });
       state.transcript.markIndexed(source.sourceId, fingerprint, result.node.id);

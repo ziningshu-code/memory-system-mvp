@@ -1,0 +1,19 @@
+{
+  "mode": "offline harness checks only",
+  "liveProviderCalls": 0,
+  "mockedTransportCalls": 29,
+  "passed": [
+    "200 completed exchanges / 50 labels / 4 owners / 8 scoped sessions",
+    "fixed hashes verified",
+    "399 document + 44 query exact inputs produce 28 planned batches under cap 29",
+    "same vectors shared between both adapters",
+    "unplanned embeddings refused",
+    "valid cache reused with zero new calls",
+    "failed attempt consumed and not retried",
+    "exhausted persistent cap refuses before transport",
+    "partial request journal refuses further calls",
+    "changed embedding plan refused"
+  ],
+  "retrievalQuality": "N/A; mock transport vectors are not evaluated for semantic quality",
+  "manifestSha256": "1374c080991e51ce25cde81c5d8e3cc7a58e87aca40ff7153807968757d5c740"
+}

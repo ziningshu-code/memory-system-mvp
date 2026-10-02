@@ -1,144 +1,56 @@
-import { execFileSync, spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
-const npmCli = process.env.npm_execpath;
-if (!npmCli) throw new Error('Run this check with npm run smoke:consumer.');
-const root = process.cwd();
-
-const packed = JSON.parse(execFileSync(process.execPath, [npmCli, 'pack', '--json'], {
-  cwd: root,
-  encoding: 'utf8',
-}));
-
-const tarballName = packed?.[0]?.filename;
-if (!tarballName) throw new Error('npm pack did not return a tarball filename');
-const filePaths = packed[0].files.map(file => file.path);
-for (const required of ['bin/topic-memory.mjs','plugin/server.mjs','plugin/public/index.html','plugin/public/app.js','dist/node.js','examples/provider.mjs','examples/scenario.mjs']) {
-  if (!filePaths.includes(required)) throw new Error(`Published plugin is missing ${required}`);
-}
-if (filePaths.some(path => /(^|\/)\.env($|\.)|\.topic-memory|benchmark-results/.test(path))) throw new Error('Private local files must not be published');
-
-const tarballPath = resolve(root, tarballName);
-const consumerDir = mkdtempSync(join(tmpdir(), 'topic-memory-consumer-'));
-
-writeFileSync(join(consumerDir, 'package.json'), JSON.stringify({
-  name: 'topic-memory-consumer-smoke',
-  private: true,
-  type: 'module',
-}, null, 2));
-
-execFileSync(process.execPath, [npmCli, 'install', '--ignore-scripts', tarballPath], {
-  cwd: consumerDir,
-  stdio: 'inherit',
-});
-
-const smokeSource = String.raw`
-import { createMemory, InMemoryStorage } from 'topic-memory';
-import { FileMemoryStorage } from 'topic-memory/node';
-
-const persistent = new FileMemoryStorage('./persistent-memory.json');
-await persistent.replaceTopics([]);
-if ((await new FileMemoryStorage('./persistent-memory.json').listTopics()).length !== 0) throw new Error('Node storage export failed');
-
-const fakeMemoryLlm = {
-  async complete(input) {
-    if (input.system.includes('Topic Worker')) {
-      return JSON.stringify({
-        topics: [{
-          status: 'provisional',
-          labelTerms: ['moving plans', 'new apartment'],
-          retrievalTerms: ['Shanghai', 'new apartment', 'moving next month'],
-          spans: [{ startSequence: 1, endSequence: 6 }],
-        }],
-      });
-    }
-
-    return JSON.stringify({
-      needsMemory: true,
-      topicIds: ['T1'],
-      needsTimeMetadata: false,
-    });
-  },
-};
-
-const memory = createMemory({
-  storage: new InMemoryStorage(),
-  llm: fakeMemoryLlm,
-});
-
-for (let i = 1; i <= 6; i += 1) {
-  const pending = await memory.begin(
-    i === 1
-      ? 'I am moving to a new apartment in Shanghai next month.'
-      : 'More details about the apartment and moving plan ' + i,
-  );
-
-  await memory.completeExchange({
-    exchangeId: pending.id,
-    assistantText: 'Acknowledged moving detail ' + i,
-  });
-}
-
-const worker = await memory.maybeRunTopicWorker();
-if (!worker.ran || worker.reason !== 'accepted') {
-  throw new Error('Topic Worker did not produce an accepted topic set');
-}
-
-const retrieved = await memory.retrieve({
-  userMessage: 'What did I tell you about my move?',
-});
-
-if (!retrieved.memoryContext.includes('MEMORY_SECTION_FROM_TOPIC_STORE')) {
-  throw new Error('Expected a non-empty restored memoryContext');
-}
-
-if (!retrieved.selectedTopicIds.includes('T1')) {
-  throw new Error('Expected selector to restore topic T1');
-}
-
-let hostReceivedMemory = '';
-async function myOwnMainLlm({ memoryContext }) {
-  hostReceivedMemory = memoryContext;
-  return 'Host model reply';
-}
-
-await myOwnMainLlm({
-  userMessage: 'What did I tell you about my move?',
-  memoryContext: retrieved.memoryContext,
-});
-
-if (!hostReceivedMemory.includes('MEMORY_SECTION_FROM_TOPIC_STORE')) {
-  throw new Error('Host Main LLM did not receive memoryContext');
-}
-
-console.log('Fresh consumer smoke test PASS');
-console.log('Selected topics:', retrieved.selectedTopicIds.join(', '));
-console.log('memoryContext chars:', retrieved.memoryContext.length);
-`;
-
-writeFileSync(join(consumerDir, 'smoke.mjs'), smokeSource);
-
-execFileSync(process.execPath, ['smoke.mjs'], {
-  cwd: consumerDir,
-  stdio: 'inherit',
-});
-
-// Launch the installed package, not the source checkout, with no provider credentials.
-const child = spawn(process.execPath, ['node_modules/topic-memory/bin/topic-memory.mjs','--port','0','--data-dir',join(consumerDir,'plugin-data')], { cwd:consumerDir, stdio:['ignore','pipe','pipe'], windowsHide:true });
-try {
-  const url = await new Promise((resolve,reject) => {
-    let output='';
-    const timer=setTimeout(()=>reject(new Error('Installed plugin did not start within 15 seconds')),15000);
-    child.once('error',error=>{clearTimeout(timer);reject(error);});
-    child.once('exit',code=>{clearTimeout(timer);reject(new Error(`Installed plugin exited early: ${code}`));});
-    child.stdout.on('data',data=>{output+=data;const match=/Open: (http:\/\/127\.0\.0\.1:\d+)/.exec(output);if(match){clearTimeout(timer);resolve(match[1]);}});
-  });
-  const response=await fetch(url);
-  if(!response.ok || !(await response.text()).includes('config-form'))throw new Error('Installed plugin page failed');
-  console.log('Installed plugin startup and setup page PASS');
-} finally {
-  child.kill('SIGTERM');
-  await new Promise(resolve=>{if(child.exitCode!==null)resolve();else child.once('exit',resolve);});
-}
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const require = createRequire(import.meta.url);
+const npm = process.env.npm_execpath ?? join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
+const folder = mkdtempSync(join(tmpdir(), 'memory-consumer-'));
+const runNpm = (args, cwd) => execFileSync(process.execPath, [npm, ...args], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const packOutput = runNpm(['pack', '--json', '--pack-destination', folder], root);
+const pack = JSON.parse(packOutput.slice(packOutput.indexOf('[\n')))[0];
+writeFileSync(join(folder, 'package.json'), JSON.stringify({ name: 'clean-sdk-consumer', private: true, type: 'module' }));
+runNpm(['install', '--no-audit', '--no-fund', '--package-lock=false', join(folder, pack.filename)], folder);
+writeFileSync(join(folder, 'consumer.ts'), `import { createMemory, type MemoryConfig } from 'memory-system-mvp';
+const config: MemoryConfig = { embedding: { kind: 'custom', id: 'compile', dimension: 2, embed: async () => [1, 0] } };
+const memory = createMemory(config); void memory.close();\n`);
+execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--noEmit', '--strict', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', '--target', 'ES2022', join(folder, 'consumer.ts')], { cwd: folder, stdio: 'pipe' });
+writeFileSync(join(folder, 'consumer.mjs'), `import assert from 'node:assert/strict';
+import { createMemory } from 'memory-system-mvp';
+import { join } from 'node:path';
+import { createServer } from 'node:http';
+const cfg = { dbPath: join(process.cwd(), 'memory.sqlite'), minSemanticSimilarity: 0.8,
+  embedding: { kind: 'custom', id: 'deterministic-install-check', dimension: 2, embed: async () => [1, 0] } };
+assert.throws(() => createMemory({}), /real embedding provider/);
+let memory = createMemory(cfg);
+const saved = await memory.remember({sessionId:'one',turnId:'turn',user:'My appointment is at 09:15.',assistant:'Understood: 09:15.'});
+assert.deepEqual(saved.failed, []);
+assert.ok((await memory.recall({sessionId:'one',query:'appointment'})).sources.some(s => s.sourceId === 'turn:user'));
+await memory.close(); memory = createMemory(cfg);
+assert.equal((await memory.history('one')).length, 2);
+assert.deepEqual(await memory.rebuild('one'), {indexed:2,failed:0});
+assert.equal((await memory.erase({sessionId:'one',sourceId:'turn:user'})).erased, true);
+assert.equal((await memory.history('one')).length, 0); await memory.close();
+// Unauthorized/missing remote credentials never create synthetic production vectors.
+const server = createServer((_req, res) => {res.writeHead(401, {'content-type':'application/json'});res.end(JSON.stringify({error:{message:'API key required'}}));});
+await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+memory = createMemory({dbPath:join(process.cwd(),'missing.sqlite'),embedding:{kind:'openai',baseUrl:'http://127.0.0.1:'+server.address().port+'/v1',model:'test',dimension:2}});
+const failed = await memory.remember({sessionId:'failed',turnId:'failed',user:'Keep original.',assistant:'Visible response.'});
+assert.equal(failed.failed.length,2); assert.equal((await memory.history('failed'))[0].exactText,'Keep original.');
+const recalled = await memory.recall({sessionId:'failed',query:'original'});
+assert.equal(recalled.sources.length,0); assert.match(recalled.trace.error, /401|API key/); await memory.close();
+await new Promise(resolve => server.close(resolve));
+console.log('fresh consumer: import, TypeScript, native SQLite, remember/recall/restart/history/rebuild/erase/close, failure persistence passed');
+`);
+const output = execFileSync(process.execPath, [join(folder, 'consumer.mjs')], { cwd: folder, encoding: 'utf8' });
+const files = pack.files.map((file) => file.path);
+assert.ok(files.includes('build-product/longmemory/stores/sqlite/schema.sql'));
+assert.ok(!files.some((file) => /^(?:src|plugin|site|benchmarks|tests)\//.test(file) || /(?:\.env|\.sqlite|\.tgz)$/.test(file)));
+const manifest = { version: JSON.parse(readFileSync(join(root, 'package.json'))).version,
+  fileCount: files.length, packageBytes: pack.size, unpackedBytes: pack.unpackedSize,
+  sha512: pack.integrity, checks: output.trim(), node: process.version };
+console.log(JSON.stringify(manifest, null, 2));

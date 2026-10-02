@@ -1,0 +1,3 @@
+# Preserve the exact bytes of the frozen validation snapshots on Windows.
+benchmarks-product/blind/*.json text eol=lf
+benchmarks-product/blind/results/**/*.json text eol=lf

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0-beta.1 — Generation 2 (prepared locally, not published)
+
+- Replace the earlier Topic Memory runtime with an attributed, modified LongMemory core. Generation 2 carries forward the product requirements and lessons of Generation 1, not its runtime implementation.
+- Add exact paired conversation persistence before embeddings, source-grounded recall, stable session/turn/source identifiers, explicit correction chains, logical turn erasure, rebuild/recovery, and recent-turn exclusion.
+- Expose `createMemory`, `remember`, `recall`, `history`, `rebuild`, `erase`, and `close` for Node applications. No extra generative memory-model call is required; a real embedding provider is required.
+- Fix ordinary factual utterances being incorrectly excluded by an external-grounding requirement. Conversation provenance establishes what was said, not whether it is externally true. Existing development indexes rebuild for the new derived contract version.
+- Preserve V1 at local `legacy-v1`, clean obsolete runtime/demo/UI files from the current tree, identify all upstream modifications, and validate a clean consumer installation.
+- Run a new frozen synthetic holdout with real embeddings; retain earlier threshold-calibration evidence separately. See the benchmark report for actual results and limitations.
+
+The following entries document earlier Generation 1 releases; their runtime is available through history rather than the current package.
+
 ## 0.2.0
 
 - Add a local plugin launcher (`npx topic-memory` / GitHub ZIP `start.cmd`) and a single-page setup, real chat, session selector and live comparison. Users provide their own endpoint and key; no `.env` is required.

@@ -1,51 +1,25 @@
-name: CI
-
+name: Validate Generation 2
 on:
   push:
-    branches:
-      - main
-      - release/**
+    branches: [main]
   pull_request:
-    branches:
-      - main
-
 permissions:
   contents: read
-
 jobs:
   validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [22, 24]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Typecheck
-        run: npm run typecheck
-
-      - name: Test
-        run: npm test
-
-      - name: Verify package contents
-        run: npm pack --dry-run
-
-      - name: Fresh consumer smoke test
-        run: npm run smoke:consumer
-
-      - name: Scripted retrieval evaluation
-        run: npm run evaluate
-
-      - name: Build static walkthrough
-        run: npm run build:site
+          node-version: ${{ matrix.node }}
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run smoke:consumer
+# Publication is a separate, explicitly approved manual action.

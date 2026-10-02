@@ -1,0 +1,26 @@
+{
+  "mode": "offline harness checks only",
+  "liveProviderCalls": 0,
+  "mockedTransportCalls": 29,
+  "passed": [
+    "200 completed exchanges / 50 labels / 4 owners / 8 scoped sessions",
+    "fixed hashes verified",
+    "399 document + 44 query exact inputs produce 28 planned batches under cap 29",
+    "same vectors shared between both adapters",
+    "unplanned embeddings refused",
+    "valid cache reused with zero new calls",
+    "failed attempt consumed and not retried",
+    "exhausted persistent cap refuses before transport",
+    "partial request journal refuses further calls",
+    "changed embedding plan refused"
+  ],
+  "evidenceAuditChecks": [
+    "same ID/text/time from forbidden owner fails using stored ownership, despite forged caller-qualified key",
+    "product transcript ownership checked independently",
+    "valid upstream scoped-owner provenance accepted without per-source trace",
+    "future assistant fails asOf and paired-role forbidden checks",
+    "superseded source fails temporal visibility"
+  ],
+  "retrievalQuality": "N/A; mock transport vectors are not evaluated for semantic quality",
+  "manifestSha256": "ffdaa1c16fc5f19da9b3267c85817348e772139a70f742cb59a914ce0f42878e"
+}

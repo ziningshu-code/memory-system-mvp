@@ -1,10 +1,18 @@
-# Local conversation memory SDK (development build)
+# Memory System MVP — Generation 2
 
-This branch builds a local TypeScript/Node memory SDK from audited [LongMemory source](https://github.com/CaviraOSS/LongMemory/tree/9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5). It is **not yet published to npm or pushed to GitHub**. The current package can be tested with `npm pack` and installed from the resulting `.tgz` file.
+A local Node.js conversation-memory SDK **built on and extending a modified [LongMemory core](https://github.com/CaviraOSS/LongMemory/tree/9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5)**. It preserves exact user/assistant exchanges, finds relevant older sources, and returns their original wording with source IDs. Your application continues to use its own chat model.
 
-The application supplies its own chat model. This package stores exact visible user and assistant text in a local SQLite file first, then builds LongMemory nodes and embeddings in the same file. Retrieval ranks derived nodes and returns exact original source text with IDs and timestamps. No generative memory-model call is made by this SDK. A real embedding endpoint or model is required.
+Generation 2 adds transcript-first persistence, explicit corrections, grounded recall, rebuildable indexes and a small application-facing API. It makes **zero additional generative memory-model calls**. A real embedding provider is required; external embedding requests can consume tokens and send conversation text to that provider.
 
-## Use in a Node application
+## Install and start
+
+Node.js **22 or 24**, with a working `better-sqlite3` native binary/build toolchain. This release is prepared locally and **has not been published**. Install the prepared artifact:
+
+```sh
+npm install ./memory-system-mvp-0.5.0-beta.1.tgz
+```
+
+After npm publication, installation will be `npm install memory-system-mvp@0.5.0-beta.1`.
 
 ```js
 import { createMemory } from 'memory-system-mvp';
@@ -15,37 +23,69 @@ const memory = createMemory({
     baseUrl: 'https://your-embedding-provider.example/v1',
     model: 'your-embedding-model',
     apiKey: process.env.EMBED_API_KEY,
-    dimension: 1024, // use the model's actual dimension
+    dimension: 1024, // the actual dimension of your model
   },
 });
 
-const sessionId = 'a-stable-chat-id';
-const recalled = await memory.recall({ sessionId, query: 'Which hotel did I choose?' });
-// Put recalled.context in a separate system/developer message to your chat model.
-// Keep the application's ordinary recent messages separate.
-const answer = await yourChatModel(recalled.context);
-await memory.remember({ sessionId, user: 'Which hotel did I choose?', assistant: answer });
+await memory.remember({
+  sessionId: 'my-chat', turnId: 'turn-1',
+  user: 'My appointment is on Tuesday at 09:15.',
+  assistant: 'Understood: Tuesday at 09:15.',
+});
+const recalled = await memory.recall({ sessionId: 'my-chat', query: 'When is my appointment?' });
+console.log(recalled.context); // exact historical evidence, not a generated answer
 await memory.close();
 ```
 
-The runnable [OpenAI-compatible chat example](examples-product/openai-compatible-chat.mjs) shows the full request, response, and save sequence. Other embedding choices are `nvidia`, `ollama`, and an explicitly supplied `custom` provider. The embedding service may be different from the chat service; a chat API does not necessarily offer embeddings.
+For a full chat request, use the [generic OpenAI-compatible example](examples-product/openai-compatible-chat.mjs). Configure independent chat and embedding endpoints using [.env.example](.env.example), then run `node --env-file=.env examples-product/openai-compatible-chat.mjs "When is my appointment?"` from a built checkout. The example stores only visible speech and continues the chat when memory fails. No private application code is needed.
 
-`recall()` returns `context`, exact `sources` with IDs, and a `trace` of ranked, rejected, and budget-omitted candidates. `maxEvidenceTokens` bounds the actual injected text. A long source may be returned as a marked exact prefix excerpt with character offsets; the SDK never labels an excerpt as the complete source. The default database path is `~/.memory-system-mvp/memory.sqlite`; set `dbPath` to choose another local location.
-
-When the host already sends recent turns to its Main LLM, pass their stable turn IDs as `excludeTurnIds` to `recall()` so those turns are not injected twice.
-
-`remember()` saves both visible messages in one SQLite transaction **before** embedding. If embedding fails, it reports failed source IDs while keeping the exact transcript. `rebuild(sessionId)` retries derived indexing from the saved sources. A provider/model/dimension change triggers a derived-index rebuild on the next session open. `erase({sessionId, sourceId})` logically deletes the completed user/assistant turn containing that source: it removes both messages from normal history and recall, clears their text, repairs explicit correction chains, and rebuilds the session's derived state. If the same information appears in another turn, erase that turn separately. This does not promise forensic deletion of SQLite free pages, WAL files, or backups.
-
-To record a deliberate correction, use `remember({sessionId, user, assistant, supersedesSourceId})`. The source ID identifies the older completed turn; the new user and assistant sources explicitly replace the corresponding older sources. This prevents an assistant echo of an obsolete fact from remaining current. Erasing a newer correction restores the nearest surviving predecessor turn; erasing an older turn keeps its surviving successor active. `recall({sessionId, query, asOf})` can inspect the remaining recorded history at an earlier time. `validFrom` and `validAt` are for explicitly evidenced validity dates; the SDK does not infer those dates. Automatic contradiction resolution and decay are disabled.
-
-## Development checks
+## How it works
 
 ```text
-npm install
+Visible conversation
+  → authoritative exact transcript
+  → LongMemory-derived nodes / embeddings / temporal state
+  → semantic recall
+  → source resolution
+  → exact grounded evidence within a budget
+```
+
+Exact conversation is authoritative. Embeddings, nodes and relationships are derived search state and can be rebuilt. Both live in a local SQLite database, by default `~/.memory-system-mvp/memory.sqlite`. The SDK does not use a hosted memory backend.
+
+The public surface is `createMemory`, `remember`, `recall`, `history`, `rebuild`, `erase`, and `close`. `recall` exposes ranked/rejected/omitted candidates and exact source ranges. Hosts can pass recent `excludeTurnIds` to avoid duplicate evidence. Evidence is bounded using LongMemory's multilingual token estimate, **not the Main LLM's exact tokenizer**. Oversized sources yield marked exact prefix excerpts, which may omit a relevant detail near the end.
+
+Use `supersedesSourceId` for an explicit replacement of an older completed turn. The SDK does not infer arbitrary contradictions. `asOf` queries inspect remaining history at a recorded time. `erase` logically removes the whole paired turn and repairs correction chains; it is not forensic removal from SQLite pages or backups. See [SDK usage](docs/sdk.md) and [privacy](docs/privacy.md).
+
+## Project evolution
+
+**Generation 1** was an independently designed topic-oriented conversational memory system: a Topic Worker produced short topic indexes, a Selector picked candidates, and selected topics expanded back to original conversation. Later lexical/vector/proxy experiments exposed cost, boundary, reliability and integration limitations.
+
+**Generation 2** evolved from those requirements and lessons, but its runtime was rebuilt using a modified LongMemory core. It is **not the V1 runtime with LongMemory underneath**. The project-specific work is exact transcript persistence, conversation/source modeling, explicit corrections, recovery and application integration.
+
+The genuine V1 snapshot is preserved at local tag `legacy-v1` (pending tag publication), commit `f0c1991e443a8c1870c9e8c5a72166c6108c44a4`. [Generation 1 history](docs/generation-1.md) and [project evolution](docs/project-evolution.md) explain the distinction. Obsolete runtime code is excluded from this generation's package.
+
+## Validation
+
+The [final frozen validation](https://github.com/ziningshu-code/memory-system-mvp/tree/main/benchmarks-product/blind) uses 200 authored synthetic exchanges, 400 messages, eight owner/session scopes and 50 labeled queries. Each scope contains 25 exchanges. Real NVIDIA embeddings and configuration were frozen before evaluation, with no tuning after results.
+
+On the same 35 ranked positive queries, exact user-source recall within five results was **33/35 for this product and 21/35 for pinned upstream**. Both preserved all 400 original messages and had zero observed scope leakage. The product abstained on all four no-memory queries; upstream returned irrelevant, in-scope neighbors. The product passed 48/50 total checks, including lifecycle tests; its two misses were Chinese-history/English-query retrieval. These totals are **not Main LLM answer accuracy**, proof of 200-turn recall in one session, or a general superiority claim. Native grounding defaults and correction hints differ between the APIs. See [category results and raw data](https://github.com/ziningshu-code/memory-system-mvp/blob/main/benchmarks-product/blind/RESULTS.md). These repository links become available when this local release is published.
+
+The [earlier 50-turn comparison](https://github.com/ziningshu-code/memory-system-mvp/blob/main/benchmarks-product/REAL-RESULTS.md) is a calibration record. Its improved threshold was evaluated on the same data and is not a blind result. Deterministic SDK and integration tests use explicitly supplied test embeddings; these check behavior, not real semantic quality.
+
+## Upstream relationship and limitations
+
+`src/product/` is the project's conversational integration layer. `src/longmemory/` includes modified and unmodified LongMemory source pinned to `9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5`. See [attribution](ATTRIBUTION.md), [notices](NOTICE) and the [upstream Apache-2.0 license](UPSTREAM-LONGMEMORY-LICENSE). Mem0 was evaluated but is not included in the runtime.
+
+This beta is a **Node SDK**, with no bundled transparent proxy, browser SDK or setup page. Search remains local and linear in session size. Recall can miss sources or admit distractors, and thresholds are model/data dependent. Embeddings are required; a chat-compatible endpoint may not support them. Rebuilds can re-embed sources and incur provider cost. Use stable tenant/owner/session/turn IDs; isolation is application scoping, not an authentication system. Applications must handle their own Main LLM calls and retain valid chat responses when memory fails.
+
+## Development
+
+```sh
+npm ci
+npm run typecheck
 npm test
+npm run smoke:consumer
 npm pack
 ```
 
-The deterministic suite uses a fixed test embedder. A separate NVIDIA embedding integration script uses a local `.env` file and is not part of `npm test`; its API key is never stored in the package. The audited LongMemory GitHub revision differs materially from the npm package currently named `longmemory`, so this package contains attributed source rather than depending on that registry package. See [ATTRIBUTION.md](ATTRIBUTION.md) and [UPSTREAM-LONGMEMORY-LICENSE](UPSTREAM-LONGMEMORY-LICENSE).
-
-Current limitations: the local vector search is linear in the session's memory size; semantic relevance thresholds need calibration for providers other than the tested NVIDIA model; the package is an SDK and does not yet include a transparent local proxy or setup page; installation depends on the native `better-sqlite3` package, whose binary or build toolchain must be available for the user's Node version.
+CI is configured for Node 22/24 on Windows/Linux; local validation does not substitute for future CI results. No workflow publishes automatically. Release notes are in [docs/release-notes.md](docs/release-notes.md). [中文说明](README.zh-CN.md).

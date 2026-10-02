@@ -47,6 +47,21 @@ test('session isolation and no-memory rejection', async () => {
   await memory.close();
 });
 
+test('a factual conversational utterance needs transcript provenance, not external verification', async () => {
+  const dbPath = db();
+  const memory = createMemory({ dbPath, minSemanticSimilarity: 0.8,
+    embedding: { kind: 'custom', id: 'utterance-contract', dimension: 2, embed: async () => [1, 0] } });
+  const user = 'My appointment is at 09:15.';
+  await memory.remember({ sessionId: 'appointments', turnId: 'time', user, assistant: 'Understood.' });
+  const result = await memory.recall({ sessionId: 'appointments', query: 'appointment' });
+  assert.equal(result.sources.find((source) => source.sourceId === 'time:user')?.text, user);
+  await memory.close();
+  const reopened = createMemory({ dbPath, minSemanticSimilarity: 0.8,
+    embedding: { kind: 'custom', id: 'utterance-contract', dimension: 2, embed: async () => [1, 0] } });
+  assert.ok((await reopened.recall({sessionId: 'appointments', query: 'appointment'})).sources.some(source => source.sourceId === 'time:user'));
+  await reopened.close();
+});
+
 test('recent turns are excluded before exact evidence is budgeted', async () => {
   const memory = createMemory(config(db()));
   await memory.remember({ sessionId: 'trip', turnId: 'older',

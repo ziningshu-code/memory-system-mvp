@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "provider": "NVIDIA NIM",
+  "baseUrl": "https://integrate.api.nvidia.com/v1",
+  "model": "nvidia/nemotron-3-embed-1b",
+  "dimension": 2048,
+  "minSemanticSimilarity": 0.35,
+  "limit": 5,
+  "maxEvidenceTokens": 4096,
+  "upstreamCommit": "9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5",
+  "upstreamMode": "strict",
+  "upstreamMinConfidence": 0,
+  "documentBatchSize": 16,
+  "queryBatchSize": 16,
+  "maxPhysicalRequests": 29,
+  "requestStartSpacingMs": 2100,
+  "timeoutMs": 60000,
+  "automaticRetries": 0,
+  "noGenerativeCalls": true,
+  "smokeDimension": 64,
+  "runtimeClock": "Both native runtimes use system time; fixture timestamps and historical cutoffs are fixed"
+}

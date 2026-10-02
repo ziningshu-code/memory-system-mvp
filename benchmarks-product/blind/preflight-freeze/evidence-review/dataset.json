@@ -1,0 +1,2419 @@
+{
+  "version": 1,
+  "syntheticOnly": true,
+  "exchanges": [
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "oriole",
+      "user": "I named my pottery collection Oriole; its bowls have pale green rims.",
+      "assistant": "Oriole is your bowl collection with pale green rims.",
+      "recordedAt": 1788771600000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "clay",
+      "user": "For Oriole I am using speckled stoneware from Bracken Clay.",
+      "assistant": "The Oriole bowls use Bracken Clay speckled stoneware.",
+      "recordedAt": 1788771660000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "kiln-a",
+      "user": "The Oriole kiln schedule currently peaks at 1180 degrees Celsius.",
+      "assistant": "The current peak for the Oriole firing is 1180 degrees Celsius.",
+      "recordedAt": 1788771720000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "handles",
+      "user": "I want the mugs to have wide handles because my aunt has stiff fingers.",
+      "assistant": "Wide mug handles should make them easier for your aunt to hold.",
+      "recordedAt": 1788771780000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "test-tile",
+      "user": "请把蜂蜜色釉的测试片放在工作台左边的木盒里。",
+      "assistant": "蜂蜜色釉的测试片放在工作台左边的木盒里。",
+      "recordedAt": 1788771840000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "market",
+      "user": "Our craft stall at Willow Market is number W-27.",
+      "assistant": "Your Willow Market craft stall is W-27.",
+      "recordedAt": 1788771900000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "packing",
+      "user": "Use corrugated cardboard sleeves for the bowls and tissue for the small cups.",
+      "assistant": "Bowls get cardboard sleeves; small cups get tissue.",
+      "recordedAt": 1788771960000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "glaze",
+      "user": "Oriole 的 glaze supplier 是 North Fern，色号 NF-62。",
+      "assistant": "Oriole uses North Fern glaze in color NF-62.",
+      "recordedAt": 1788772020000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "teacher",
+      "user": "My wheel teacher Tessa asked me to slow down when I pull the rim.",
+      "assistant": "Tessa advised a slower pull when you shape the rim.",
+      "recordedAt": 1788772080000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "kiln-b",
+      "user": "Correction: the current Oriole kiln peak is 1200 degrees Celsius, replacing 1180.",
+      "assistant": "The Oriole kiln peak is now 1200 degrees Celsius, replacing 1180.",
+      "recordedAt": 1788772140000,
+      "supersedesSourceId": "kiln-a:user"
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "lamp",
+      "user": "The inspection lamp has a warm white bulb; the shelf lamp is cool white.",
+      "assistant": "The inspection lamp is warm white and the shelf lamp is cool white.",
+      "recordedAt": 1788772200000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "sign",
+      "user": "The stall sign should say Small bowls, slow mornings.",
+      "assistant": "The sign text is Small bowls, slow mornings.",
+      "recordedAt": 1788772260000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "receipt",
+      "user": "I filed the clay receipt in the amber folder beside the scales.",
+      "assistant": "The clay receipt is in the amber folder beside the scales.",
+      "recordedAt": 1788772320000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "verbatim",
+      "user": "  Label text:\n  Oriole / 雀 / ø\n  Handle with care.  ",
+      "assistant": "I will keep the label wording and spacing as you wrote it.",
+      "recordedAt": 1788772380000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "shelf",
+      "user": "Finished Oriole bowls belong on shelf three, away from the wet clay.",
+      "assistant": "Shelf three is for finished Oriole bowls, away from wet clay.",
+      "recordedAt": 1788772440000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "photos",
+      "user": "I will photograph the bowls against linen instead of the black paper.",
+      "assistant": "Use the linen background for the bowl photographs.",
+      "recordedAt": 1788772500000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "brush",
+      "user": "The cobalt brush is only for cobalt; please do not dip it in iron wash.",
+      "assistant": "Keep the cobalt brush separate from iron wash.",
+      "recordedAt": 1788772560000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "drying",
+      "user": "Let the new handles dry under loose plastic until Wednesday.",
+      "assistant": "The new handles should dry under loose plastic until Wednesday.",
+      "recordedAt": 1788772620000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "invoice",
+      "user": "The studio apron order is APR-884 and it contains six navy aprons.",
+      "assistant": "Order APR-884 contains six navy studio aprons.",
+      "recordedAt": 1788772680000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "kiln-c",
+      "user": "One more correction: set the current Oriole kiln peak to 1220 degrees Celsius instead of 1200.",
+      "assistant": "The current Oriole kiln peak is 1220 degrees Celsius, replacing 1200.",
+      "recordedAt": 1788772740000,
+      "supersedesSourceId": "kiln-b:user"
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "safety",
+      "user": "I keep the kiln gloves on the hook next to the fire extinguisher.",
+      "assistant": "The kiln gloves hang beside the fire extinguisher.",
+      "recordedAt": 1788772800000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "repair",
+      "user": "The chipped display plate is a sample, so mark it not for sale.",
+      "assistant": "Mark the chipped display sample not for sale.",
+      "recordedAt": 1788772860000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "music",
+      "user": "During glazing I prefer quiet cello music, without singing.",
+      "assistant": "Quiet instrumental cello music suits your glazing sessions.",
+      "recordedAt": 1788772920000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "price",
+      "user": "Price the tiny salt dishes at twelve credits each for this practice sale.",
+      "assistant": "The tiny salt dishes are twelve credits each for the practice sale.",
+      "recordedAt": 1788772980000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "turnId": "cleanup",
+      "user": "At closing, leave the wheel splash pan upside down to dry.",
+      "assistant": "Turn the wheel splash pan upside down after cleaning.",
+      "recordedAt": 1788773040000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "route",
+      "user": "Saturday cycling is the Birch Canal loop, starting at the red footbridge.",
+      "assistant": "Start the Birch Canal cycling loop at the red footbridge on Saturday.",
+      "recordedAt": 1788858000000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "bike",
+      "user": "My bicycle is called Plover and has a cream frame with orange grips.",
+      "assistant": "Plover is your cream bicycle with orange grips.",
+      "recordedAt": 1788858060000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "tool",
+      "user": "The Plover tire lever set is in the small green saddle pouch.",
+      "assistant": "The tire levers are in the small green saddle pouch on Plover.",
+      "recordedAt": 1788858120000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "pump",
+      "user": "I lend the floor pump to Rowan, but keep the hand pump on the bike.",
+      "assistant": "Rowan borrows the floor pump; the hand pump stays on your bike.",
+      "recordedAt": 1788858180000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "meeting",
+      "user": "我们早上七点四十在红色步行桥旁见面。",
+      "assistant": "骑行集合时间是早上七点四十，地点在红色步行桥旁。",
+      "recordedAt": 1788858240000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "snack",
+      "user": "Pack oat bars without raisins; I dislike raisins in trail snacks.",
+      "assistant": "Pack raisin-free oat bars for the ride.",
+      "recordedAt": 1788858300000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "repair-book",
+      "user": "The repair booklet is titled Quiet Wheels and lives in my desk drawer.",
+      "assistant": "Quiet Wheels is the repair booklet in your desk drawer.",
+      "recordedAt": 1788858360000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "lock",
+      "user": "My practice bike lock code is 4826; it is a synthetic example for this exercise.",
+      "assistant": "The synthetic practice bike lock code is 4826.",
+      "recordedAt": 1788858420000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "distance",
+      "user": "The short canal loop is fourteen kilometers and the orchard detour adds three.",
+      "assistant": "The canal loop is fourteen kilometers; the orchard detour adds three.",
+      "recordedAt": 1788858480000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "rain",
+      "user": "If it rains, we will meet at the covered ferry shelter instead.",
+      "assistant": "Use the covered ferry shelter as the rain meeting point.",
+      "recordedAt": 1788858540000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "map",
+      "user": "Birch Canal map 的 offline copy 保存在手机的 Rides 文件夹。",
+      "assistant": "The offline Birch Canal map is in the phone Rides folder.",
+      "recordedAt": 1788858600000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "berries",
+      "user": "The farm stand sells blackberries on Saturdays, but I plan to buy pears.",
+      "assistant": "You plan to buy pears at the farm stand, though it also sells blackberries.",
+      "recordedAt": 1788858660000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "helmet",
+      "user": "I put the spare helmet in the woven basket under the stairs.",
+      "assistant": "The spare helmet is in the woven basket under the stairs.",
+      "recordedAt": 1788858720000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "lantern",
+      "user": "For the picnic, bring the little lantern with the yellow strap.",
+      "assistant": "Bring the lantern with the yellow strap to the picnic.",
+      "recordedAt": 1788858780000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "bench",
+      "user": "Lunch is at the stone bench beside the old towpath crane.",
+      "assistant": "The stone bench by the old towpath crane is your lunch stop.",
+      "recordedAt": 1788858840000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "water",
+      "user": "Fill two bottles before leaving; one is plain water and the other lemon water.",
+      "assistant": "Pack one bottle of plain water and one of lemon water.",
+      "recordedAt": 1788858900000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "camera",
+      "user": "I am taking the pocket camera, not the heavy lens kit.",
+      "assistant": "Take the pocket camera for this ride.",
+      "recordedAt": 1788858960000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "return",
+      "user": "I need to be back by three for the neighborhood seed swap.",
+      "assistant": "Plan the ride so you return by three for the seed swap.",
+      "recordedAt": 1788859020000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "flowers",
+      "user": "The seed swap request is for white cosmos seeds.",
+      "assistant": "You are looking for white cosmos seeds at the swap.",
+      "recordedAt": 1788859080000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "gloves",
+      "user": "The riding gloves with reflective dots are drying on the balcony rail.",
+      "assistant": "Your gloves with reflective dots are drying on the balcony rail.",
+      "recordedAt": 1788859140000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "bridge",
+      "user": "The wooden bridge is closed; use the paved crossing near the mill.",
+      "assistant": "Use the paved crossing near the mill while the wooden bridge is closed.",
+      "recordedAt": 1788859200000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "bell",
+      "user": "I replaced Plover’s bell with the brass one that makes a single clear note.",
+      "assistant": "Plover now has the brass bell with a single clear note.",
+      "recordedAt": 1788859260000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "route-note",
+      "user": "Keep the orchard detour optional because Rowan wants an easy ride.",
+      "assistant": "The orchard detour stays optional so Rowan can take the easy route.",
+      "recordedAt": 1788859320000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "reading",
+      "user": "After the ride I want to finish the essay about urban foxes.",
+      "assistant": "Your after-ride reading is the essay about urban foxes.",
+      "recordedAt": 1788859380000
+    },
+    {
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "turnId": "failure-target",
+      "user": "The emergency patch kit is in the violet tin inside the hallway cabinet.",
+      "assistant": "The emergency patch kit is in the violet tin in the hallway cabinet.",
+      "recordedAt": 1788859440000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "oriole",
+      "user": "Our community play is called Oriole; I coordinate props for it.",
+      "assistant": "Oriole is your community play, and you coordinate its props.",
+      "recordedAt": 1788944400000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "director",
+      "user": "The director is Mina and the stage manager is Soren.",
+      "assistant": "Mina directs the play and Soren manages the stage.",
+      "recordedAt": 1788944460000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "rehearsal-a",
+      "user": "Oriole rehearsals currently begin at 18:10 on Thursdays.",
+      "assistant": "The current Thursday rehearsal start for Oriole is 18:10.",
+      "recordedAt": 1788944520000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "lantern",
+      "user": "The paper moon lantern goes in the final scene, after the door closes.",
+      "assistant": "Use the paper moon lantern after the door closes in the final scene.",
+      "recordedAt": 1788944580000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "wardrobe",
+      "user": "请把铜色披肩挂在服装架最右边。",
+      "assistant": "铜色披肩挂在服装架最右边。",
+      "recordedAt": 1788944640000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "tickets",
+      "user": "The practice ticket prefix is ORL and the seat block is C.",
+      "assistant": "Practice tickets use prefix ORL and seat block C.",
+      "recordedAt": 1788944700000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "paint",
+      "user": "For the stage wall, order matte ochre paint from Finch Supplies.",
+      "assistant": "Finch Supplies provides the matte ochre stage-wall paint.",
+      "recordedAt": 1788944760000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "sound",
+      "user": "The thunder cue is cue 17, followed by eight seconds of silence.",
+      "assistant": "Thunder is cue 17, with eight seconds of silence afterward.",
+      "recordedAt": 1788944820000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "chairs",
+      "user": "We need four cane chairs but only one upholstered chair.",
+      "assistant": "Prepare four cane chairs and one upholstered chair.",
+      "recordedAt": 1788944880000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "rehearsal-b",
+      "user": "Correction: Oriole rehearsals now start at 18:40 on Thursdays, replacing 18:10.",
+      "assistant": "The Thursday Oriole rehearsal now starts at 18:40, replacing 18:10.",
+      "recordedAt": 1788944940000,
+      "supersedesSourceId": "rehearsal-a:user"
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "script",
+      "user": "The latest script draft is River Draft 6 and has a purple cover.",
+      "assistant": "River Draft 6 is the latest script, with a purple cover.",
+      "recordedAt": 1788945000000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "tea",
+      "user": "The cast prefers mint tea during the break.",
+      "assistant": "Provide mint tea at the cast break.",
+      "recordedAt": 1788945060000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "storage",
+      "user": "The collapsible doorway is stored behind the gray curtain.",
+      "assistant": "The collapsible doorway is behind the gray curtain.",
+      "recordedAt": 1788945120000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "mic",
+      "user": "The wireless mic with green tape is reserved for the narrator.",
+      "assistant": "Reserve the mic with green tape for the narrator.",
+      "recordedAt": 1788945180000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "poster",
+      "user": "The poster credit should read Props by the Lantern Crew.",
+      "assistant": "Use Props by the Lantern Crew as the poster credit.",
+      "recordedAt": 1788945240000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "entrance",
+      "user": "The audience entrance is the courtyard gate, not the loading ramp.",
+      "assistant": "Direct the audience through the courtyard gate.",
+      "recordedAt": 1788945300000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "budget",
+      "user": "Oriole props 的 budget 是 640 credits，审批人是 Mina。",
+      "assistant": "Mina approves the Oriole props budget of 640 credits.",
+      "recordedAt": 1788945360000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "sand",
+      "user": "Use sealed rice bags for weight; loose sand would spill on stage.",
+      "assistant": "Use sealed rice bags as stage weights.",
+      "recordedAt": 1788945420000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "rehearsal-c",
+      "user": "Final correction: Oriole Thursday rehearsals begin at 19:00 instead of 18:40.",
+      "assistant": "The current Thursday rehearsal time for Oriole is 19:00, replacing 18:40.",
+      "recordedAt": 1788945480000,
+      "supersedesSourceId": "rehearsal-b:user"
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "shoes",
+      "user": "The soft brown stage shoes are in box B beside the mirror.",
+      "assistant": "Box B beside the mirror holds the soft brown stage shoes.",
+      "recordedAt": 1788945540000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "bow",
+      "user": "The curtain call order is narrator, neighbors, then the lantern bearers.",
+      "assistant": "Curtain call goes narrator, neighbors, then lantern bearers.",
+      "recordedAt": 1788945600000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "repair",
+      "user": "Repair the loose hinge on the doorway before the dress rehearsal.",
+      "assistant": "Fix the doorway hinge before the dress rehearsal.",
+      "recordedAt": 1788945660000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "program",
+      "user": "The program should list a running time of seventy-five minutes.",
+      "assistant": "List seventy-five minutes as the running time in the program.",
+      "recordedAt": 1788945720000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "cleanup",
+      "user": "Soren will check the prop table after every performance.",
+      "assistant": "Soren checks the prop table after each performance.",
+      "recordedAt": 1788945780000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "turnId": "thank-you",
+      "user": "I want the thank-you card to mention the volunteer seamstresses.",
+      "assistant": "Mention the volunteer seamstresses in the thank-you card.",
+      "recordedAt": 1788945840000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "reserve",
+      "user": "Sunday birdwatching is at Reed Marsh, through the east boardwalk entrance.",
+      "assistant": "Enter Reed Marsh through the east boardwalk for Sunday birdwatching.",
+      "recordedAt": 1789030800000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "binoculars",
+      "user": "My binoculars are the eight-power pair in the blue case.",
+      "assistant": "Your binoculars are the eight-power pair in the blue case.",
+      "recordedAt": 1789030860000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "guide",
+      "user": "The bird guide I use is Marsh Voices, with handwritten notes in the back.",
+      "assistant": "Marsh Voices is your annotated bird guide.",
+      "recordedAt": 1789030920000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "meeting",
+      "user": "We meet at 06:20 to hear the reed warblers before the visitors arrive.",
+      "assistant": "Meet at 06:20 for the reed warblers before the reserve gets busy.",
+      "recordedAt": 1789030980000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "lunch",
+      "user": "我给午餐准备了豆腐饭团和黄瓜。",
+      "assistant": "你的午餐是豆腐饭团和黄瓜。",
+      "recordedAt": 1789031040000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "hide",
+      "user": "The observation hide is called Heron Screen and its door faces north.",
+      "assistant": "Heron Screen is the observation hide with a north-facing door.",
+      "recordedAt": 1789031100000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "boots",
+      "user": "My marsh boots are beside the back door under the folded raincoat.",
+      "assistant": "The marsh boots are under the folded raincoat beside the back door.",
+      "recordedAt": 1789031160000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "notes",
+      "user": "Record flight direction as well as bird counts in the notebook.",
+      "assistant": "Include flight direction with each bird count.",
+      "recordedAt": 1789031220000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "silence",
+      "user": "I want to avoid the west trail because the maintenance crew will be there.",
+      "assistant": "Avoid the west trail during the maintenance work.",
+      "recordedAt": 1789031280000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "permit",
+      "user": "Our synthetic reserve permit code is RM-593.",
+      "assistant": "The practice reserve permit code is RM-593.",
+      "recordedAt": 1789031340000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "camera",
+      "user": "Use the 300 millimeter lens for birds and the small lens for reeds.",
+      "assistant": "Use the 300 millimeter lens for birds and the small lens for reed photos.",
+      "recordedAt": 1789031400000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "weather",
+      "user": "If the wind is strong, start at the willow hide instead of the open platform.",
+      "assistant": "Start at the willow hide when it is too windy for the open platform.",
+      "recordedAt": 1789031460000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "water",
+      "user": "The drinking-water tap is beside the visitor shed.",
+      "assistant": "Refill drinking water at the tap beside the visitor shed.",
+      "recordedAt": 1789031520000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "map",
+      "user": "Reed Marsh route 的 GPX 文件名是 reed-east.gpx。",
+      "assistant": "The Reed Marsh route file is reed-east.gpx.",
+      "recordedAt": 1789031580000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "nest",
+      "user": "Keep well back from the marked nesting area near the cattails.",
+      "assistant": "Keep your distance from the marked cattail nesting area.",
+      "recordedAt": 1789031640000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "return",
+      "user": "We should leave the reserve by eleven to catch the small ferry.",
+      "assistant": "Leave Reed Marsh by eleven for the small ferry.",
+      "recordedAt": 1789031700000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "friend",
+      "user": "Ellis is bringing a spotting scope, so I only need the binoculars.",
+      "assistant": "Ellis brings the spotting scope; you bring binoculars.",
+      "recordedAt": 1789031760000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "pencil",
+      "user": "Take a soft pencil because the ink pen smears in damp weather.",
+      "assistant": "Use a soft pencil for notes in damp weather.",
+      "recordedAt": 1789031820000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "book",
+      "user": "Afterward I want to borrow the book about migratory swifts.",
+      "assistant": "Borrow the book about migratory swifts after the outing.",
+      "recordedAt": 1789031880000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "bag",
+      "user": "The spare dry socks go in the orange waterproof bag.",
+      "assistant": "Pack spare dry socks in the orange waterproof bag.",
+      "recordedAt": 1789031940000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "flowers",
+      "user": "The purple flowers by the path are loosestrife, according to the sign.",
+      "assistant": "The path sign identifies the purple flowers as loosestrife.",
+      "recordedAt": 1789032000000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "path",
+      "user": "The east boardwalk has a repaired section marked with white arrows.",
+      "assistant": "Follow the white arrows at the repaired east boardwalk section.",
+      "recordedAt": 1789032060000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "recording",
+      "user": "I only want audio of the dawn chorus, without spoken narration.",
+      "assistant": "Record the dawn chorus without narration.",
+      "recordedAt": 1789032120000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "album",
+      "user": "Call the photo album Reed Light, with the date on its first page.",
+      "assistant": "Name the album Reed Light and put the date on the first page.",
+      "recordedAt": 1789032180000
+    },
+    {
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "turnId": "battery",
+      "user": "The spare recorder battery is in the mesh pocket of the blue case.",
+      "assistant": "The mesh pocket of the blue case holds the spare recorder battery.",
+      "recordedAt": 1789032240000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "pantry",
+      "user": "Our community pantry is called Copper Basket and opens on Tuesdays.",
+      "assistant": "Copper Basket is your community pantry, open on Tuesdays.",
+      "recordedAt": 1789117200000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "lead",
+      "user": "Nadia coordinates donations and I coordinate shelf labels.",
+      "assistant": "Nadia coordinates donations; you handle the shelf labels.",
+      "recordedAt": 1789117260000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "rice",
+      "user": "The brown rice bags belong on the middle shelf near the scales.",
+      "assistant": "Store brown rice on the middle shelf near the scales.",
+      "recordedAt": 1789117320000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "allergy",
+      "user": "Keep the peanut products in their own clearly marked crate.",
+      "assistant": "Use a separate clearly marked crate for peanut products.",
+      "recordedAt": 1789117380000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "delivery",
+      "user": "周二上午九点半会送来两箱燕麦片。",
+      "assistant": "两箱燕麦片周二上午九点半送到。",
+      "recordedAt": 1789117440000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "label",
+      "user": "The lentil label should include cooking time: twenty-five minutes.",
+      "assistant": "Put a twenty-five-minute cooking time on the lentil label.",
+      "recordedAt": 1789117500000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "rota",
+      "user": "Dara covers the first shift and Owen covers the last shift.",
+      "assistant": "Dara handles the first shift; Owen handles the last.",
+      "recordedAt": 1789117560000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "boxes",
+      "user": "Reuse only the clean cardboard boxes without strong perfume smells.",
+      "assistant": "Keep clean cardboard boxes that do not smell of perfume.",
+      "recordedAt": 1789117620000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "scale",
+      "user": "The portable scale is stored in the bottom drawer beneath the receipt book.",
+      "assistant": "The portable scale is below the receipt book in the bottom drawer.",
+      "recordedAt": 1789117680000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "recipe",
+      "user": "For the pantry recipe cards, start with chickpea and tomato stew.",
+      "assistant": "The first pantry recipe card is chickpea and tomato stew.",
+      "recordedAt": 1789117740000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "donor",
+      "user": "Copper Basket 的 flour donor 是 Field Mill，每月第二个周二送货。",
+      "assistant": "Field Mill donates flour on the second Tuesday each month.",
+      "recordedAt": 1789117800000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "poster",
+      "user": "The poster wording is Take what helps, leave what you can.",
+      "assistant": "Use Take what helps, leave what you can on the pantry poster.",
+      "recordedAt": 1789117860000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "soup",
+      "user": "The practice soup session needs fourteen washable bowls.",
+      "assistant": "Prepare fourteen washable bowls for the practice soup session.",
+      "recordedAt": 1789117920000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "count",
+      "user": "Count jars separately from packets in the stock sheet.",
+      "assistant": "Track jars and packets separately on the stock sheet.",
+      "recordedAt": 1789117980000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "cleaner",
+      "user": "Unscented surface cleaner lives in the locked cabinet by the sink.",
+      "assistant": "The locked sink-side cabinet holds the unscented surface cleaner.",
+      "recordedAt": 1789118040000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "tea",
+      "user": "Please offer chamomile tea to the evening volunteers.",
+      "assistant": "Offer chamomile tea during the evening volunteer shift.",
+      "recordedAt": 1789118100000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "fund",
+      "user": "The pantry’s synthetic petty-cash envelope has code CB-216.",
+      "assistant": "The practice petty-cash envelope code is CB-216.",
+      "recordedAt": 1789118160000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "labels",
+      "user": "Use large black lettering on cream paper for shelf labels.",
+      "assistant": "Shelf labels should have large black letters on cream paper.",
+      "recordedAt": 1789118220000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "training",
+      "user": "Volunteer orientation is a forty-minute walk through the pantry.",
+      "assistant": "The orientation is a forty-minute pantry walk-through.",
+      "recordedAt": 1789118280000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "herbs",
+      "user": "Dry mint goes in glass jars; fresh parsley goes in the cool box.",
+      "assistant": "Put dry mint in glass jars and fresh parsley in the cool box.",
+      "recordedAt": 1789118340000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "return",
+      "user": "Return the borrowed hand trolley to Field Mill on Wednesday.",
+      "assistant": "Return Field Mill’s hand trolley on Wednesday.",
+      "recordedAt": 1789118400000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "notice",
+      "user": "Write the closure notice in both Chinese and English.",
+      "assistant": "Make the closure notice bilingual in Chinese and English.",
+      "recordedAt": 1789118460000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "repair",
+      "user": "The left shelf bracket needs tightening before the next delivery.",
+      "assistant": "Tighten the left shelf bracket before the next delivery.",
+      "recordedAt": 1789118520000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "feedback",
+      "user": "Keep anonymous feedback slips in the little brass letterbox.",
+      "assistant": "The little brass letterbox is for anonymous feedback slips.",
+      "recordedAt": 1789118580000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "turnId": "closing",
+      "user": "At closing, cover the bread basket with the clean checked cloth.",
+      "assistant": "Cover the bread basket with the clean checked cloth at closing.",
+      "recordedAt": 1789118640000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "observing",
+      "user": "Our astronomy evening is at Foxglove Field on Saturday.",
+      "assistant": "Foxglove Field is the site of your Saturday astronomy evening.",
+      "recordedAt": 1789203600000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "scope",
+      "user": "My telescope is named Moth and uses the short tripod.",
+      "assistant": "Moth is your telescope on the short tripod.",
+      "recordedAt": 1789203660000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "battery-a",
+      "user": "Moth’s current battery pack is the silver 12 amp-hour pack.",
+      "assistant": "Moth currently uses the silver 12 amp-hour battery pack.",
+      "recordedAt": 1789203720000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "target",
+      "user": "I want to observe the Moon’s southern highlands first.",
+      "assistant": "Start observing with the Moon’s southern highlands.",
+      "recordedAt": 1789203780000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "red-light",
+      "user": "红色手电筒放在望远镜包的外侧口袋。",
+      "assistant": "红色手电筒在望远镜包的外侧口袋。",
+      "recordedAt": 1789203840000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "chair",
+      "user": "Bring the low folding chair with the striped seat.",
+      "assistant": "Bring the low chair with the striped seat for observing.",
+      "recordedAt": 1789203900000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "chart",
+      "user": "The printed sky chart is in the transparent sleeve with the clip.",
+      "assistant": "The printed sky chart is in the clipped transparent sleeve.",
+      "recordedAt": 1789203960000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "eyepiece",
+      "user": "Start with the 25 millimeter eyepiece before trying the 10 millimeter one.",
+      "assistant": "Begin with the 25 millimeter eyepiece, then try the 10 millimeter one.",
+      "recordedAt": 1789204020000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "thermos",
+      "user": "I will fill the thermos with cocoa rather than coffee.",
+      "assistant": "Bring cocoa in the thermos.",
+      "recordedAt": 1789204080000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "battery-b",
+      "user": "Correction: Moth now uses the black 18 amp-hour battery pack instead of the silver pack.",
+      "assistant": "Moth’s current battery is the black 18 amp-hour pack, replacing the silver pack.",
+      "recordedAt": 1789204140000,
+      "supersedesSourceId": "battery-a:user"
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "arrival",
+      "user": "Get to Foxglove Field before sunset so the tripod can be leveled.",
+      "assistant": "Arrive before sunset to level the tripod.",
+      "recordedAt": 1789204200000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "dew",
+      "user": "The dew shield is the soft black tube with a green seam.",
+      "assistant": "Use the soft black dew shield with the green seam.",
+      "recordedAt": 1789204260000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "sketch",
+      "user": "I plan to sketch lunar shadows with charcoal on gray paper.",
+      "assistant": "Use charcoal on gray paper to sketch the lunar shadows.",
+      "recordedAt": 1789204320000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "mount",
+      "user": "Moth mount 的 tracking setting 是 lunar，不是 sidereal。",
+      "assistant": "Use lunar tracking on Moth’s mount.",
+      "recordedAt": 1789204380000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "friend",
+      "user": "Iris is bringing a star atlas and a spare wool blanket.",
+      "assistant": "Iris brings the star atlas and a spare wool blanket.",
+      "recordedAt": 1789204440000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "parking",
+      "user": "Park along the gravel edge beside the hawthorn hedge.",
+      "assistant": "Park on the gravel edge by the hawthorn hedge.",
+      "recordedAt": 1789204500000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "clouds",
+      "user": "If clouds cover the Moon, we will compare sketches indoors.",
+      "assistant": "Compare sketches indoors if clouds block the Moon.",
+      "recordedAt": 1789204560000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "battery-c",
+      "user": "Another correction: Moth’s current pack is the blue 24 amp-hour battery, replacing the black pack.",
+      "assistant": "Moth now uses the blue 24 amp-hour battery, replacing the black pack.",
+      "recordedAt": 1789204620000,
+      "supersedesSourceId": "battery-b:user"
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "timer",
+      "user": "The interval timer is clipped to the telescope bag’s handle.",
+      "assistant": "The interval timer is on the telescope bag handle.",
+      "recordedAt": 1789204680000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "notes",
+      "user": "Write the seeing conditions before each sketch.",
+      "assistant": "Record seeing conditions before each sketch.",
+      "recordedAt": 1789204740000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "lens",
+      "user": "The soft lens brush lives in the narrow wooden case.",
+      "assistant": "The narrow wooden case holds the soft lens brush.",
+      "recordedAt": 1789204800000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "cable",
+      "user": "The short power cable has a yellow sleeve at both ends.",
+      "assistant": "Identify the short power cable by its yellow sleeves.",
+      "recordedAt": 1789204860000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "album",
+      "user": "Call the observing notebook Moon Orchard.",
+      "assistant": "Your observing notebook is named Moon Orchard.",
+      "recordedAt": 1789204920000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "return",
+      "user": "I want to pack up at 22:30, before the late bus.",
+      "assistant": "Pack up at 22:30 before the late bus.",
+      "recordedAt": 1789204980000
+    },
+    {
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "turnId": "storage",
+      "user": "Afterward, let the telescope dry in the entryway before closing its bag.",
+      "assistant": "Let the telescope dry in the entryway before packing it away.",
+      "recordedAt": 1789205040000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "quilt",
+      "user": "My quilt project is called Glass Fern and uses blue and rust triangles.",
+      "assistant": "Glass Fern is your quilt with blue and rust triangles.",
+      "recordedAt": 1789290000000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "fabric",
+      "user": "The backing fabric is unbleached cotton from Meadow Threads.",
+      "assistant": "Meadow Threads supplies the unbleached cotton quilt backing.",
+      "recordedAt": 1789290060000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "needle",
+      "user": "Use a size 80 needle for the piecing samples.",
+      "assistant": "Use a size 80 needle for the piecing samples.",
+      "recordedAt": 1789290120000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "press",
+      "user": "Press the seam allowances open on the long strips.",
+      "assistant": "Press the long-strip seam allowances open.",
+      "recordedAt": 1789290180000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "buttons",
+      "user": "请把贝壳纽扣收在缝纫机旁边的红色小罐里。",
+      "assistant": "贝壳纽扣放在缝纫机旁的红色小罐里。",
+      "recordedAt": 1789290240000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "class",
+      "user": "My quilting class meets in room F-12 at the craft center.",
+      "assistant": "The quilting class uses room F-12 at the craft center.",
+      "recordedAt": 1789290300000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "teacher",
+      "user": "Nell taught me to check the diagonal with the clear ruler.",
+      "assistant": "Nell advised using the clear ruler to check the diagonal.",
+      "recordedAt": 1789290360000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "thread",
+      "user": "Glass Fern 的 thread 色号是 MT-408，品牌 Meadow Threads。",
+      "assistant": "Glass Fern uses Meadow Threads thread in color MT-408.",
+      "recordedAt": 1789290420000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "border",
+      "user": "The outer border should be plain rust, six centimeters wide.",
+      "assistant": "Make the outer border plain rust and six centimeters wide.",
+      "recordedAt": 1789290480000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "scissors",
+      "user": "The fabric scissors have a turquoise handle and must stay away from paper.",
+      "assistant": "Keep the turquoise fabric scissors for fabric only.",
+      "recordedAt": 1789290540000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "pins",
+      "user": "Put the bent pins in the discard tin rather than the pincushion.",
+      "assistant": "Bent pins go in the discard tin.",
+      "recordedAt": 1789290600000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "binding",
+      "user": "I will use striped binding, with the stripe angled across the edge.",
+      "assistant": "Use striped binding with the stripe running diagonally across the edge.",
+      "recordedAt": 1789290660000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "sample",
+      "user": "The test block is fourteen centimeters square before trimming.",
+      "assistant": "The untrimmed test block is fourteen centimeters square.",
+      "recordedAt": 1789290720000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "label",
+      "user": "The quilt label should say Made slowly for bright mornings.",
+      "assistant": "Use Made slowly for bright mornings on the quilt label.",
+      "recordedAt": 1789290780000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "iron",
+      "user": "The steam iron is on the shelf under the cork board.",
+      "assistant": "The steam iron sits under the cork board.",
+      "recordedAt": 1789290840000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "batting",
+      "user": "Choose thin wool batting for the lightweight quilt.",
+      "assistant": "Use thin wool batting for the lightweight quilt.",
+      "recordedAt": 1789290900000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "pattern",
+      "user": "The pattern booklet is Folded Meadows, second edition.",
+      "assistant": "Your pattern booklet is Folded Meadows, second edition.",
+      "recordedAt": 1789290960000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "cutting",
+      "user": "Cut the blue pieces first so I can check how much rust fabric remains.",
+      "assistant": "Cut the blue pieces before assessing the remaining rust fabric.",
+      "recordedAt": 1789291020000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "display",
+      "user": "The finished quilt will hang from the pale wooden rail.",
+      "assistant": "Display the finished quilt on the pale wooden rail.",
+      "recordedAt": 1789291080000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "receipt",
+      "user": "The practice fabric receipt number is GF-731.",
+      "assistant": "The synthetic fabric receipt number is GF-731.",
+      "recordedAt": 1789291140000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "bag",
+      "user": "Carry the sample blocks in the flat canvas portfolio.",
+      "assistant": "Use the flat canvas portfolio for the sample blocks.",
+      "recordedAt": 1789291200000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "music",
+      "user": "For hand stitching I like recordings of rain with no music.",
+      "assistant": "Use rain recordings without music for hand-stitching time.",
+      "recordedAt": 1789291260000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "gift",
+      "user": "Glass Fern is a gift for my cousin’s reading nook.",
+      "assistant": "The Glass Fern quilt is for your cousin’s reading nook.",
+      "recordedAt": 1789291320000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "repair",
+      "user": "Replace the worn cutting-mat corner before the next long strip.",
+      "assistant": "Replace the worn mat corner before cutting the next long strip.",
+      "recordedAt": 1789291380000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "turnId": "cleanup",
+      "user": "At the end, cover the machine with the gray cotton cover.",
+      "assistant": "Put the gray cotton cover over the sewing machine at the end.",
+      "recordedAt": 1789291440000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "launch",
+      "user": "Sunday kayaking is on Alder Lake, launching from the west pebble beach.",
+      "assistant": "Launch the Sunday Alder Lake kayak outing from the west pebble beach.",
+      "recordedAt": 1789376400000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "kayak",
+      "user": "My kayak is named Otter and has a yellow deck.",
+      "assistant": "Otter is your kayak with the yellow deck.",
+      "recordedAt": 1789376460000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "time-a",
+      "user": "The current Alder Lake launch time is 08:00.",
+      "assistant": "The Alder Lake launch is currently at 08:00.",
+      "recordedAt": 1789376520000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "paddle",
+      "user": "My paddle with the red blade tips is stored on the upper wall hooks.",
+      "assistant": "The paddle with red blade tips is on the upper wall hooks.",
+      "recordedAt": 1789376580000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "drybag",
+      "user": "防水袋里要放一套干衣服和那本小地图册。",
+      "assistant": "防水袋里装一套干衣服和小地图册。",
+      "recordedAt": 1789376640000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "friend",
+      "user": "Cal brings the first-aid kit and I bring the repair tape.",
+      "assistant": "Cal brings first aid; you bring repair tape.",
+      "recordedAt": 1789376700000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "route",
+      "user": "We will paddle clockwise around the small island without landing there.",
+      "assistant": "Paddle clockwise around the small island and do not land on it.",
+      "recordedAt": 1789376760000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "booking",
+      "user": "Our synthetic paddle-club slot reference is AL-458.",
+      "assistant": "The practice paddle-club slot reference is AL-458.",
+      "recordedAt": 1789376820000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "snack",
+      "user": "Take rice crackers and apple slices for the shore break.",
+      "assistant": "Pack rice crackers and apple slices for the shore break.",
+      "recordedAt": 1789376880000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "time-b",
+      "user": "Correction: the current Alder Lake launch time is 08:30 instead of 08:00.",
+      "assistant": "Alder Lake launch is now at 08:30, replacing 08:00.",
+      "recordedAt": 1789376940000,
+      "supersedesSourceId": "time-a:user"
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "vest",
+      "user": "The buoyancy vest with the white whistle is hanging behind the utility door.",
+      "assistant": "The vest with the white whistle hangs behind the utility door.",
+      "recordedAt": 1789377000000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "map",
+      "user": "Alder Lake map 的 waterproof edition 是第三版。",
+      "assistant": "Use the third waterproof edition of the Alder Lake map.",
+      "recordedAt": 1789377060000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "wind",
+      "user": "If the wind reaches the practice group’s limit, we stay in the sheltered bay.",
+      "assistant": "Use the sheltered bay when the wind reaches the group’s limit.",
+      "recordedAt": 1789377120000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "rope",
+      "user": "The tow rope is coiled inside the mesh bag on the equipment shelf.",
+      "assistant": "The tow rope is in the mesh bag on the equipment shelf.",
+      "recordedAt": 1789377180000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "parking",
+      "user": "Park beside the disused boathouse, leaving the turning area clear.",
+      "assistant": "Park by the disused boathouse and keep the turning area clear.",
+      "recordedAt": 1789377240000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "time-c",
+      "user": "Final correction: launch at Alder Lake at 09:00, replacing 08:30.",
+      "assistant": "The current Alder Lake launch time is 09:00, replacing 08:30.",
+      "recordedAt": 1789377300000,
+      "supersedesSourceId": "time-b:user"
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "camera",
+      "user": "I will use the little waterproof camera on a wrist strap.",
+      "assistant": "Use the small waterproof camera with its wrist strap.",
+      "recordedAt": 1789377360000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "lunch",
+      "user": "After paddling, lunch is at the picnic table near the birch trees.",
+      "assistant": "Eat lunch at the picnic table near the birch trees after paddling.",
+      "recordedAt": 1789377420000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "shoes",
+      "user": "The neoprene shoes are drying on the bamboo rack.",
+      "assistant": "Your neoprene shoes are drying on the bamboo rack.",
+      "recordedAt": 1789377480000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "towel",
+      "user": "The striped towel belongs in the outer pocket of the shore bag.",
+      "assistant": "Pack the striped towel in the shore bag’s outer pocket.",
+      "recordedAt": 1789377540000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "lesson",
+      "user": "At the next club session I want to practice the low brace.",
+      "assistant": "Practice the low brace at the next club session.",
+      "recordedAt": 1789377600000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "notebook",
+      "user": "My paddling notebook is called Still Water Notes.",
+      "assistant": "Your paddling notebook is Still Water Notes.",
+      "recordedAt": 1789377660000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "return",
+      "user": "We need to return the club trolley before noon.",
+      "assistant": "Return the club trolley before noon.",
+      "recordedAt": 1789377720000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "storage",
+      "user": "Rinse Otter after the outing and leave the hatch covers open to dry.",
+      "assistant": "Rinse Otter and leave its hatch covers open while it dries.",
+      "recordedAt": 1789377780000
+    },
+    {
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "turnId": "thanks",
+      "user": "The trip thank-you message should mention Cal’s careful route planning.",
+      "assistant": "Mention Cal’s careful route planning in the trip thank-you message.",
+      "recordedAt": 1789377840000
+    }
+  ],
+  "queries": [
+    {
+      "id": "q01",
+      "category": "direct EN",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What is my Willow Market stall number?",
+      "expected": [
+        "owner-amber/studio/market:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/market:user",
+        "owner-amber/studio/market:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q02",
+      "category": "paraphrase EN",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "Which clay am I making the green-rimmed bowls from?",
+      "expected": [
+        "owner-amber/studio/clay:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/clay:user",
+        "owner-amber/studio/clay:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q03",
+      "category": "paraphrase ZH",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "蜂蜜色釉的试片收在哪里？",
+      "expected": [
+        "owner-amber/studio/test-tile:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/test-tile:user",
+        "owner-amber/studio/test-tile:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q04",
+      "category": "mixed language",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "Oriole glaze 的品牌和 color code 是什么？",
+      "expected": [
+        "owner-amber/studio/glaze:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/glaze:user",
+        "owner-amber/studio/glaze:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q05",
+      "category": "cross-language EN to ZH",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "我的自行车补胎撬棒放在哪个包里？",
+      "expected": [
+        "owner-amber/weekend/tool:user"
+      ],
+      "relevant": [
+        "owner-amber/weekend/tool:user",
+        "owner-amber/weekend/tool:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q06",
+      "category": "direct EN",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "What is the synthetic practice bike lock code?",
+      "expected": [
+        "owner-amber/weekend/lock:user"
+      ],
+      "relevant": [
+        "owner-amber/weekend/lock:user",
+        "owner-amber/weekend/lock:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q07",
+      "category": "cross-language ZH to EN",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "What time are we gathering beside the red footbridge?",
+      "expected": [
+        "owner-amber/weekend/meeting:user"
+      ],
+      "relevant": [
+        "owner-amber/weekend/meeting:user",
+        "owner-amber/weekend/meeting:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q08",
+      "category": "paraphrase EN",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "Which route should we take while the timber bridge is shut?",
+      "expected": [
+        "owner-amber/weekend/bridge:user"
+      ],
+      "relevant": [
+        "owner-amber/weekend/bridge:user",
+        "owner-amber/weekend/bridge:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q09",
+      "category": "direct EN",
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "query": "What number is the thunder cue and how long is the silence?",
+      "expected": [
+        "owner-cobalt/studio/sound:user"
+      ],
+      "relevant": [
+        "owner-cobalt/studio/sound:user",
+        "owner-cobalt/studio/sound:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q10",
+      "category": "cross-language EN to ZH",
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "query": "带绿色胶带的话筒留给谁？",
+      "expected": [
+        "owner-cobalt/studio/mic:user"
+      ],
+      "relevant": [
+        "owner-cobalt/studio/mic:user",
+        "owner-cobalt/studio/mic:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q11",
+      "category": "mixed language",
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "query": "Oriole props budget 多少，谁 approve？",
+      "expected": [
+        "owner-cobalt/studio/budget:user"
+      ],
+      "relevant": [
+        "owner-cobalt/studio/budget:user",
+        "owner-cobalt/studio/budget:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q12",
+      "category": "paraphrase ZH",
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "query": "铜色的披肩应该挂在衣架哪一侧？",
+      "expected": [
+        "owner-cobalt/studio/wardrobe:user"
+      ],
+      "relevant": [
+        "owner-cobalt/studio/wardrobe:user",
+        "owner-cobalt/studio/wardrobe:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q13",
+      "category": "direct EN",
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "query": "What is the synthetic Reed Marsh permit code?",
+      "expected": [
+        "owner-cobalt/weekend/permit:user"
+      ],
+      "relevant": [
+        "owner-cobalt/weekend/permit:user",
+        "owner-cobalt/weekend/permit:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q14",
+      "category": "paraphrase EN",
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "query": "Which book has my handwritten bird identification notes?",
+      "expected": [
+        "owner-cobalt/weekend/guide:user"
+      ],
+      "relevant": [
+        "owner-cobalt/weekend/guide:user",
+        "owner-cobalt/weekend/guide:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q15",
+      "category": "cross-language ZH to EN",
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "query": "What have I packed for the birdwatching lunch?",
+      "expected": [
+        "owner-cobalt/weekend/lunch:user"
+      ],
+      "relevant": [
+        "owner-cobalt/weekend/lunch:user",
+        "owner-cobalt/weekend/lunch:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q16",
+      "category": "mixed language",
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "query": "Reed Marsh route 的 GPX filename 是什么？",
+      "expected": [
+        "owner-cobalt/weekend/map:user"
+      ],
+      "relevant": [
+        "owner-cobalt/weekend/map:user",
+        "owner-cobalt/weekend/map:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q17",
+      "category": "direct EN",
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "query": "What is the synthetic Copper Basket petty-cash envelope code?",
+      "expected": [
+        "owner-jade/studio/fund:user"
+      ],
+      "relevant": [
+        "owner-jade/studio/fund:user",
+        "owner-jade/studio/fund:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q18",
+      "category": "paraphrase ZH",
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "query": "燕麦片会在星期几几点送到，有多少箱？",
+      "expected": [
+        "owner-jade/studio/delivery:user"
+      ],
+      "relevant": [
+        "owner-jade/studio/delivery:user",
+        "owner-jade/studio/delivery:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q19",
+      "category": "mixed language",
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "query": "Copper Basket flour 是谁捐的，delivery schedule 呢？",
+      "expected": [
+        "owner-jade/studio/donor:user"
+      ],
+      "relevant": [
+        "owner-jade/studio/donor:user",
+        "owner-jade/studio/donor:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q20",
+      "category": "paraphrase EN",
+      "ownerId": "owner-jade",
+      "sessionId": "studio",
+      "query": "Where did I put the small weighing device?",
+      "expected": [
+        "owner-jade/studio/scale:user"
+      ],
+      "relevant": [
+        "owner-jade/studio/scale:user",
+        "owner-jade/studio/scale:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q21",
+      "category": "direct EN",
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "query": "What have I named my observing notebook?",
+      "expected": [
+        "owner-jade/weekend/album:user"
+      ],
+      "relevant": [
+        "owner-jade/weekend/album:user",
+        "owner-jade/weekend/album:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q22",
+      "category": "cross-language ZH to EN",
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "query": "Where can I find the red flashlight?",
+      "expected": [
+        "owner-jade/weekend/red-light:user"
+      ],
+      "relevant": [
+        "owner-jade/weekend/red-light:user",
+        "owner-jade/weekend/red-light:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q23",
+      "category": "mixed language",
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "query": "Moth mount 应用哪种 tracking setting？",
+      "expected": [
+        "owner-jade/weekend/mount:user"
+      ],
+      "relevant": [
+        "owner-jade/weekend/mount:user",
+        "owner-jade/weekend/mount:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q24",
+      "category": "paraphrase EN",
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "query": "How will I recognize the cable that powers the telescope?",
+      "expected": [
+        "owner-jade/weekend/cable:user"
+      ],
+      "relevant": [
+        "owner-jade/weekend/cable:user",
+        "owner-jade/weekend/cable:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q25",
+      "category": "direct EN",
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "query": "What is the synthetic Glass Fern fabric receipt number?",
+      "expected": [
+        "owner-plum/studio/receipt:user"
+      ],
+      "relevant": [
+        "owner-plum/studio/receipt:user",
+        "owner-plum/studio/receipt:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q26",
+      "category": "paraphrase ZH",
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "query": "那些贝壳纽扣放在哪里了？",
+      "expected": [
+        "owner-plum/studio/buttons:user"
+      ],
+      "relevant": [
+        "owner-plum/studio/buttons:user",
+        "owner-plum/studio/buttons:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q27",
+      "category": "mixed language",
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "query": "Glass Fern thread 的品牌和色号是？",
+      "expected": [
+        "owner-plum/studio/thread:user"
+      ],
+      "relevant": [
+        "owner-plum/studio/thread:user",
+        "owner-plum/studio/thread:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q28",
+      "category": "cross-language EN to ZH",
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "query": "拖曳绳放在哪个袋子里？",
+      "expected": [
+        "owner-plum/weekend/rope:user"
+      ],
+      "relevant": [
+        "owner-plum/weekend/rope:user",
+        "owner-plum/weekend/rope:assistant"
+      ],
+      "phase": "base"
+    },
+    {
+      "id": "q29",
+      "category": "owner isolation and distractors",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What is Oriole and what do its rims look like?",
+      "expected": [
+        "owner-amber/studio/oriole:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/oriole:user",
+        "owner-amber/studio/oriole:assistant"
+      ],
+      "phase": "base",
+      "forbiddenScopes": [
+        "owner-cobalt/studio"
+      ]
+    },
+    {
+      "id": "q30",
+      "category": "owner isolation and distractors",
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "query": "What is Oriole and what is my role in it?",
+      "expected": [
+        "owner-cobalt/studio/oriole:user"
+      ],
+      "relevant": [
+        "owner-cobalt/studio/oriole:user",
+        "owner-cobalt/studio/oriole:assistant"
+      ],
+      "phase": "base",
+      "forbiddenScopes": [
+        "owner-amber/studio"
+      ]
+    },
+    {
+      "id": "q31",
+      "category": "no memory",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What is the serial number of my lunar drilling rig?",
+      "expected": [],
+      "relevant": [],
+      "phase": "base"
+    },
+    {
+      "id": "q32",
+      "category": "no memory ZH",
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "query": "我的私人潜水艇引擎编号是什么？",
+      "expected": [],
+      "relevant": [],
+      "phase": "base"
+    },
+    {
+      "id": "q33",
+      "category": "session isolation",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "What is my Willow Market stall number?",
+      "expected": [],
+      "relevant": [],
+      "phase": "base",
+      "forbiddenScopes": [
+        "owner-amber/studio"
+      ]
+    },
+    {
+      "id": "q34",
+      "category": "owner isolation",
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "query": "What is the Copper Basket petty-cash envelope code?",
+      "expected": [],
+      "relevant": [],
+      "phase": "base",
+      "forbiddenScopes": [
+        "owner-jade/studio"
+      ]
+    },
+    {
+      "id": "q35",
+      "category": "current explicit correction chain",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What is the current Oriole kiln peak temperature?",
+      "expected": [
+        "owner-amber/studio/kiln-c:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/kiln-c:user",
+        "owner-amber/studio/kiln-c:assistant"
+      ],
+      "phase": "base",
+      "forbidden": [
+        "kiln-a:user",
+        "kiln-a:assistant",
+        "kiln-b:user",
+        "kiln-b:assistant"
+      ]
+    },
+    {
+      "id": "q36",
+      "category": "historical explicit correction chain",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What was the Oriole kiln peak temperature at the earlier point?",
+      "expected": [
+        "owner-amber/studio/kiln-a:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/kiln-a:user",
+        "owner-amber/studio/kiln-a:assistant"
+      ],
+      "phase": "base",
+      "asOf": 1788771750000,
+      "forbidden": [
+        "kiln-b:user",
+        "kiln-c:user"
+      ]
+    },
+    {
+      "id": "q37",
+      "category": "current explicit correction chain",
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "query": "When do Oriole rehearsals currently begin on Thursdays?",
+      "expected": [
+        "owner-cobalt/studio/rehearsal-c:user"
+      ],
+      "relevant": [
+        "owner-cobalt/studio/rehearsal-c:user",
+        "owner-cobalt/studio/rehearsal-c:assistant"
+      ],
+      "phase": "base",
+      "forbidden": [
+        "rehearsal-a:user",
+        "rehearsal-a:assistant",
+        "rehearsal-b:user",
+        "rehearsal-b:assistant"
+      ]
+    },
+    {
+      "id": "q38",
+      "category": "historical explicit correction chain",
+      "ownerId": "owner-cobalt",
+      "sessionId": "studio",
+      "query": "What was the Thursday Oriole rehearsal start at the earlier point?",
+      "expected": [
+        "owner-cobalt/studio/rehearsal-b:user"
+      ],
+      "relevant": [
+        "owner-cobalt/studio/rehearsal-b:user",
+        "owner-cobalt/studio/rehearsal-b:assistant"
+      ],
+      "phase": "base",
+      "asOf": 1788944970000,
+      "forbidden": [
+        "rehearsal-a:user",
+        "rehearsal-c:user"
+      ]
+    },
+    {
+      "id": "q39",
+      "category": "current explicit correction chain",
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "query": "Which battery pack does Moth currently use?",
+      "expected": [
+        "owner-jade/weekend/battery-c:user"
+      ],
+      "relevant": [
+        "owner-jade/weekend/battery-c:user",
+        "owner-jade/weekend/battery-c:assistant"
+      ],
+      "phase": "base",
+      "forbidden": [
+        "battery-a:user",
+        "battery-a:assistant",
+        "battery-b:user",
+        "battery-b:assistant"
+      ]
+    },
+    {
+      "id": "q40",
+      "category": "historical explicit correction chain",
+      "ownerId": "owner-jade",
+      "sessionId": "weekend",
+      "query": "Which battery pack did Moth use at the earlier point?",
+      "expected": [
+        "owner-jade/weekend/battery-a:user"
+      ],
+      "relevant": [
+        "owner-jade/weekend/battery-a:user",
+        "owner-jade/weekend/battery-a:assistant"
+      ],
+      "phase": "base",
+      "asOf": 1789203750000,
+      "forbidden": [
+        "battery-b:user",
+        "battery-c:user"
+      ]
+    },
+    {
+      "id": "q41",
+      "category": "erase reversion newest",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What is the current Oriole kiln peak temperature?",
+      "expected": [
+        "owner-amber/studio/kiln-b:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/kiln-b:user",
+        "owner-amber/studio/kiln-b:assistant"
+      ],
+      "phase": "erase",
+      "eraseSourceId": "kiln-c:user",
+      "forbidden": [
+        "kiln-c:user",
+        "kiln-c:assistant",
+        "kiln-a:user"
+      ]
+    },
+    {
+      "id": "q42",
+      "category": "erase reversion older",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What is the current Oriole kiln peak temperature?",
+      "expected": [
+        "owner-amber/studio/kiln-a:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/kiln-a:user",
+        "owner-amber/studio/kiln-a:assistant"
+      ],
+      "phase": "erase",
+      "eraseSourceId": "kiln-b:user",
+      "forbidden": [
+        "kiln-b:user",
+        "kiln-b:assistant",
+        "kiln-c:user"
+      ]
+    },
+    {
+      "id": "q43",
+      "category": "erase reversion newest",
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "query": "What is the current Alder Lake launch time?",
+      "expected": [
+        "owner-plum/weekend/time-b:user"
+      ],
+      "relevant": [
+        "owner-plum/weekend/time-b:user",
+        "owner-plum/weekend/time-b:assistant"
+      ],
+      "phase": "erase",
+      "eraseSourceId": "time-c:user",
+      "forbidden": [
+        "time-c:user",
+        "time-c:assistant",
+        "time-a:user"
+      ]
+    },
+    {
+      "id": "q44",
+      "category": "erase reversion older",
+      "ownerId": "owner-plum",
+      "sessionId": "weekend",
+      "query": "What is the current Alder Lake launch time?",
+      "expected": [
+        "owner-plum/weekend/time-a:user"
+      ],
+      "relevant": [
+        "owner-plum/weekend/time-a:user",
+        "owner-plum/weekend/time-a:assistant"
+      ],
+      "phase": "erase",
+      "eraseSourceId": "time-b:user",
+      "forbidden": [
+        "time-b:user",
+        "time-b:assistant",
+        "time-c:user"
+      ]
+    },
+    {
+      "id": "q45",
+      "category": "restart retrieval",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "Where did I leave the spare cycling helmet?",
+      "expected": [
+        "owner-amber/weekend/helmet:user"
+      ],
+      "relevant": [
+        "owner-amber/weekend/helmet:user",
+        "owner-amber/weekend/helmet:assistant"
+      ],
+      "phase": "restart"
+    },
+    {
+      "id": "q46",
+      "category": "restart retrieval",
+      "ownerId": "owner-plum",
+      "sessionId": "studio",
+      "query": "What room is my quilting class in?",
+      "expected": [
+        "owner-plum/studio/class:user"
+      ],
+      "relevant": [
+        "owner-plum/studio/class:user",
+        "owner-plum/studio/class:assistant"
+      ],
+      "phase": "restart"
+    },
+    {
+      "id": "q47",
+      "category": "rebuild retrieval",
+      "ownerId": "owner-cobalt",
+      "sessionId": "weekend",
+      "query": "What is the name of my marsh photo album?",
+      "expected": [
+        "owner-cobalt/weekend/album:user"
+      ],
+      "relevant": [
+        "owner-cobalt/weekend/album:user",
+        "owner-cobalt/weekend/album:assistant"
+      ],
+      "phase": "rebuild"
+    },
+    {
+      "id": "q48",
+      "category": "rebuild retrieval and erasure",
+      "ownerId": "owner-amber",
+      "sessionId": "studio",
+      "query": "What is the current Oriole kiln peak temperature?",
+      "expected": [
+        "owner-amber/studio/kiln-a:user"
+      ],
+      "relevant": [
+        "owner-amber/studio/kiln-a:user",
+        "owner-amber/studio/kiln-a:assistant"
+      ],
+      "phase": "rebuild",
+      "forbidden": [
+        "kiln-b:user",
+        "kiln-b:assistant",
+        "kiln-c:user",
+        "kiln-c:assistant"
+      ]
+    },
+    {
+      "id": "q49",
+      "category": "embedding failure preserves transcript",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "Where is the emergency patch kit?",
+      "expected": [],
+      "relevant": [],
+      "phase": "failure",
+      "failureTurnId": "failure-target",
+      "requireError": true
+    },
+    {
+      "id": "q50",
+      "category": "embedding failure recovery",
+      "ownerId": "owner-amber",
+      "sessionId": "weekend",
+      "query": "Where is the emergency patch kit?",
+      "expected": [
+        "owner-amber/weekend/failure-target:user"
+      ],
+      "relevant": [
+        "owner-amber/weekend/failure-target:user",
+        "owner-amber/weekend/failure-target:assistant"
+      ],
+      "phase": "recovery",
+      "failureTurnId": "failure-target"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+Memory System MVP — Generation 2
+
+Project-specific conversation SDK and integration code: Copyright (c) 2026 ziningshu-code.
+Licensed under the MIT License in LICENSE.
+
+This product includes source from CaviraOSS/LongMemory, pinned to
+9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5.
+LongMemory source retains its original cavira oss / nullure copyright notices
+and is licensed under Apache-2.0. See UPSTREAM-LONGMEMORY-LICENSE, including
+its upstream NOTICE section, and ATTRIBUTION.md for the five modified files.
+Those adaptations are made by this project and are not upstream releases.
+
+Generation 1 was an earlier independently designed project architecture.
+Generation 2 follows its product lessons but uses a different LongMemory-derived
+runtime. No Mem0 source is included. No upstream algorithm is claimed as original.

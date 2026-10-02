@@ -1,0 +1,7 @@
+.product-build/
+.upstream-build/
+.vector-cache/
+.request-ledger.json
+.request-ledger.json.lock
+results/*/state/
+results/preflight-*/

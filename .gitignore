@@ -12,4 +12,10 @@ build-product/
 benchmark-results/
 .topic-memory/
 *.tmp
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+benchmarks-product/.upstream-build/
+benchmarks-product/.vector-cache/
+benchmarks-product/results/
 

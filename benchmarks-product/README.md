@@ -5,7 +5,9 @@ This harness compares the local product with the unmodified LongMemory core at c
 the sibling `upstream-longmemory-audit` checkout into ignored local output; it does
 not use the product's modified vendor copy as an upstream substitute. Run the
 product's ordinary build first so `build-product` reflects the current working tree.
-The first saved live comparison and subsequent cached-vector calibration are
+Set `LONGMEMORY_UPSTREAM_DIR` to a clean clone checked out at that exact revision
+to reproduce this outside the development workspace. No private application is
+needed. The first saved live comparison and subsequent cached-vector calibration are
 reported separately in [REAL-RESULTS.md](REAL-RESULTS.md); the earlier
 deterministic harness check remains in [OFFLINE-RESULTS.md](OFFLINE-RESULTS.md).
 
@@ -45,12 +47,10 @@ report distinguishes node-ID-to-text fidelity from `source_trace.source_id`
 attribution, and tests surviving assistant echoes separately from user-source
 supersession.
 
-An initial live attempt on 2026-10-01 was stopped by automatic approval review
-before any request was sent. After the user explicitly authorized it, the first
-eight-batch run reached NVIDIA but failed at a local Git trust check before
+The first eight-batch provider run failed at a local Git trust check before
 writing a report; that runner did not cache vectors. The repaired runner checks
-Git and imports first and saves each successful batch. The user then authorized
-one more eight-batch run, which completed and produced the real comparison in
+Git and imports first and saves each successful batch. A second bounded run
+completed and produced the real comparison in
 [REAL-RESULTS.md](REAL-RESULTS.md). Later analyses reused those vectors without
 additional provider requests. Before the first authorized attempt, historical
 cache coverage was **0/108** exact document inputs and **0/16** exact query inputs.

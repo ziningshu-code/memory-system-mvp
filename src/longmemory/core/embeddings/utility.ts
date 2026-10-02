@@ -1,4 +1,11 @@
 /*
+ * MODIFIED by the memory-system-mvp project for Generation 2, 2026-10-02.
+ * Based on LongMemory revision 9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5.
+ * Adaptation: reject wrong-size and zero embedding vectors instead of resizing.
+ * See ATTRIBUTION.md and UPSTREAM-LONGMEMORY-LICENSE at the repository root.
+ */
+
+/*
 *      __                      __  ___
 *     / /   ____  ____  ____ _/  |/  /__  ____ ___  ____  _______  __
 *    / /   / __ \/ __ \/ __ `/ /|_/ / _ \/ __ `__ \/ __ \/ ___/ / / /

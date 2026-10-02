@@ -1,8 +1,8 @@
 {
   "name": "memory-system-mvp",
-  "version": "0.5.0-local.0",
-  "private": true,
-  "description": "Local conversational memory SDK built on an attributed LongMemory source revision",
+  "version": "0.5.0-beta.1",
+  "private": false,
+  "description": "Local conversational memory SDK with exact transcripts and source-grounded recall, built on a modified LongMemory core",
   "type": "module",
   "main": "./build-product/product/index.js",
   "types": "./build-product/product/index.d.ts",
@@ -16,32 +16,48 @@
     "build-product/product",
     "build-product/longmemory",
     "examples-product",
+    ".env.example",
     "LICENSE",
     "UPSTREAM-LONGMEMORY-LICENSE",
     "ATTRIBUTION.md",
-    "README-product.md"
+    "NOTICE",
+    "docs/sdk.md",
+    "docs/privacy.md",
+    "docs/generation-1.md",
+    "docs/project-evolution.md",
+    "docs/release-notes.md"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.product.json && node scripts/copy-longmemory-schema.mjs",
+    "build": "node scripts/clean-product-build.mjs && tsc -p tsconfig.product.json && node scripts/copy-longmemory-schema.mjs",
     "typecheck": "tsc -p tsconfig.product.json --noEmit",
     "test": "npm run build && node --test tests-product/*.test.mjs",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "smoke:consumer": "node scripts/consumer-smoke.mjs"
   },
   "license": "MIT AND Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ziningshu-code/memory-system-mvp.git"
-  },
   "engines": {
-    "node": ">=20"
+    "node": "22.x || 24.x"
   },
   "dependencies": {
     "better-sqlite3": "^12.11.1",
-    "stemmer": "^2.0.1"
+    "stemmer": "^2.0.1",
+    "@types/better-sqlite3": "^7.6.13"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.19.25",
     "typescript": "^5.9.3"
-  }
+  },
+  "repository": {
+    "url": "git+https://github.com/ziningshu-code/memory-system-mvp.git",
+    "type": "git"
+  },
+  "homepage": "https://github.com/ziningshu-code/memory-system-mvp#readme",
+  "keywords": [
+    "memory",
+    "conversation",
+    "transcript",
+    "local-first",
+    "llm",
+    "sdk"
+  ]
 }

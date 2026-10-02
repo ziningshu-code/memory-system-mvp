@@ -6,7 +6,9 @@ import { execFileSync } from 'node:child_process';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const product = resolve(here, '..');
-const upstream = resolve(product, '..', 'upstream-longmemory-audit');
+const upstream = process.env.LONGMEMORY_UPSTREAM_DIR
+  ? resolve(process.env.LONGMEMORY_UPSTREAM_DIR)
+  : resolve(product, '..', 'upstream-longmemory-audit');
 const output = join(here, '.upstream-build');
 const require = createRequire(import.meta.url);
 const ts = require('typescript');

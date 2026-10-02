@@ -1,4 +1,4 @@
-import { createMemory } from '../build-product/product/index.js';
+import { createMemory } from 'memory-system-mvp';
 
 const required = (name) => {
   const value = process.env[name];
