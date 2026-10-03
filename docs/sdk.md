@@ -1,6 +1,22 @@
-# Generation 2 SDK
+# Memory System V2 SDK
 
-Install the package in a Node 22/24 application. Initialize one instance with a persistent `dbPath`, stable `tenantId` / `ownerId` where needed, and a real embedding configuration. Defaults are tenant `local`, owner `default`, and `~/.memory-system-mvp/memory.sqlite`. SQLite `:memory:` is deliberately rejected because durable original conversation is required.
+Use the [Quick Start](../README.md) to install the current GitHub version in a Node 22/24 application. The upcoming npm package is `memory-system-v2@0.5.0-beta.2`; it has not been published to npm.
+
+## Installation
+
+With Node 22 or 24 and Git installed, run this in your application's package directory:
+
+```sh
+npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
+```
+
+This installs the current source from GitHub and builds the SDK. It does not install a published beta.2 npm release. Import `createMemory` from `memory-system-v2`. The existing beta.1 GitHub artifact retains its old package name; use its tagged documentation if installing that historical artifact.
+
+SQLite uses the native `better-sqlite3` package. Supported Node versions normally use a prebuilt binary. If installation reports a native build error, first check that you are using Node 22 or 24. If no prebuilt binary is available for your platform, `node-gyp` needs Python and the platform's C/C++ build tools. See [better-sqlite3 troubleshooting](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/troubleshooting.md).
+
+## Initialization
+
+Initialize one instance with a persistent `dbPath`, stable `tenantId` / `ownerId` where needed, and a real embedding configuration. Defaults are tenant `local`, owner `default`, and `~/.memory-system-mvp/memory.sqlite`. The default directory keeps its existing name so the product rename does not move or abandon saved conversations. SQLite `:memory:` is deliberately rejected because durable original conversation is required.
 
 ## Lifecycle
 
@@ -39,7 +55,7 @@ Corrections explicitly replace both corresponding roles of an older completed tu
 - `ollama`: local `model`, `dimension`, optional `baseUrl`.
 - `custom`: stable `id`, `dimension`, and a real `embed(text, context)` implementation returning a vector. Test fixtures use this explicitly; production has no synthetic fallback.
 
-Missing embedding configuration gives a useful initialization error. A remote service rejecting absent credentials or returning invalid vectors produces failed source IDs / a recall error trace, while retaining saved original text. Local unauthenticated embedding endpoints are allowed. Provider/model/dimension identity changes invalidate incompatible derived state and may cause re-embedding when the session opens. Session reopening can also retry missing indexes. This beta also changes the derived conversational contract version: earlier local 0.5 development databases rebuild on next session open, so source-backed utterances do not require external truth verification. This can incur embedding cost. V1 file archives are a different format and are not automatically imported.
+Missing embedding configuration gives a useful initialization error. A remote service rejecting absent credentials or returning invalid vectors produces failed source IDs / a recall error trace, while retaining saved original text. Local unauthenticated embedding endpoints are allowed. Provider/model/dimension identity changes invalidate incompatible derived state and may cause re-embedding when the session opens. Session reopening can also retry missing indexes. Beta.1 changed the derived conversational contract version: earlier local 0.5 development databases rebuild on next session open, so source-backed utterances do not require external truth verification. This can incur embedding cost. The beta.2 naming and documentation update adds no storage migration. V1 file archives are a different format and are not automatically imported.
 
 ## Fail-soft host integration
 

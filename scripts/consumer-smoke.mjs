@@ -15,12 +15,12 @@ const packOutput = runNpm(['pack', '--json', '--pack-destination', folder], root
 const pack = JSON.parse(packOutput.slice(packOutput.indexOf('[\n')))[0];
 writeFileSync(join(folder, 'package.json'), JSON.stringify({ name: 'clean-sdk-consumer', private: true, type: 'module' }));
 runNpm(['install', '--no-audit', '--no-fund', '--package-lock=false', join(folder, pack.filename)], folder);
-writeFileSync(join(folder, 'consumer.ts'), `import { createMemory, type MemoryConfig } from 'memory-system-mvp';
+writeFileSync(join(folder, 'consumer.ts'), `import { createMemory, type MemoryConfig } from 'memory-system-v2';
 const config: MemoryConfig = { embedding: { kind: 'custom', id: 'compile', dimension: 2, embed: async () => [1, 0] } };
 const memory = createMemory(config); void memory.close();\n`);
 execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--noEmit', '--strict', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', '--target', 'ES2022', join(folder, 'consumer.ts')], { cwd: folder, stdio: 'pipe' });
 writeFileSync(join(folder, 'consumer.mjs'), `import assert from 'node:assert/strict';
-import { createMemory } from 'memory-system-mvp';
+import { createMemory } from 'memory-system-v2';
 import { join } from 'node:path';
 import { createServer } from 'node:http';
 const cfg = { dbPath: join(process.cwd(), 'memory.sqlite'), minSemanticSimilarity: 0.8,

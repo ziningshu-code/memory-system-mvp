@@ -1,8 +1,8 @@
 # Generation 1: archived Topic Memory research
 
-Generation 1 explored conversation memory through immutable originals, a Topic Worker, short topic cards, and an on-demand Selector. Its research checkpoint is `f0c1991e443a8c1870c9e8c5a72166c6108c44a4`, preserved by the `legacy-v1` tag and the `checkpoint/unpublished-0.3-20260928` branch. The checkpoint's package identifies itself as experimental `topic-memory` version `0.3.0`; that version was not an npm release.
+Generation 1 explored conversation memory through immutable originals, a Topic Worker, short topic cards, and an on-demand Selector. The public [legacy-v1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/legacy-v1) preserves the earlier plugin at `33b90322c0747943766c3477ccce10753cb554d7`.
 
-The tag is a local preservation reference pending publication. It is not yet a live GitHub release or download link. Once the tag has been pushed, use that tagged source for the original code, tests, setup guide, and evaluation records. Generation 2 has a different entry point and data model.
+The later research checkpoint is separately preserved by [research-v1-0.3](https://github.com/ziningshu-code/memory-system-mvp/tree/research-v1-0.3) at `f0c1991e443a8c1870c9e8c5a72166c6108c44a4`. Its package identifies itself as experimental `topic-memory` version `0.3.0`; that version was not an npm release. The local `checkpoint/unpublished-0.3-20260928` branch also retains this checkpoint. The experiments below describe that research snapshot, not the contents of the public `legacy-v1` release. Memory System V2 has a different entry point and data model.
 
 ## What the checkpoint actually contains
 
@@ -27,11 +27,11 @@ The archived `docs/EVALUATION.md` separates two small live checks:
 
 The reported 200-record regressions were offline program checks of indexing and paging, not 200 live chat turns. The archive describes an unfinished LoCoMo comparison; it provides no completed long-history accuracy result, maximum stable history length, blind comparison, or demonstrated total-token saving. The B/C/D retrieval arms have program tests, but no completed live comparative result is claimed here.
 
-Read the checkpoint's `docs/EVALUATION.md`, `docs/evaluation/live-0.3.json`, and `tests/` for the original protocols and qualifications. Older scripted fixtures are mechanics checks, not model-quality evidence.
+Read the research checkpoint's [evaluation guide](https://github.com/ziningshu-code/memory-system-mvp/blob/research-v1-0.3/docs/EVALUATION.md), `docs/evaluation/live-0.3.json`, and `tests/` for the original protocols and qualifications. Older scripted fixtures are mechanics checks, not model-quality evidence.
 
 ## Preservation and subsequent prototypes
 
-`33b90322c0747943766c3477ccce10753cb554d7` is the earlier 0.2 plugin baseline. The `legacy-v1` tag points to the later research checkpoint so that Topic Families, incremental indexing, retrieval arms, native adapters, and their tests are preserved together.
+The public `legacy-v1` tag and `legacy/generation-1` branch point to the earlier 0.2 plugin baseline, `33b90322c0747943766c3477ccce10753cb554d7`. The separate `research-v1-0.3` tag preserves the later Topic Families, incremental indexing, retrieval arms, native adapters, and their tests at `f0c1991e443a8c1870c9e8c5a72166c6108c44a4`.
 
 A separate transcript-only prototype continued through `3debf037ad34c4dd04073d24599228998dc35c20` on `work/local-transcript-memory`. Its existing checkpoints are `pre-upstream-integration-1582571` at `15825713e0b941c06eb1844fd058b649ea4cfc5c` and `pre-architecture-recomparison-8c9412e` at `8c9412ee6a04ccca15f1e25445ac913e1144d83c`. This prototype is a distinct historical approach; it is not the current LongMemory-based product.
 

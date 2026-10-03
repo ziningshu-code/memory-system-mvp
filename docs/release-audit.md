@@ -1,8 +1,8 @@
 # Generation 2 release audit — 2026-10-02
 
-This document covers the locally prepared `memory-system-mvp@0.5.0-beta.1` release. Publication remains a separate action after human review. Generation numbers describe architecture, not npm major versions.
+This is the historical audit of `memory-system-mvp@0.5.0-beta.1`, completed on 2026-10-02. Its original artifact sizes, hashes, test counts and benchmark results are retained below; they do not describe the upcoming `memory-system-v2@0.5.0-beta.2` package. Generation numbers describe architecture, not npm major versions.
 
-**READY TO PUBLISH — documented beta; not yet published.**
+**Publication update — 2026-10-03:** [v0.5.0-beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) is public at `d5a8781afe7beba6f45df2d7010a216fe57fd940`, with the inspected artifact below. GitHub publication and the Node 22/24 Windows/Linux CI matrix completed. No npm publication occurred. Beta.2 is a separate naming/onboarding preparation, with no release tag; see [current release notes](release-notes.md).
 
 ## 1. Generation 1 historical status
 
@@ -10,7 +10,7 @@ Generation 1 was a genuine independently designed topic-oriented memory implemen
 
 ## 2. Historical preservation
 
-Local tag `legacy-v1` retains commit `f0c1991e443a8c1870c9e8c5a72166c6108c44a4`. Local tag `checkpoint/pre-generation2-release-e913dcb` retains the pre-cleanup V2 state. No historical commits were rewritten. V1 must be published separately because its research checkpoint is not an ancestor of the V2 work branch. Old runtime, demos and topic configuration UI are excluded from the current npm package.
+Public tag `legacy-v1` and branch `legacy/generation-1` retain the earlier plugin at `33b90322c0747943766c3477ccce10753cb554d7`. The separate public tag `research-v1-0.3` retains the later research checkpoint at `f0c1991e443a8c1870c9e8c5a72166c6108c44a4`. Local tag `checkpoint/pre-generation2-release-e913dcb` retains the pre-cleanup V2 state. No historical commits were rewritten. The research checkpoint is not an ancestor of the V2 work branch. Old runtime, demos and topic configuration UI are excluded from the beta.1 package.
 
 ## 3. Generation 1 architecture
 
@@ -86,7 +86,7 @@ The SDK is installed in a separate private AI chat application's actual server w
 
 ## 16. Fresh installation
 
-Passed from a clean export of the approved Git tree, with no old build or workspace dependency. Validation installs the packed artifact in an independent temporary consumer, performs strict TypeScript compilation without `skipLibCheck`, and exercises import, native SQLite, initialization, remember/recall, restart, history, rebuild, erase and close. Missing embedding configuration errors clearly; a local HTTP 401 fixture retains original speech and returns a trace error, with no synthetic production fallback. The exported SDK also passes all 23 tests and typecheck. Frozen offline checks verify all 509 source/harness inputs after LF/CRLF-only restoration, with zero external calls. The original working directory's Windows generated-file occupation did not affect the clean export or shipped artifact. Local validation used Node 24; the Node 22/Linux CI matrix remains unrun.
+Passed from a clean export of the approved Git tree, with no old build or workspace dependency. Validation installs the packed artifact in an independent temporary consumer, performs strict TypeScript compilation without `skipLibCheck`, and exercises import, native SQLite, initialization, remember/recall, restart, history, rebuild, erase and close. Missing embedding configuration errors clearly; a local HTTP 401 fixture retains original speech and returns a trace error, with no synthetic production fallback. The exported SDK also passes all 23 tests and typecheck. Frozen offline checks verify all 509 source/harness inputs after LF/CRLF-only restoration, with zero external calls. The original working directory's Windows generated-file occupation did not affect the clean export or shipped artifact. Local validation used Node 24; after publication, [all four Node 22/24 Windows/Linux CI jobs passed](https://github.com/ziningshu-code/memory-system-mvp/actions/runs/37090351167).
 
 ## 17. Package audit
 
@@ -106,7 +106,7 @@ Project additions remain MIT; imported source remains Apache-2.0. Package metada
 
 ## 20. Documentation
 
-English/Chinese README first describes the current SDK, installation and minimal example, then architecture, evolution, validation and limits. SDK/privacy/history/evolution/release notes are updated. Threshold calibration and the final holdout are separated. CI is configured for Node 22/24 on Windows/Linux; those remote matrix jobs have not run in this local release preparation. Automatic npm publishing is removed.
+At the beta.1 audit, English/Chinese README first described the SDK, installation and minimal example, then architecture, evolution, validation and limits. SDK/privacy/history/evolution/release notes were updated. Threshold calibration and the final holdout were separated. The configured Node 22/24 Windows/Linux CI jobs subsequently passed after publication. Automatic npm publishing is removed. Current onboarding is being revised separately for Memory System V2 beta.2.
 
 ## 21. Package identity
 
@@ -114,7 +114,7 @@ English/Chinese README first describes the current SDK, installation and minimal
 
 ## 22. GitHub release structure
 
-The intended default branch is V2, accompanied by separately published `legacy-v1` and current tag `v0.5.0-beta.1`. Release notes distinguish project additions, upstream reuse, V1 lessons and known limits. Local tags and the release commit preserve both generations; remote publication is pending. V1's preserved research must not be lost when publishing the current branch.
+The public default branch contains V2. Public `legacy-v1` preserves the earlier plugin, `research-v1-0.3` preserves the later research, and `v0.5.0-beta.1` preserves the audited release at `d5a8781afe7beba6f45df2d7010a216fe57fd940`. Release notes distinguish project additions, upstream reuse, V1 lessons and known limits. These tags and the beta.1 release artifact are unchanged by the beta.2 naming/onboarding work.
 
 ## 23. Known limitations
 
@@ -122,8 +122,8 @@ Node 22/24 and working `better-sqlite3` native support are required. Embeddings 
 
 ## 24. Publication status
 
-GitHub repository is already public, with its prior main unchanged at `33b90322c0747943766c3477ccce10753cb554d7`. This task makes no remote push, visibility change, GitHub release or npm publication. The prepared V2 files/tags/artifact are local. Review approval and separate publication action remain necessary.
+GitHub publication completed on 2026-10-03: the repository is public, the published beta.1 commit is `d5a8781afe7beba6f45df2d7010a216fe57fd940`, and both historical releases plus the beta.1 artifact are available. No npm publication occurred. The upcoming `memory-system-v2@0.5.0-beta.2` has no release tag and is not published to npm. Its documentation changes do not rewrite the beta.1 release or artifact.
 
 ## 25. Release decision
 
-**READY TO PUBLISH. No remaining release-blocking defect identified for this documented beta.** SDK, private-app, fresh-consumer, frozen benchmark, privacy/package and attribution gates passed. The local checkpoint is tagged `v0.5.0-beta.1`; publication remains subject to human review and a separate authorized action. Known retrieval misses are disclosed limitations, not concealed passing cases. Readiness means the documented beta is installable, tested and accurately attributed; it does not promise perfect retrieval or guarantee GitHub attention.
+**Historical decision: ready to publish beta.1; GitHub publication subsequently completed.** SDK, private-app, fresh-consumer, frozen benchmark, privacy/package and attribution gates passed. The public `v0.5.0-beta.1` tag remains fixed at the audited release. Known retrieval misses are disclosed limitations, not concealed passing cases. Readiness means that documented beta was installable, tested and accurately attributed; it does not promise perfect retrieval or guarantee GitHub attention. This audit is not a new beta.2 validation report.

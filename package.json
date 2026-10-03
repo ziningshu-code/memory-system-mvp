@@ -1,8 +1,8 @@
 {
-  "name": "memory-system-mvp",
-  "version": "0.5.0-beta.1",
+  "name": "memory-system-v2",
+  "version": "0.5.0-beta.2",
   "private": false,
-  "description": "Local conversational memory SDK with exact transcripts and source-grounded recall, built on a modified LongMemory core",
+  "description": "Long-term memory SDK for Node.js chat apps that stores exact messages and retrieves the original sources",
   "type": "module",
   "main": "./build-product/product/index.js",
   "types": "./build-product/product/index.d.ts",
@@ -32,6 +32,7 @@
     "typecheck": "tsc -p tsconfig.product.json --noEmit",
     "test": "npm run build && node --test tests-product/*.test.mjs",
     "prepack": "npm run build",
+    "prepare": "npm run build",
     "smoke:consumer": "node scripts/consumer-smoke.mjs"
   },
   "license": "MIT AND Apache-2.0",
