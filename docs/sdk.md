@@ -1,16 +1,16 @@
 # Memory System V2 SDK
 
-Use the [Quick Start](../README.md) to install the current GitHub version in a Node 22/24 application. The upcoming npm package is `memory-system-v2@0.5.0-beta.2`; it has not been published to npm.
+Use the [Quick Start](../README.md) to install `memory-system-v2@0.5.0-beta.2` from npm in a Node 22/24 application.
 
 ## Installation
 
-With Node 22 or 24 and Git installed, run this in your application's package directory:
+With Node 22 or 24 installed, run this in your application's package directory:
 
 ```sh
-npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
+npm install memory-system-v2@beta
 ```
 
-This installs the current source from GitHub and builds the SDK. It does not install a published beta.2 npm release. Import `createMemory` from `memory-system-v2`. The existing beta.1 GitHub artifact retains its old package name; use its tagged documentation if installing that historical artifact.
+In Windows PowerShell, use `npm.cmd` if script execution is blocked. Import `createMemory` from `memory-system-v2`. Optional [source installation](../README.md#install-from-source) requires Git. The existing beta.1 GitHub artifact retains its old package name; use its tagged documentation if installing that historical artifact.
 
 SQLite uses the native `better-sqlite3` package. Supported Node versions normally use a prebuilt binary. If installation reports a native build error, first check that you are using Node 22 or 24. If no prebuilt binary is available for your platform, `node-gyp` needs Python and the platform's C/C++ build tools. See [better-sqlite3 troubleshooting](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/troubleshooting.md).
 

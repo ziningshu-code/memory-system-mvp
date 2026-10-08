@@ -16,14 +16,13 @@ Memory System V2 给 Node.js 聊天应用增加长期记忆。
 
 下面从一个空文件夹开始：保存一段关于航班时间的对话，再检索并打印用户原话。示例会调用真实的 embedding API，不会调用聊天模型。
 
-### 1. 安装 Node.js 和 Git
+### 1. 安装 Node.js
 
-安装 [Node.js](https://nodejs.org/en/download) **22 或 24**。当前从 GitHub 安装还需要 [Git](https://git-scm.com/downloads)。安装后检查：
+安装 [Node.js](https://nodejs.org/en/download) **22 或 24**。安装后检查：
 
 ```sh
 node --version
 npm --version
-git --version
 ```
 
 ### 2. 建立测试项目
@@ -34,15 +33,15 @@ cd memory-v2-demo
 npm init -y
 ```
 
-### 3. 从 GitHub 安装
+### 3. 从 npm 安装
 
-当前 `main` 分支准备的是 **memory-system-v2 0.5.0-beta.2**。下面的命令从源码安装，npm 会在安装过程中构建 SDK：
+安装已发布的 **memory-system-v2 0.5.0-beta.2** 测试版：
 
 ```sh
-npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
+npm install memory-system-v2@beta
 ```
 
-新包名还没有发布到 npm。已有的 [beta.1 发布](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1)保留原来的包名和下载文件，是单独的历史版本，本次不会改动。
+在 Windows PowerShell 中，如果脚本执行被阻止，请把 `npm` 换成 `npm.cmd`。从 npm 安装不需要 Git。已有的 [beta.1 发布](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1)保留原来的包名和下载文件。
 
 ### 4. 配置 NVIDIA embeddings
 
@@ -121,12 +120,12 @@ user message → memory.recall() → relevant old messages
 
 [聊天接入示例](examples-product/openai-compatible-chat.mjs)展示了完整流程，聊天与 embedding 的凭据分开配置。该示例默认使用标准 OpenAI-compatible embedding 接口；接入 NVIDIA 时，把它的 embedding 配置替换为上面的配置。更正、排除近期消息和失败处理见 [SDK 文档](docs/sdk.md)。
 
-## npm 发布后的安装方式
+## 从源码安装
 
-以下是计划中的命令，**现在还不能使用**。正式宣布 npm 发布前，请使用上面的 GitHub 安装命令：
+开发时可先安装 [Git](https://git-scm.com/downloads)，再使用 `main` 分支源码。安装过程中会构建 SDK；该分支可能包含 npm 已发布版本之后的改动：
 
 ```sh
-npm install memory-system-v2@beta
+npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
 ```
 
 ## 能做什么，有哪些限制
@@ -164,7 +163,7 @@ Conversation → Saved original messages → Embeddings + LongMemory search stat
 
 V1 采用 Topic Worker → Selector 的设计。测试暴露了额外生成调用、话题边界不稳定、检索遗漏和复杂度增加等问题。V2 保留这些实验形成的产品需求，用修改后的 LongMemory 核心与对话接入层替换了原来的运行机制。
 
-公开的 [V1 发布](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/legacy-v1)对应 `33b90322c0747943766c3477ccce10753cb554d7`；公开的 [V2 beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1)对应 `d5a8781afe7beba6f45df2d7010a216fe57fd940`。当前分支准备 beta.2，不改动这两个发布版本。更多历史见[项目演变](docs/project-evolution.md)。
+公开的 [V1 发布](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/legacy-v1)对应 `33b90322c0747943766c3477ccce10753cb554d7`；公开的 [V2 beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1)对应 `d5a8781afe7beba6f45df2d7010a216fe57fd940`。[Beta.2 已发布到 npm](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2)，不改动这两个发布版本。更多历史见[项目演变](docs/project-evolution.md)。
 
 ## LongMemory 来源与许可
 

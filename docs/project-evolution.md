@@ -15,7 +15,7 @@ Memory System V2 combines an adapted LongMemory core with a conversation SDK in 
 
 The public `legacy-v1`, `research-v1-0.3`, and `v0.5.0-beta.1` tags preserve these distinct snapshots. Other checkpoint and work-branch names in the table describe local development history. The Generation 2 branch started from the earlier plugin baseline; it does not contain the later Generation 1 research checkpoint as an ancestor.
 
-The next package is prepared as `memory-system-v2@0.5.0-beta.2`, with the display name Memory System V2. This naming and onboarding update does not replace the beta.1 tag or artifact. Beta.2 has no release tag and has not been published to npm.
+The package `memory-system-v2@0.5.0-beta.2`, with the display name Memory System V2, was published to [npm](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2) on 2026-10-08. This naming and onboarding update does not replace the beta.1 tag or artifact.
 
 ## What changed in Generation 2
 

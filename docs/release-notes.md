@@ -1,12 +1,12 @@
-# Memory System V2 / 0.5.0-beta.2 preparation
+# Memory System V2 / 0.5.0-beta.2
 
-The next package is `memory-system-v2@0.5.0-beta.2`. This update changes the product name and public onboarding. It does not change the memory engine or the existing storage format. Beta.2 has not been published to npm and has no release tag. Follow the [Quick Start](../README.md) for the current GitHub installation path.
+The package [memory-system-v2@0.5.0-beta.2](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2) was published to npm on 2026-10-08. This update changes the product name and public onboarding. It does not change the memory engine or the existing storage format. Follow the [Quick Start](../README.md) for npm installation.
 
-The existing [v0.5.0-beta.1 GitHub release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) remains at `d5a8781afe7beba6f45df2d7010a216fe57fd940`, with its original `memory-system-mvp-0.5.0-beta.1.tgz` artifact. It is not replaced or renamed by this preparation. Neither package version has been published to npm.
+The existing [v0.5.0-beta.1 GitHub release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) remains at `d5a8781afe7beba6f45df2d7010a216fe57fd940`, with its original `memory-system-mvp-0.5.0-beta.1.tgz` artifact. It is not replaced or renamed. Beta.1 remains a GitHub-only release.
 
 ## Beta.2 changes
 
-- Display name: Memory System V2. Upcoming npm package name: `memory-system-v2`.
+- Display name: Memory System V2. npm package name: `memory-system-v2`.
 - Complete English and Chinese instructions for installing, configuring embeddings, saving a conversation and printing recalled original messages.
 - Simpler descriptions of what the SDK does, its limitations and how applications use the returned evidence.
 - Correct public V1, research and beta.1 references. Existing benchmark results remain unchanged.
@@ -30,7 +30,9 @@ The independently designed topic system explored short indexes followed by origi
 
 ## Validation and known limitations
 
-The frozen beta.1 benchmark uses 200 authored synthetic exchanges across eight scopes (25 exchanges per scope), 400 messages and 50 queries with real NVIDIA embeddings. It makes no Main LLM call. Shared ranked positive exact-user Recall@5 is 33/35 for the product and 21/35 upstream. Product case checks pass 48/50, with two Chinese-history/English-query misses; these include product lifecycle cases and are not answer accuracy. All 400 messages retain exact source text, and both systems have zero observed scope leakage. Product no-memory abstention is 4/4. Native grounding policies and correction hints differ. [Category metrics and raw results](https://github.com/ziningshu-code/memory-system-mvp/blob/main/benchmarks-product/blind/RESULTS.md) disclose these differences and unsupported upstream APIs as N/A. Earlier 50-turn results are in-sample calibration. No parameter was tuned after the final result. The beta.2 preparation does not rerun this benchmark or claim a new retrieval improvement.
+The frozen beta.1 benchmark uses 200 authored synthetic exchanges across eight scopes (25 exchanges per scope), 400 messages and 50 queries with real NVIDIA embeddings. It makes no Main LLM call. Shared ranked positive exact-user Recall@5 is 33/35 for the product and 21/35 upstream. Product case checks pass 48/50, with two Chinese-history/English-query misses; these include product lifecycle cases and are not answer accuracy. All 400 messages retain exact source text, and both systems have zero observed scope leakage. Product no-memory abstention is 4/4. Native grounding policies and correction hints differ. [Category metrics and raw results](https://github.com/ziningshu-code/memory-system-mvp/blob/main/benchmarks-product/blind/RESULTS.md) disclose these differences and unsupported upstream APIs as N/A. Earlier 50-turn results are in-sample calibration. No parameter was tuned after the final result. Beta.2 does not rerun this benchmark or claim a new retrieval improvement.
+
+The published artifact is 244,282 bytes, SHA256 `3121b7157da4338bee793a00e6f254d9bce3e3a219c6e8c6dbf12d748c521ec3`. A fresh npm registry installation passed import, strict TypeScript, native SQLite, remember/recall, restart, history, rebuild, erase and close checks. The README example also retrieved the exact flight message using real NVIDIA embeddings. Existing validation includes 23/23 SDK tests and Node 22/24 on Windows/Linux CI. The immutable tarball includes the pre-publication documentation snapshot; use the current repository README for npm installation instructions.
 
 The beta requires Node 22/24 and a usable native SQLite dependency. It requires embeddings and has no bundled transparent proxy/setup UI. Relevance thresholds are provider/data dependent; recall may miss evidence or return distractors. Search is local and linear in session size. Evidence budgets use estimates and oversized sources return prefixes, so important trailing detail may be omitted. Corrections are explicit, not inferred universally. Logical erase does not wipe backups/free pages. Rebuilds can incur embedding cost. V1 data has no automatic migration. Host canonical-history commits and SDK saves are not one shared transaction; hosts must reconcile missed saves if needed.
 
@@ -38,4 +40,4 @@ The beta requires Node 22/24 and a usable native SQLite dependency. It requires 
 
 The public repository is [ziningshu-code/memory-system-mvp](https://github.com/ziningshu-code/memory-system-mvp), and `main` contains Generation 2. The separately published `legacy-v1`, `research-v1-0.3` and `v0.5.0-beta.1` tags retain their original snapshots. Product naming does not rename the GitHub repository. Generation numbering is separate from npm semantic versioning.
 
-This cleanup does not publish to npm or create a beta.2 tag. No automatic npm publishing workflow is installed.
+No automatic npm publishing workflow is installed.

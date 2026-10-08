@@ -1,8 +1,10 @@
 # Generation 2 release audit — 2026-10-02
 
-This is the historical audit of `memory-system-mvp@0.5.0-beta.1`, completed on 2026-10-02. Its original artifact sizes, hashes, test counts and benchmark results are retained below; they do not describe the upcoming `memory-system-v2@0.5.0-beta.2` package. Generation numbers describe architecture, not npm major versions.
+This is the historical audit of `memory-system-mvp@0.5.0-beta.1`, completed on 2026-10-02. Its original artifact sizes, hashes, test counts and benchmark results are retained below; they do not describe the separate `memory-system-v2@0.5.0-beta.2` package. Generation numbers describe architecture, not npm major versions.
 
-**Publication update — 2026-10-03:** [v0.5.0-beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) is public at `d5a8781afe7beba6f45df2d7010a216fe57fd940`, with the inspected artifact below. GitHub publication and the Node 22/24 Windows/Linux CI matrix completed. No npm publication occurred. Beta.2 is a separate naming/onboarding preparation, with no release tag; see [current release notes](release-notes.md).
+**Publication update — 2026-10-03:** [v0.5.0-beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) is public at `d5a8781afe7beba6f45df2d7010a216fe57fd940`, with the inspected artifact below. GitHub publication and the Node 22/24 Windows/Linux CI matrix completed. No npm publication occurred for beta.1.
+
+**Beta.2 npm update — 2026-10-08:** The separate `memory-system-v2@0.5.0-beta.2` artifact was published and downloaded from the registry with matching SHA256 `3121b7157da4338bee793a00e6f254d9bce3e3a219c6e8c6dbf12d748c521ec3` (244,282 bytes). A clean registry consumer passed strict TypeScript and SDK lifecycle checks; the README example passed with real NVIDIA embeddings. Beta.1's artifact and frozen benchmark are unchanged. See [current release notes](release-notes.md).
 
 ## 1. Generation 1 historical status
 
@@ -122,7 +124,7 @@ Node 22/24 and working `better-sqlite3` native support are required. Embeddings 
 
 ## 24. Publication status
 
-GitHub publication completed on 2026-10-03: the repository is public, the published beta.1 commit is `d5a8781afe7beba6f45df2d7010a216fe57fd940`, and both historical releases plus the beta.1 artifact are available. No npm publication occurred. The upcoming `memory-system-v2@0.5.0-beta.2` has no release tag and is not published to npm. Its documentation changes do not rewrite the beta.1 release or artifact.
+GitHub publication completed on 2026-10-03: the repository is public, the published beta.1 commit is `d5a8781afe7beba6f45df2d7010a216fe57fd940`, and both historical releases plus the beta.1 artifact are available. Beta.1 was not published to npm. The separate `memory-system-v2@0.5.0-beta.2` was published to npm on 2026-10-08. Its documentation changes do not rewrite the beta.1 release or artifact.
 
 ## 25. Release decision
 

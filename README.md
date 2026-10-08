@@ -16,14 +16,13 @@ It saves the user and assistant messages that were actually shown, uses embeddin
 
 This example saves one flight-time exchange and retrieves the original user message. It calls a real embedding API; it does not call a chat model.
 
-### 1. Install Node.js and Git
+### 1. Install Node.js
 
-Install [Node.js](https://nodejs.org/en/download) **22 or 24**. The current GitHub installation also needs [Git](https://git-scm.com/downloads). Check both:
+Install [Node.js](https://nodejs.org/en/download) **22 or 24**. Check the installation:
 
 ```sh
 node --version
 npm --version
-git --version
 ```
 
 ### 2. Create a test project
@@ -34,15 +33,15 @@ cd memory-v2-demo
 npm init -y
 ```
 
-### 3. Install from GitHub
+### 3. Install from npm
 
-The current `main` branch prepares **memory-system-v2 0.5.0-beta.2**. Install it from source; npm builds the package during installation:
+Install the published **memory-system-v2 0.5.0-beta.2** beta:
 
 ```sh
-npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
+npm install memory-system-v2@beta
 ```
 
-There is no npm release under the new name yet. The existing [beta.1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) keeps its old package name and download unchanged. It is a separate historical snapshot.
+In Windows PowerShell, use `npm.cmd` instead of `npm` if script execution is blocked. Git is not required for npm installation. The existing [beta.1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) keeps its old package name and download unchanged.
 
 ### 4. Set up NVIDIA embeddings
 
@@ -121,12 +120,12 @@ user message → memory.recall() → relevant old messages
 
 The [chat integration example](examples-product/openai-compatible-chat.mjs) shows the full flow with separate chat and embedding credentials. It uses a standard OpenAI-compatible embedding endpoint; for NVIDIA, replace its embedding configuration with the block above. See [SDK usage](docs/sdk.md) for corrections, recent-message exclusions and error handling.
 
-## Installation after npm publication
+## Install from source
 
-The intended command below is **not available yet**. Use the GitHub command above until an npm release is announced:
+For development, install [Git](https://git-scm.com/downloads) and use the source on `main`. This builds the SDK during installation and may include changes after the published npm version:
 
 ```sh
-npm install memory-system-v2@beta
+npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
 ```
 
 ## What it does / what it doesn't
@@ -164,7 +163,7 @@ This is a small synthetic benchmark and does not show universal superiority over
 
 V1 used a Topic Worker → Selector design. Testing exposed extra generative calls, unstable topic boundaries, retrieval misses and growing complexity. V2 keeps the product requirements learned from that work, but replaces its runtime with a modified LongMemory core and a conversation integration layer.
 
-The public [V1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/legacy-v1) points to `33b90322c0747943766c3477ccce10753cb554d7`. Public [V2 beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) points to `d5a8781afe7beba6f45df2d7010a216fe57fd940`. This branch prepares beta.2; it does not change those releases. Read the [project history](docs/project-evolution.md) for details.
+The public [V1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/legacy-v1) points to `33b90322c0747943766c3477ccce10753cb554d7`. Public [V2 beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) points to `d5a8781afe7beba6f45df2d7010a216fe57fd940`. [Beta.2 is available on npm](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2); it does not change those releases. Read the [project history](docs/project-evolution.md) for details.
 
 ## LongMemory credit and licenses
 

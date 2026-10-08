@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.5.0-beta.2 — Memory System V2 (not published to npm; no release tag)
+## 0.5.0-beta.2 — Memory System V2 (npm publication: 2026-10-08)
 
-- Rename the product to Memory System V2 and the upcoming package to `memory-system-v2`.
+- Rename the product to Memory System V2 and the package to `memory-system-v2`.
+- Publish the audited beta.2 artifact to npm and verify a clean registry install, strict TypeScript, SQLite lifecycle and the real NVIDIA Quick Start. Make npm installation the primary English/Chinese path.
 - Rewrite English and Chinese onboarding around a complete install, embedding configuration, save and recall example.
 - Correct public historical references and separate the released V1 plugin from the later research checkpoint.
 - Preserve the beta.1 release, artifact, benchmark results, storage format and memory behavior.
