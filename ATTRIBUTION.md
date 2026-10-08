@@ -2,7 +2,7 @@
 
 Generation 2 includes source from [CaviraOSS/LongMemory](https://github.com/CaviraOSS/LongMemory), revision `9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5` (2026-09-20), licensed under Apache License 2.0. The complete upstream license, copyright attribution, and embedded NOTICE are preserved unchanged in [UPSTREAM-LONGMEMORY-LICENSE](./UPSTREAM-LONGMEMORY-LICENSE).
 
-Upstream `src/core/` and `src/stores/` are imported as `src/longmemory/core/` and `src/longmemory/stores/`. All 157 files in those upstream directories are represented. At the pre-release checkpoint `e913dcba8dc6ea8117962b2adadd0c0f832ff9e4`, 152 have identical Git blobs; the following five are modified. Subsequent release documentation adds prominent modification notices to those same five files without changing their behavior.
+Upstream `src/core/` and `src/stores/` are included under `src/longmemory/`. The following files have project-specific changes:
 
 | Modified file | Product adaptation |
 | --- | --- |
@@ -23,5 +23,3 @@ Original project code is licensed under the [MIT License](./LICENSE). Imported L
 > This product includes software developed by CaviraOSS, nullure, and contributors.
 >
 > For more information, visit: https://github.com/CaviraOSS/LongMemory
-
-Mem0 was examined during the source comparison; no Mem0 source code is included. The [project evolution record](./docs/project-evolution.md) distinguishes Generation 1 research and the transcript-only prototype from this modified LongMemory product.

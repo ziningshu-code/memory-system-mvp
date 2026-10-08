@@ -1,43 +1,27 @@
-# Memory System V2 / 0.5.0-beta.2
+# 0.5.0-beta.2
 
-The package [memory-system-v2@0.5.0-beta.2](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2) was published to npm on 2026-10-08. This update changes the product name and public onboarding. It does not change the memory engine or the existing storage format. Follow the [Quick Start](../README.md) for npm installation.
+[Install from npm](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2) · [Download](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.2)
 
-The existing [v0.5.0-beta.1 GitHub release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) remains at `d5a8781afe7beba6f45df2d7010a216fe57fd940`, with its original `memory-system-mvp-0.5.0-beta.1.tgz` artifact. It is not replaced or renamed. Beta.1 remains a GitHub-only release.
+```sh
+npm install memory-system-v2@beta
+```
 
-## Beta.2 changes
+Use `npm.cmd` in Windows PowerShell if script execution is blocked. Requires Node.js 22 or 24 and an embedding provider.
 
-- Display name: Memory System V2. npm package name: `memory-system-v2`.
-- Complete English and Chinese instructions for installing, configuring embeddings, saving a conversation and printing recalled original messages.
-- Simpler descriptions of what the SDK does, its limitations and how applications use the returned evidence.
-- Correct public V1, research and beta.1 references. Existing benchmark results remain unchanged.
+This release uses the name **Memory System V2** and package **memory-system-v2**. The chat SDK saves original messages, retrieves their sources, and supports explicit corrections, deletion and rebuilding. The memory runtime and storage format are unchanged from beta.1.
 
-## Memory behavior introduced in beta.1
+The English and Chinese setup examples have been tested. Validation includes 23 SDK tests, Windows/Linux CI on Node 22/24, a fresh npm installation and the NVIDIA recall example. [Benchmark results](../benchmarks-product/blind/RESULTS.md) are unchanged.
 
-- Authoritative exact paired transcript persistence before derived indexing.
-- Stable owner/session/turn/role/source modeling and exact-source resolution.
-- Explicit source-ID corrections covering both roles, historical recall, logical turn erasure and predecessor restoration.
-- Recovery/rebuild from retained original sources and embedding identity checks.
-- Bounded evidence, marked exact prefix excerpts, retrieval trace and recent-turn exclusions.
-- A conversational SDK and generic OpenAI-compatible integration example; private application validation is retained privately.
+## Limits
 
-## Uses and adapts from LongMemory
+This is a developer SDK, without a bundled chat app, proxy or setup page. Recall can miss relevant messages. Long sources may be excerpted, token budgets are estimates, and rebuilding can make embedding requests. V1 data is not imported automatically.
 
-The runtime is built on and extends source pinned to `9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5`. LongMemory supplies embedding providers, semantic retrieval, derived memory relationships, temporal machinery and SQLite persistence. Five imported files have targeted adaptations listed in [ATTRIBUTION](../ATTRIBUTION.md); the project does not claim those upstream algorithms as original. The conversation integration layer is in `src/product/`.
+## Download details
 
-## Lessons carried forward from Generation 1
+The attached package is `memory-system-v2-0.5.0-beta.2.tgz`, 244,282 bytes.
 
-The independently designed topic system explored short indexes followed by original-text expansion. Experiments exposed generation cost, unstable boundaries, retrieval reliability and integration limits. Memory System V2 follows its requirements while replacing its runtime. The public [legacy-v1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/legacy-v1) preserves the earlier plugin at `33b90322c0747943766c3477ccce10753cb554d7`. The later experimental 0.3 checkpoint is separately preserved at [research-v1-0.3](https://github.com/ziningshu-code/memory-system-mvp/tree/research-v1-0.3), `f0c1991e443a8c1870c9e8c5a72166c6108c44a4`; it was not an npm release.
+SHA256: `3121b7157da4338bee793a00e6f254d9bce3e3a219c6e8c6dbf12d748c521ec3`.
 
-## Validation and known limitations
+The package contains an earlier documentation snapshot. Use the current repository README for installation instructions.
 
-The frozen beta.1 benchmark uses 200 authored synthetic exchanges across eight scopes (25 exchanges per scope), 400 messages and 50 queries with real NVIDIA embeddings. It makes no Main LLM call. Shared ranked positive exact-user Recall@5 is 33/35 for the product and 21/35 upstream. Product case checks pass 48/50, with two Chinese-history/English-query misses; these include product lifecycle cases and are not answer accuracy. All 400 messages retain exact source text, and both systems have zero observed scope leakage. Product no-memory abstention is 4/4. Native grounding policies and correction hints differ. [Category metrics and raw results](https://github.com/ziningshu-code/memory-system-mvp/blob/main/benchmarks-product/blind/RESULTS.md) disclose these differences and unsupported upstream APIs as N/A. Earlier 50-turn results are in-sample calibration. No parameter was tuned after the final result. Beta.2 does not rerun this benchmark or claim a new retrieval improvement.
-
-The published artifact is 244,282 bytes, SHA256 `3121b7157da4338bee793a00e6f254d9bce3e3a219c6e8c6dbf12d748c521ec3`. A fresh npm registry installation passed import, strict TypeScript, native SQLite, remember/recall, restart, history, rebuild, erase and close checks. The README example also retrieved the exact flight message using real NVIDIA embeddings. Existing validation includes 23/23 SDK tests and Node 22/24 on Windows/Linux CI. The immutable tarball includes the pre-publication documentation snapshot; use the current repository README for npm installation instructions.
-
-The beta requires Node 22/24 and a usable native SQLite dependency. It requires embeddings and has no bundled transparent proxy/setup UI. Relevance thresholds are provider/data dependent; recall may miss evidence or return distractors. Search is local and linear in session size. Evidence budgets use estimates and oversized sources return prefixes, so important trailing detail may be omitted. Corrections are explicit, not inferred universally. Logical erase does not wipe backups/free pages. Rebuilds can incur embedding cost. V1 data has no automatic migration. Host canonical-history commits and SDK saves are not one shared transaction; hosts must reconcile missed saves if needed.
-
-## Public GitHub history
-
-The public repository is [ziningshu-code/memory-system-mvp](https://github.com/ziningshu-code/memory-system-mvp), and `main` contains Generation 2. The separately published `legacy-v1`, `research-v1-0.3` and `v0.5.0-beta.1` tags retain their original snapshots. Product naming does not rename the GitHub repository. Generation numbering is separate from npm semantic versioning.
-
-No automatic npm publishing workflow is installed.
+The core comes from [LongMemory](https://github.com/CaviraOSS/LongMemory), with the revision and changes listed in [ATTRIBUTION](../ATTRIBUTION.md). Project code is MIT; imported LongMemory code is Apache-2.0.

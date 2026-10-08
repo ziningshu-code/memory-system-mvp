@@ -1,61 +1,55 @@
 # Memory System V2
 
-Memory System V2 adds long-term memory to Node.js chat apps.
+A Node.js SDK for developers building chat apps. Save conversations locally, find relevant older messages, and send the original text to your chat model.
 
-It saves the user and assistant messages that were actually shown, uses embeddings to find useful older conversations, and returns the original messages as evidence. Your app keeps using its existing chat model.
+Built on [LongMemory](https://github.com/CaviraOSS/LongMemory). Your app calls the SDK before and after each reply; once integrated, saving and retrieval run as part of the chat. It is not a standalone chat app or a plugin you can install into ChatGPT.
 
-- Save original messages in a local SQLite file.
-- Find older messages and return their text with source IDs.
-- Keep users and chat sessions separate using application-supplied IDs.
-- Record explicit corrections when information changes.
-- Rebuild search data from the saved conversation.
+[Install](#install) · [Download source ZIP](https://github.com/ziningshu-code/memory-system-mvp/archive/refs/heads/main.zip) · [Download SDK](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.2) · [中文说明](README.zh-CN.md)
 
-[中文说明](README.zh-CN.md)
+## Install
 
-## Quick Start
-
-This example saves one flight-time exchange and retrieves the original user message. It calls a real embedding API; it does not call a chat model.
-
-### 1. Install Node.js
-
-Install [Node.js](https://nodejs.org/en/download) **22 or 24**. Check the installation:
-
-```sh
-node --version
-npm --version
-```
-
-### 2. Create a test project
-
-```sh
-mkdir memory-v2-demo
-cd memory-v2-demo
-npm init -y
-```
-
-### 3. Install from npm
-
-Install the published **memory-system-v2 0.5.0-beta.2** beta:
+Use [Node.js 22 or 24](https://nodejs.org/en/download), then run this in your application's folder:
 
 ```sh
 npm install memory-system-v2@beta
 ```
 
-In Windows PowerShell, use `npm.cmd` instead of `npm` if script execution is blocked. Git is not required for npm installation. The existing [beta.1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) keeps its old package name and download unchanged.
+Windows PowerShell:
 
-### 4. Set up NVIDIA embeddings
+```powershell
+npm.cmd install memory-system-v2@beta
+```
 
-Get an API key from the [NVIDIA model page](https://build.nvidia.com/nvidia/nemotron-3-embed-1b). In `memory-v2-demo`, create a file named `.env` and replace the placeholder with your key:
+The current release is **0.5.0-beta.2**. npm installation is the simplest option. The release page also has a packaged SDK under **Assets**; the ZIP link downloads source code. Neither download is a Windows application installer.
+
+## Try it
+
+This example saves a flight-time exchange and retrieves the original user message. It uses NVIDIA embeddings and makes no chat-model request.
+
+### 1. Create a folder
+
+```sh
+mkdir memory-v2-demo
+cd memory-v2-demo
+npm init -y
+npm install memory-system-v2@beta
+```
+
+In PowerShell, use `npm.cmd` for both npm commands if script execution is blocked.
+
+### 2. Configure embeddings
+
+Get a key for [NVIDIA nemotron-3-embed-1b](https://build.nvidia.com/nvidia/nemotron-3-embed-1b). Create `.env` in this folder:
 
 ```dotenv
 EMBED_API_KEY=your_nvidia_api_key
 ```
 
-The example uses **`nvidia/nemotron-3-embed-1b`**, which returns **2048** numbers per embedding. The SDK's NVIDIA adapter sets the query/passage request options. Saved messages and recall queries are sent to **`https://integrate.api.nvidia.com/v1/embeddings`**. Embedding requests may have provider costs; no chat API key is needed for this demo. Keep `.env` private and exclude it from version control.
+Replace the placeholder with your key. Keep this file out of Git. This provider receives the saved messages and search queries; embedding requests may incur costs. You can also use [other providers or local Ollama](docs/sdk.md#embedding-configuration).
 
-### 5. Save and recall a message
+### 3. Run the example
 
-Create `demo.mjs` in the same folder:
+Save the following as `demo.mjs`:
 
 ```js
 import { createMemory } from 'memory-system-v2';
@@ -98,87 +92,69 @@ try {
 }
 ```
 
-Run it, loading the key from `.env`:
-
 ```sh
 node --env-file=.env demo.mjs
 ```
 
-The output includes:
+Expected output:
 
 ```text
 Source: flight-1:user
 Original message: My flight leaves at 7:40 tomorrow morning.
 ```
 
-`recall()` returns old conversation evidence. It does **not** generate the final AI answer. The demo's assistant message is fixed example data, not a model response. In your app, save the actual completed response from your chat model:
+The assistant text in this example is sample data. In your app, save the actual completed response from your chat model.
+
+## Connect a chat app
 
 ```text
-user message → memory.recall() → relevant old messages
-             → your existing chat model → assistant reply → memory.remember()
+User message → recall old messages → your chat model → reply → save the exchange
 ```
 
-The [chat integration example](examples-product/openai-compatible-chat.mjs) shows the full flow with separate chat and embedding credentials. It uses a standard OpenAI-compatible embedding endpoint; for NVIDIA, replace its embedding configuration with the block above. See [SDK usage](docs/sdk.md) for corrections, recent-message exclusions and error handling.
+Call `recall()` before sending a question to your model, include its `context` as historical evidence, then call `remember()` with the user message and completed reply. Keep the current conversation and retrieved evidence separate.
 
-## Install from source
+The [chat example](examples-product/openai-compatible-chat.mjs) shows this flow with independent chat and embedding endpoints. The [SDK guide](docs/sdk.md) covers sessions, recent-message exclusions, corrections, deletion and error handling.
 
-For development, install [Git](https://git-scm.com/downloads) and use the source on `main`. This builds the SDK during installation and may include changes after the published npm version:
+## Storage and limits
+
+Original messages and search data are stored in one local SQLite file. The example uses `./memory.sqlite`; the default is `~/.memory-system-mvp/memory.sqlite`.
+
+Recall returns source IDs and original text, with a size limit. Long messages may be excerpted, and some searches may miss relevant history. Corrections must be supplied explicitly. Rebuilds can make new embedding requests.
+
+Memory management makes no extra generative-model calls. Embeddings still require a provider. There is no bundled proxy, setup page or browser SDK. See [privacy and deletion](docs/privacy.md).
+
+## Tests
+
+23 SDK tests pass, with CI on Windows/Linux and Node 22/24. The npm installation and NVIDIA example have also been checked in a fresh folder.
+
+A synthetic benchmark used 200 exchanges across eight sessions and 50 queries:
+
+| Check | This SDK | Pinned LongMemory baseline |
+| --- | ---: | ---: |
+| Expected user source in the first five results, 35 shared queries | 33/35 | 21/35 |
+| Original messages recovered after restart | 400/400 | 400/400 |
+
+Two Chinese-history/English-query cases were missed. This small test measures retrieval, not final-answer accuracy or token savings. [Method](benchmarks-product/blind/README.md) · [Full results](benchmarks-product/blind/RESULTS.md)
+
+## Source and license
+
+The SDK includes a modified [LongMemory core](https://github.com/CaviraOSS/LongMemory). Conversation storage and the public SDK are in `src/product/`. [ATTRIBUTION](ATTRIBUTION.md) lists the upstream revision and changes.
+
+Project code: [MIT](LICENSE). LongMemory code: [Apache-2.0](UPSTREAM-LONGMEMORY-LICENSE), with its [NOTICE](NOTICE).
+
+For source installation, install Git and run:
 
 ```sh
 npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
 ```
 
-## What it does / what it doesn't
+This builds the SDK from `main`, which may include changes after the npm release.
 
-It saves visible conversation locally, retrieves original source text, supports explicit corrections and can rebuild its search data. It makes **zero additional generative memory-model calls**; embedding requests can still consume API tokens.
-
-It does not replace your chat model, generate answers by itself, include a hosted memory service, infer every contradiction or guarantee perfect retrieval. This release is a Node SDK, without a bundled proxy, setup page or browser SDK.
-
-## How it works
-
-```text
-Conversation → Saved original messages → Embeddings + LongMemory search state
-             → Recall → Original matching messages
-```
-
-The saved conversation is the source of truth. Search results point back to those messages. Search data can be rebuilt; it never replaces the original text. Both are stored in one local SQLite file. The demo uses `./memory.sqlite`; the SDK's default remains `~/.memory-system-mvp/memory.sqlite` for compatibility.
-
-Returned evidence is bounded, with source IDs and exact text ranges. The budget uses a token estimate, not your chat model's exact tokenizer. A large message may return only a marked prefix, and recall may return nothing. [SDK details](docs/sdk.md) and [privacy](docs/privacy.md) explain these limits and what leaves your computer.
-
-## Other embedding providers
-
-You can configure an OpenAI-compatible **embeddings** endpoint, local Ollama, or your own embedder. A chat endpoint alone is not enough. Set the actual model and vector dimension; do not reuse the NVIDIA settings for a different model. See [embedding configuration](docs/sdk.md#embedding-configuration) and [.env.example](.env.example). Local embeddings keep text on your computer.
-
-## Validation
-
-Frozen validation set:
-
-- 200 synthetic exchanges and 50 labeled queries.
-- 33/35 designated-source hits for Memory System V2, versus 21/35 for the pinned upstream baseline, within five results.
-- 400/400 saved messages recovered in both implementations.
-
-This is a small synthetic benchmark and does not show universal superiority over LongMemory. It measures retrieval, not generated-answer accuracy. See the [methodology](https://github.com/ziningshu-code/memory-system-mvp/blob/main/benchmarks-product/blind/README.md) and [full results](https://github.com/ziningshu-code/memory-system-mvp/blob/main/benchmarks-product/blind/RESULTS.md).
-
-## From V1 to V2
-
-V1 used a Topic Worker → Selector design. Testing exposed extra generative calls, unstable topic boundaries, retrieval misses and growing complexity. V2 keeps the product requirements learned from that work, but replaces its runtime with a modified LongMemory core and a conversation integration layer.
-
-The public [V1 release](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/legacy-v1) points to `33b90322c0747943766c3477ccce10753cb554d7`. Public [V2 beta.1](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.1) points to `d5a8781afe7beba6f45df2d7010a216fe57fd940`. [Beta.2 is available on npm](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2); it does not change those releases. Read the [project history](docs/project-evolution.md) for details.
-
-## LongMemory credit and licenses
-
-Memory System V2 uses a modified copy of the open-source [LongMemory core](https://github.com/CaviraOSS/LongMemory). LongMemory provides most of the embedding, semantic retrieval and temporal-memory machinery. This project adds conversation storage and the application-facing behavior described above.
-
-The upstream revision is [9ee2c8e](https://github.com/CaviraOSS/LongMemory/tree/9ee2c8e1ed42d83eb788afb9ffc3a82b84405da5). See [ATTRIBUTION](ATTRIBUTION.md), [NOTICE](NOTICE), the project's [MIT license](LICENSE) and LongMemory's [Apache-2.0 license](UPSTREAM-LONGMEMORY-LICENSE).
-
-## Development
+For development:
 
 ```sh
 npm ci
 npm run typecheck
 npm test
 npm run smoke:consumer
-npm pack
 ```
-
-CI covers Node 22/24 on Windows/Linux. No workflow publishes automatically. [Release notes](docs/release-notes.md).
