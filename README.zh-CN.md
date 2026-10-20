@@ -107,13 +107,11 @@ Original message: My flight leaves at 7:40 tomorrow morning.
 
 ## 接入聊天应用
 
-```text
-用户发消息 → 检索旧消息 → 聊天模型回答 → 保存本轮对话
-```
+**想先在 PowerShell 里和 AI 实际聊起来，按[完整操作教程](docs/chat-quickstart.zh-CN.md)做。** 教程包含安装命令、配置文件、运行方式，以及如何确认对话已保存。
 
-发请求给模型前调用 `recall()`，把返回的 `context` 放进请求中作为历史参考。模型回答完成后，调用 `remember()` 保存用户消息和回复。当前聊天内容和检索到的历史应分开处理。
+上面的航班示例只测试记忆存取。聊天教程会调用你配置的聊天模型：每运行一次命令，程序自动检索旧消息、发送问题、显示真实回复，再保存本轮对话。
 
-[聊天示例](examples-product/openai-compatible-chat.mjs)展示了完整流程，聊天与 embedding 接口分别配置。会话隔离、排除近期消息、更正、删除和失败处理见 [SDK 文档](docs/sdk.md)。
+如果你正在开发自己的聊天软件，教程最后说明要把代码接在哪里。会话隔离、排除近期消息、更正和删除见 [SDK 文档](docs/sdk.md)。
 
 ## 保存位置和限制
 
@@ -125,7 +123,7 @@ Original message: My flight leaves at 7:40 tomorrow morning.
 
 ## 测试
 
-23 项 SDK 测试通过，CI 覆盖 Windows/Linux 和 Node 22/24。全新 npm 安装和 NVIDIA 示例也已验证。
+24 项 SDK 与示例测试通过，CI 覆盖 Windows/Linux 和 Node 22/24。全新 npm 安装和 NVIDIA 示例也已验证。
 
 一组合成测试包含分布在八个会话中的 200 轮对话，以及 50 道查询：
 

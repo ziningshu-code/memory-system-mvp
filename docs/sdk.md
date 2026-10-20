@@ -18,6 +18,8 @@ Call `createMemory()` with a persistent `dbPath` and an embedding configuration.
 
 ## Chat flow
 
+For a complete runnable setup, use the [PowerShell chat guide](chat-quickstart.md) or [中文教程](chat-quickstart.zh-CN.md).
+
 1. Call `recall({sessionId, query, excludeTurnIds?})` before the chat-model request.
 2. Include `result.context` in a separate system/developer block as historical data. Supply your application's bounded recent conversation separately.
 3. Call your normal chat model.

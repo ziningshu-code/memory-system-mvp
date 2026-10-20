@@ -96,3 +96,47 @@ test('an embedding outage preserves the Main LLM answer and exact transcript', a
     await new Promise((resolve) => server.close(resolve));
   }
 });
+
+test('the documented NVIDIA settings send query/passage options and recall saved speech on a second run', async () => {
+  const dbPath = join(mkdtempSync(join(tmpdir(), 'memory-app-nvidia-')), 'memory.sqlite');
+  const embeddings = [];
+  const chats = [];
+  const server = createServer(async (request, response) => {
+    const chunks = [];
+    for await (const chunk of request) chunks.push(chunk);
+    const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    response.setHeader('content-type', 'application/json');
+    if (request.url === '/v1/embeddings') {
+      embeddings.push(body);
+      const vector = Array(2048).fill(0);
+      vector[0] = 1;
+      response.end(JSON.stringify({data: body.input.map((_, index) => ({index, embedding: vector}))}));
+      return;
+    }
+    if (request.url === '/v1/chat/completions') {
+      chats.push(body);
+      response.end(JSON.stringify({choices: [{message: {content: 'Local fixture reply.'}}]}));
+      return;
+    }
+    response.statusCode = 404;
+    response.end('{}');
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const url = `http://127.0.0.1:${server.address().port}/v1`;
+    const env = {MEMORY_DB_PATH: dbPath, MEMORY_SESSION_ID: 'nvidia-guide',
+      EMBED_PROVIDER: 'nvidia', EMBED_BASE_URL: url, EMBED_MODEL: 'nvidia/nemotron-3-embed-1b',
+      EMBED_DIMENSION: '2048', EMBED_API_KEY: 'local-fixture',
+      CHAT_BASE_URL: url, CHAT_MODEL: 'local-fixture', CHAT_API_KEY: 'local-fixture'};
+    const statement = '我计划去东京，酒店预算是每晚14000日元，想住上野。';
+    await runChat(statement, env);
+    await runChat('我之前说的东京酒店预算是多少，想住哪个区域？', env);
+    assert.equal(chats.length, 2);
+    assert.ok(chats[1].messages.some(message => message.role === 'system' && message.content.includes(statement)));
+    assert.ok(embeddings.some(body => body.input_type === 'query'));
+    assert.ok(embeddings.some(body => body.input_type === 'passage'));
+    assert.ok(embeddings.every(body => body.model === env.EMBED_MODEL && body.encoding_format === 'float'));
+  } finally {
+    await new Promise(resolve => server.close(resolve));
+  }
+});

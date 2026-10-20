@@ -107,13 +107,11 @@ The assistant text in this example is sample data. In your app, save the actual 
 
 ## Connect a chat app
 
-```text
-User message → recall old messages → your chat model → reply → save the exchange
-```
+**To chat from PowerShell, follow the [step-by-step guide](docs/chat-quickstart.md).** It includes installation, configuration, commands and a way to inspect saved messages.
 
-Call `recall()` before sending a question to your model, include its `context` as historical evidence, then call `remember()` with the user message and completed reply. Keep the current conversation and retrieved evidence separate.
+The flight example above only checks memory storage and retrieval. The chat guide calls your configured chat model. Each command retrieves older messages, sends your question, prints the real reply and saves the exchange.
 
-The [chat example](examples-product/openai-compatible-chat.mjs) shows this flow with independent chat and embedding endpoints. The [SDK guide](docs/sdk.md) covers sessions, recent-message exclusions, corrections, deletion and error handling.
+For an existing chat application, the guide shows where to add the two memory calls. See the [SDK guide](docs/sdk.md) for sessions, recent-message exclusions, corrections and deletion.
 
 ## Storage and limits
 
@@ -125,7 +123,7 @@ Memory management makes no extra generative-model calls. Embeddings still requir
 
 ## Tests
 
-23 SDK tests pass, with CI on Windows/Linux and Node 22/24. The npm installation and NVIDIA example have also been checked in a fresh folder.
+24 SDK and example tests pass, with CI on Windows/Linux and Node 22/24. The npm installation and NVIDIA example have also been checked in a fresh folder.
 
 A synthetic benchmark used 200 exchanges across eight sessions and 50 queries:
 
