@@ -4,26 +4,17 @@
 
 配置一次，再替换应用里调用聊天模型的那一行。SDK 会自动查找旧对话、把有限的原文放进请求，并保存本次完成的回复。聊天模型和回复格式沿用你原来的设置。
 
-[English](README.md) · [接入文档](docs/sdk.md) · [应用代码示例](examples-product/chat-entry.mjs)
+[下载 SDK](https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz) · [English](README.md) · [接入文档](docs/sdk.md) · [应用代码示例](examples-product/chat-entry.mjs)
 
 ## 安装
 
-先安装 [Node.js 22 或 24](https://nodejs.org/en/download)。
-
-**下面的聊天入口属于本地 0.5.0-beta.3 预览版，已发布的 npm beta.2 暂时没有这个入口。** 要试用这份代码，在本项目文件夹中运行：
+先安装 [Node.js 22 或 24](https://nodejs.org/en/download)，在自己应用的后端文件夹中打开 PowerShell，运行：
 
 ```powershell
-npm.cmd ci
-npm.cmd pack
+npm.cmd install "https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
 ```
 
-再进入你自己的应用文件夹，安装刚生成的包：
-
-```powershell
-npm.cmd install "C:\实际路径\memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
-```
-
-把路径换成包的实际位置。macOS/Linux 将 `npm.cmd` 换成 `npm`。已发布的底层 SDK 仍可通过 `memory-system-v2@0.5.0-beta.2` 安装。
+macOS/Linux 将 `npm.cmd` 换成 `npm`。这条命令直接从 GitHub 安装打包好的 **0.5.0-beta.3**，不需要下载源码再编译。OpenAI 客户端可以连接你原来兼容该接口的服务商，不要求使用 OpenAI 的模型或 Key。[版本说明](docs/release-notes.md)
 
 ## 接到已有聊天应用
 

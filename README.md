@@ -4,26 +4,17 @@ Long-term memory for Node.js chat applications, built on [LongMemory](https://gi
 
 Configure memory once, then replace your application's chat call. The SDK retrieves relevant older messages, includes bounded original text in the model request, and saves the completed reply. Your existing chat model and response format stay the same.
 
-[中文说明](README.zh-CN.md) · [Integration guide](docs/sdk.md) · [App example](examples-product/chat-entry.mjs)
+[Download SDK](https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz) · [中文说明](README.zh-CN.md) · [Integration guide](docs/sdk.md) · [App example](examples-product/chat-entry.mjs)
 
 ## Install
 
-Use [Node.js 22 or 24](https://nodejs.org/en/download).
-
-**The chat entry below is a local 0.5.0-beta.3 preview. The published npm beta.2 does not include it yet.** To try this checkout, run in its folder:
+Use [Node.js 22 or 24](https://nodejs.org/en/download). In your application's backend folder, run this in Windows PowerShell:
 
 ```powershell
-npm.cmd ci
-npm.cmd pack
+npm.cmd install "https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
 ```
 
-Then, in your application's folder, install the generated package:
-
-```powershell
-npm.cmd install "C:\path\to\memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
-```
-
-Replace the path with the actual package location. On macOS/Linux, use `npm` instead of `npm.cmd`. The published low-level SDK remains available as `memory-system-v2@0.5.0-beta.2`.
+On macOS/Linux, use `npm` instead of `npm.cmd`. This installs the packaged **0.5.0-beta.3** SDK from GitHub; you do not need to download or build the source. The OpenAI client can use your existing compatible provider's Base URL and API key. [Release notes](docs/release-notes.md)
 
 ## Connect your existing chat app
 

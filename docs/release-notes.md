@@ -1,27 +1,27 @@
-# 0.5.0-beta.2
+# 0.5.0-beta.3
 
-[Install from npm](https://www.npmjs.com/package/memory-system-v2/v/0.5.0-beta.2) · [Download](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.2)
+[Download SDK](https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz) · [Install and connect](../README.md#install) · [中文说明](../README.zh-CN.md)
 
-```sh
-npm install memory-system-v2@beta
-```
+This release adds `createMemoryChat` at `memory-system-v2/chat`. Configure it once with your existing OpenAI-compatible client and embedding provider, then replace the chat call with `chat.create()` and pass your application's user and conversation IDs.
 
-Use `npm.cmd` in Windows PowerShell if script execution is blocked. Requires Node.js 22 or 24 and an embedding provider.
+The entry automatically retrieves older messages, adds bounded original evidence, calls the existing chat model and saves the completed visible exchange. It supports normal and streamed text replies. Memory failures do not discard a valid model response; cancelled or incomplete replies are not saved as completed exchanges.
 
-This release uses the name **Memory System V2** and package **memory-system-v2**. The chat SDK saves original messages, retrieves their sources, and supports explicit corrections, deletion and rebuilding. The memory runtime and storage format are unchanged from beta.1.
+The LongMemory retrieval core, original-message storage and low-level `createMemory()` API remain available. This release requires Node.js 22 or 24; the new chat entry is tested with OpenAI Node 7.42.
 
-The English and Chinese setup examples have been tested. Validation includes 23 SDK tests, Windows/Linux CI on Node 22/24, a fresh npm installation and the NVIDIA recall example. [Benchmark results](../benchmarks-product/blind/RESULTS.md) are unchanged.
+## Validation
+
+46 automated tests pass, including 22 chat-wrapper tests. A fresh installation of the packaged SDK passed TypeScript, native SQLite, ordinary and streaming requests, automatic retrieval and saving, and restart checks using the official OpenAI client against a local test service. These checks do not measure live-model answer accuracy.
+
+The [beta.2 retrieval benchmark](../benchmarks-product/blind/RESULTS.md) is unchanged.
 
 ## Limits
 
-This is a developer SDK, without a bundled chat app, proxy or setup page. Recall can miss relevant messages. Long sources may be excerpted, token budgets are estimates, and rebuilding can make embedding requests. V1 data is not imported automatically.
+This is a Node.js developer SDK. It does not include a chat application, proxy or setup page. The automatic entry handles text Chat Completions; tool calls, images and multiple choices pass through without automatic memory. Retrieval can miss relevant messages, and evidence budgets are estimates.
 
-## Download details
+Use your own embedding service or local Ollama. External embedding providers receive messages and retrieval queries; your chat provider receives the selected evidence. There is no author-operated memory server. See [privacy](privacy.md) and the [integration guide](sdk.md).
 
-The attached package is `memory-system-v2-0.5.0-beta.2.tgz`, 244,282 bytes.
+## Earlier release
 
-SHA256: `3121b7157da4338bee793a00e6f254d9bce3e3a219c6e8c6dbf12d748c521ec3`.
+[0.5.0-beta.2](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.2) contains the low-level memory API without the automatic chat entry. The beta.3 installation command uses a GitHub release asset directly and does not depend on npm's `beta` or `latest` tag.
 
-The package contains an earlier documentation snapshot. Use the current repository README for installation instructions.
-
-The core comes from [LongMemory](https://github.com/CaviraOSS/LongMemory), with the revision and changes listed in [ATTRIBUTION](../ATTRIBUTION.md). Project code is MIT; imported LongMemory code is Apache-2.0.
+Project code is MIT; the modified LongMemory core is Apache-2.0. Revision and modifications are recorded in [ATTRIBUTION](../ATTRIBUTION.md).

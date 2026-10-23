@@ -2,7 +2,13 @@
 
 ## Install
 
-Use Node.js 22 or 24. The automatic chat entry is in the local beta.3 preview; it is not in the published npm beta.2. Follow the [local package installation](../README.md#install).
+Use Node.js 22 or 24. Install the packaged SDK in your application's backend folder:
+
+```powershell
+npm.cmd install "https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
+```
+
+Use `npm` on macOS/Linux. This installs beta.3 from GitHub without a source checkout. The chat entry is tested with OpenAI Node 7.42; the client can connect to an OpenAI-compatible provider. Existing low-level `createMemory()` integrations still work and do not require the OpenAI client.
 
 SQLite uses `better-sqlite3`. If installation fails, check the Node version first. Platforms without a prebuilt binary need Python and C/C++ build tools for `node-gyp`. See [SQLite troubleshooting](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/troubleshooting.md).
 
