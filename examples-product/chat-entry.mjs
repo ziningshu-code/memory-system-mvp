@@ -11,6 +11,8 @@ const required = (name) => {
 const client = new OpenAI({
   baseURL: required('CHAT_BASE_URL'),
   apiKey: process.env.CHAT_API_KEY || 'local',
+  timeout: 120_000,
+  maxRetries: 1,
 });
 
 const embeddingKind = process.env.EMBED_PROVIDER ?? 'openai';
@@ -19,6 +21,9 @@ if (!['openai', 'nvidia'].includes(embeddingKind)) {
 }
 const chat = createMemoryChat({
   client,
+  onMemoryEvent(event) {
+    if (event.status === 'error') console.warn(`[memory:${event.stage}] ${event.reason}`);
+  },
   memory: {
     dbPath: process.env.MEMORY_DB_PATH ?? './data/memory.sqlite',
     embedding: {

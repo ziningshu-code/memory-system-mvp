@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import OpenAI from 'openai';
+import Database from 'better-sqlite3';
 import { createMemory } from '../build-product/product/index.js';
 import { createMemoryChat } from '../build-product/product/chat.js';
 import { count_tokens } from '../build-product/longmemory/core/recall/context_builder.js';
@@ -226,6 +227,58 @@ test('upstream errors propagate unchanged and no failed exchange is stored', asy
   await assert.rejects(chat.create(request('Hello.')), error => error === failure);
   await chat.close();
   assert.deepEqual(await history(memory), []);
+});
+
+test('main timeout preserves prior durable history and a retry after restart saves only the completed exchange', async t => {
+  const memory = config();
+  await seed(memory, [{ turnId: 'prior', user: 'Tokyo hotel is Sakura.', assistant: 'Hotel saved.' }]);
+  const failure = new DOMException('Synthetic provider timeout', 'TimeoutError');
+  let attempts = 0;
+  const first = use(t, { memory, client: fakeClient(async () => { attempts++; throw failure; }) });
+  await assert.rejects(first.create(request('What is my Tokyo hotel?')), e => e === failure);
+  await first.close();
+  assert.equal(attempts, 1); // The wrapper does not add an unbounded retry loop.
+  const retained = await history(memory);
+  assert.deepEqual(retained.map(s => s.exactText), ['Tokyo hotel is Sakura.', 'Hotel saved.']);
+  const retry = use(t, { memory, recentTurns: 0, client: fakeClient(async body => {
+    assert.match(evidence(body.messages).map(m => m.content).join('\n'), /Tokyo hotel is Sakura/);
+    return response('Your Tokyo hotel is Sakura.');
+  }) });
+  await retry.create(request('What is my Tokyo hotel?'));
+  await retry.close();
+  const stored = await history(memory);
+  assert.equal(stored.length, 4);
+  assert.deepEqual(stored.slice(0, 2).map(s => s.sourceId), retained.map(s => s.sourceId));
+  assert.equal(stored.filter(s => s.exactText === 'What is my Tokyo hotel?').length, 1);
+  assert.ok(stored.every(s => !s.exactText.includes('Synthetic provider timeout')));
+});
+
+test('embedding timeout keeps exact sources on disk and reopening the wrapper repairs their original IDs', async t => {
+  const memory = config();
+  const healthyEmbed = memory.embedding.embed;
+  memory.embedding.embed = async () => { throw new DOMException('Synthetic embedding timeout', 'TimeoutError'); };
+  const failed = use(t, { memory, client: fakeClient(async () => response('Hotel recorded.')) });
+  await failed.create(request('Tokyo hotel is Sakura.'));
+  await failed.close();
+  const db = new Database(memory.dbPath, { readonly: true });
+  const before = db.prepare('SELECT source_id, exact_text, derivation_status FROM conversation_sources ORDER BY sequence').all();
+  db.close();
+  assert.deepEqual(before.map(s => s.exact_text), ['Tokyo hotel is Sakura.', 'Hotel recorded.']);
+  assert.ok(before.every(s => s.derivation_status === 'failed'));
+  memory.embedding.embed = healthyEmbed;
+  const recovered = use(t, { memory, recentTurns: 0, client: fakeClient(async body => {
+    assert.match(evidence(body.messages).map(m => m.content).join('\n'), /Tokyo hotel is Sakura/);
+    return response('Sakura.');
+  }) });
+  await recovered.create(request('Tokyo hotel?'));
+  await recovered.close();
+  const after = await history(memory);
+  for (const old of before) {
+    const source = after.find(s => s.sourceId === old.source_id);
+    assert.equal(source?.exactText, old.exact_text);
+    assert.equal(source?.derivationStatus, 'indexed');
+  }
+  assert.equal(after.length, 4);
 });
 
 test('stream yields original chunks and saves only the naturally completed visible text', async t => {

@@ -11,7 +11,10 @@ const require = createRequire(import.meta.url);
 const npm = process.env.npm_execpath ?? join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
 const folder = mkdtempSync(join(tmpdir(), 'memory-consumer-'));
 const runNpm = (args, cwd) => execFileSync(process.execPath, [npm, ...args], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-const packOutput = runNpm(['pack', '--json', '--pack-destination', folder], root);
+// Allows checking an already compiled artifact when Windows holds the build directory open.
+// The normal path still runs prepack; callers using this flag must compile first.
+const packOutput = runNpm(['pack', '--json', '--pack-destination', folder,
+  ...(process.env.MEMORY_CONSUMER_PREBUILT === '1' ? ['--ignore-scripts'] : [])], root);
 const pack = JSON.parse(packOutput.slice(packOutput.indexOf('[\n')))[0];
 writeFileSync(join(folder, 'package.json'), JSON.stringify({ name: 'clean-sdk-consumer', private: true, type: 'module' }));
 runNpm(['install', '--no-audit', '--no-fund', '--package-lock=false', join(folder, pack.filename)], folder);
@@ -116,6 +119,10 @@ const files = pack.files.map((file) => file.path);
 assert.ok(files.includes('build-product/longmemory/stores/sqlite/schema.sql'));
 assert.ok(files.includes('build-product/product/chat.js'));
 assert.ok(files.includes('build-product/product/chat.d.ts'));
+for (const file of ['README.zh-CN.md', 'docs/integration-validation.md', 'docs/compatibility.md', 'examples-product/chat-entry.mjs']) {
+  assert.ok(files.includes(file), `missing installation documentation: ${file}`);
+  assert.ok(existsSync(join(folder, 'node_modules', 'memory-system-v2', file)));
+}
 assert.ok(!files.some((file) => /^(?:src|plugin|site|benchmarks|tests)\//.test(file) || /(?:\.env|\.sqlite|\.tgz)$/.test(file)));
 const manifest = { version: packageJson.version,
   fileCount: files.length, packageBytes: pack.size, unpackedBytes: pack.unpackedSize,

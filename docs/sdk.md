@@ -79,7 +79,35 @@ If your request contains earlier text pairs, the wrapper bounds those pairs. If 
 
 The supported shape is alternating text user/assistant messages ending with a user message, optionally preceded by system/developer instructions. Tool calls, images, multiple choices and other unsupported shapes pass through unchanged, without memory. Only nonempty text answers ending with `finish_reason: 'stop'` are saved. Truncated, refused, failed or cancelled answers are not saved as completed exchanges.
 
-## Low-level memory API
+For provider/API boundaries, see [interface compatibility](compatibility.md). A provider exposing an OpenAI-compatible route is not the same as a live-tested SDK integration.
+
+## Timeouts and recovery
+
+The SQLite transcript is durable local storage, not an independent backup copy. Keep a normal database backup policy; close all writers before copying the database, or use a SQLite-aware backup procedure. Copying a live main file without its outstanding WAL data is not a reliable backup.
+
+- **Main model timeout:** the original error propagates. Previously saved history remains unchanged. No absent or partial answer is saved as a completed exchange. Your application owns pending messages and the retry button; the wrapper does not keep a durable queue of unfinished requests.
+- **Embedding timeout while saving:** both original messages are committed first. Failed search derivations remain marked for repair. When a new memory instance opens that session after the service recovers, it attempts missing derivations automatically. Existing healthy indexes are not routinely re-embedded. In a running instance you can explicitly rebuild via the low-level API; there is no background retry daemon.
+- **Retrieval failure:** a memory event reports the failure and the main request continues with available recent context. The SDK cannot guarantee old evidence will be included during an outage.
+- **Storage failure:** a valid model reply still returns and a `save` error is reported. If the disk write failed, there is no guarantee that this exchange exists in memory. Keep the application's own transcript and repair/replay it using stable low-level turn IDs as needed.
+
+`onMemoryEvent` reports memory faults; catch chat errors in the application's usual error handler. The copyable integration file logs memory-error stages without message text or keys. It sets the OpenAI client's request timeout to 120 seconds and `maxRetries: 1`; adjust these to your application's latency budget. That retry is managed by the client, not a second memory loop. It can incur provider cost and does not resume a partially consumed stream.
+
+After an embedding outage, close the chat entry before opening a separate low-level instance for explicit repair:
+
+```js
+await chat.close();
+const memory = createMemory({ ...memoryConfig, ownerId: userId });
+try {
+  const result = await memory.rebuild(JSON.stringify([personaId ?? null, sessionId]));
+  if (result.failed) console.warn('Some sources still need indexing');
+} finally {
+  await memory.close();
+}
+```
+
+Here `createMemory` comes from `memory-system-v2`, and `memoryConfig` is the same database, tenant and embedding configuration used by the chat entry. Stop new chat requests while closing/repairing, then recreate the chat entry. Full rebuild can re-embed healthy sources; reopening normally is the smaller recovery step for a few failed entries.
+
+## Low-level memory API details
 
 Use `createMemory` from `memory-system-v2` when your application needs to control retrieval and saving itself. The automatic chat entry does not require these calls:
 

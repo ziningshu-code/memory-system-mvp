@@ -1,6 +1,6 @@
 # 0.5.0-beta.3
 
-[Download SDK](https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz) · [Install and connect](../README.md#install) · [中文说明](../README.zh-CN.md)
+[Download SDK](https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz) · [Install and connect](../README.md#1-install) · [中文说明](../README.zh-CN.md)
 
 This release adds `createMemoryChat` at `memory-system-v2/chat`. Configure it once with your existing OpenAI-compatible client and embedding provider, then replace the chat call with `chat.create()` and pass your application's user and conversation IDs.
 
@@ -10,9 +10,9 @@ The LongMemory retrieval core, original-message storage and low-level `createMem
 
 ## Validation
 
-46 automated tests pass, including 22 chat-wrapper tests. A fresh installation of the packaged SDK passed TypeScript, native SQLite, ordinary and streaming requests, automatic retrieval and saving, and restart checks using the official OpenAI client against a local test service. These checks do not measure live-model answer accuracy.
+Automated checks cover TypeScript, native SQLite, ordinary and streaming requests, automatic retrieval and saving, restart, and recovery after chat/embedding failures. The packaged SDK is also checked in a fresh installation with the official OpenAI client against a local test service.
 
-The [beta.2 retrieval benchmark](../benchmarks-product/blind/RESULTS.md) is unchanged.
+The before/after integration in a real AI chat backend is documented in the attached [experiment report](integration-validation.md). It distinguishes live responses from automated checks and preserves timeout and display observations. The earlier retrieval benchmark is unchanged.
 
 ## Limits
 

@@ -29,7 +29,10 @@
     "docs/privacy.md",
     "docs/generation-1.md",
     "docs/project-evolution.md",
-    "docs/release-notes.md"
+    "docs/release-notes.md",
+    "README.zh-CN.md",
+    "docs/compatibility.md",
+    "docs/integration-validation.md"
   ],
   "scripts": {
     "build": "node scripts/clean-product-build.mjs && tsc -p tsconfig.product.json && node scripts/copy-longmemory-schema.mjs",
