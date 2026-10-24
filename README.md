@@ -8,6 +8,8 @@ Long-term memory for your Node.js chat app. Configure it once: the SDK retrieves
 
 Use Node.js 22 or 24. Open PowerShell in **your application's backend folder**:
 
+This is the folder containing `package.json`. Check `node --version` and `npm.cmd --version` first. Node should report `v22...` or `v24...`; after installing Node, reopen PowerShell.
+
 ```powershell
 npm.cmd install "https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
 Copy-Item .\node_modules\memory-system-v2\examples-product\chat-entry.mjs .\memory-chat.mjs
@@ -15,11 +17,20 @@ Copy-Item .\node_modules\memory-system-v2\examples-product\chat-entry.mjs .\memo
 
 This installs the built SDK without a source checkout. The copied file is an integration module for your backend, not a separate chat app. Choose another filename if it already exists.
 
+If you already downloaded the `.tgz`, install it with `npm.cmd install "full-path\memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0`, replacing the path with its actual location, then run the same `Copy-Item` command. Do not extract the archive.
+
 On macOS/Linux, use `npm`, then `cp node_modules/memory-system-v2/examples-product/chat-entry.mjs ./memory-chat.mjs`.
 
 ## 2. Configure
 
-Add these settings to your backend's existing environment configuration. If using `.env`, run `notepad .env` in the same folder to create or edit it. Preserve existing settings and keep keys out of Git.
+In the same backend folder, create `.env` only if it does not exist, then open it:
+
+```powershell
+if (!(Test-Path -LiteralPath .\.env)) { New-Item -ItemType File -Path .\.env | Out-Null }
+notepad .\.env
+```
+
+Enter your settings below, press **Ctrl+S**, and close Notepad. Edit existing duplicate keys instead of adding a second copy; preserve unrelated settings. Use each full API key without a `Bearer ` prefix. The filename is `.env`, not `.env.txt`. Keep it out of Git.
 
 ```dotenv
 # Keep your existing chat provider settings
@@ -37,7 +48,13 @@ EMBED_API_KEY=your-nvidia-key
 MEMORY_DB_PATH=./data/memory.sqlite
 ```
 
-A `.env` file is not loaded automatically. Keep your backend's existing environment loader, or add `--env-file=.env` to its Node startup command, for example `node --env-file=.env server.mjs`, replacing `server.mjs` with your actual entry file.
+In that same PowerShell window, check configuration loading without printing any secrets:
+
+```powershell
+node --env-file=.env --input-type=module -e "const m = await import('./memory-chat.mjs'); await m.close(); console.log('Configuration loaded');"
+```
+
+`Configuration loaded` confirms that Node read the file and initialized the integration module. This makes **no model request** and does not validate provider credentials.
 
 For another compatible embedding endpoint, use `EMBED_PROVIDER=openai` and its actual URL, embedding model and dimension. A chat model is not an embedding model. [Embedding settings](docs/sdk.md#embedding-configuration)
 
@@ -70,6 +87,34 @@ Use your existing text `messages` and trusted backend user/conversation IDs. Add
 Read `response.choices[0].message.content` as before. For streaming, add `stream: true` and consume with `for await`. Call `await close()` when shutting down.
 
 No separate recall, prompt assembly or save calls are needed. To reuse your configured client or pass more model parameters, use [createMemoryChat directly](docs/sdk.md#automatic-chat-entry).
+
+The shown `import` works in `.mjs` files or projects with `"type": "module"`. CommonJS handlers can use `const { reply } = await import('./memory-chat.mjs')`; TypeScript applications can use the typed direct wrapper. Do not change the entire application's module format just for this integration.
+
+## 4. Load configuration when starting your app
+
+The configuration check above only loaded `.env` for that one command. **Your actual server startup must load it too.**
+
+| Original startup | Updated startup |
+| --- | --- |
+| `node server.mjs` | `node --env-file=.env server.mjs` |
+| `node server.js` | `node --env-file=.env server.js` |
+| `npm.cmd start`, where `scripts.start` in `package.json` is `node server.js` | Change that value to `node --env-file=.env server.js`, then keep using `npm.cmd start` |
+
+Keep your real entry filename; only insert `--env-file=.env` after `node` and before the filename. Do not create an empty `server.mjs`. Run from the folder containing `.env`.
+
+If your framework already loads environment settings, put these settings in the file it actually reads and keep that loader. Do not replace arbitrary framework `npm run dev` scripts with a plain Node command. Restart after configuration changes. Existing process environment variables take precedence over `.env`; check deployment settings if old values persist.
+
+Send a message through **your original app**, receive a real reply, then restart its backend and continue with the same user, persona and conversation IDs. The default data file is `data/memory.sqlite` under the backend folder. SQLite may also create `-wal` and `-shm` files; do not delete them while running. There is no separate memory chat page.
+
+| Problem | Check |
+| --- | --- |
+| Missing `.env` | Use `Get-Location` and `Get-Item -Force .\.env` to check the folder and exact filename. |
+| Required setting missing | Fill it in, save, and make sure the real startup command loads `.env`. |
+| `ERR_MODULE_NOT_FOUND` | Install in the same backend folder and check the integration-module path. |
+| Provider 401/403 | Verify that provider's full key, permissions and Base URL. Chat and embeddings may use different keys. |
+| Memory index/retrieval error | Check embedding endpoint, model, key and dimension. A working chat reply alone does not prove memory indexing succeeded. |
+
+Add `.env` and `data/` to your application's `.gitignore`, preserving existing rules. Use a persistent database path in deployment.
 
 ## Scope
 
