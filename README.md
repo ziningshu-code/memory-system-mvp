@@ -1,158 +1,145 @@
 # Memory System V2
 
-A Node.js SDK for developers building chat apps. Save conversations locally, find relevant older messages, and send the original text to your chat model.
+Long-term memory for your Node.js chat app. Configure it once: the SDK retrieves older conversation text, adds bounded evidence, calls your existing model and saves completed exchanges.
 
-Built on [LongMemory](https://github.com/CaviraOSS/LongMemory). Your app calls the SDK before and after each reply; once integrated, saving and retrieval run as part of the chat. It is not a standalone chat app or a plugin you can install into ChatGPT.
+[中文说明](README.zh-CN.md) · [Download package](https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz)
 
-[Install](#install) · [Download source ZIP](https://github.com/ziningshu-code/memory-system-mvp/archive/refs/heads/main.zip) · [Download SDK](https://github.com/ziningshu-code/memory-system-mvp/releases/tag/v0.5.0-beta.2) · [中文说明](README.zh-CN.md)
+## 1. Install
 
-## Install
+Use Node.js 22 or 24. Open PowerShell in **your application's backend folder**:
 
-Use [Node.js 22 or 24](https://nodejs.org/en/download), then run this in your application's folder:
-
-```sh
-npm install memory-system-v2@beta
-```
-
-Windows PowerShell:
+This is the folder containing `package.json`. Check `node --version` and `npm.cmd --version` first. Node should report `v22...` or `v24...`; after installing Node, reopen PowerShell.
 
 ```powershell
-npm.cmd install memory-system-v2@beta
+npm.cmd install "https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
+Copy-Item .\node_modules\memory-system-v2\examples-product\chat-entry.mjs .\memory-chat.mjs
 ```
 
-The current release is **0.5.0-beta.2**. npm installation is the simplest option. The release page also has a packaged SDK under **Assets**; the ZIP link downloads source code. Neither download is a Windows application installer.
+This installs the built SDK without a source checkout. The copied file is an integration module for your backend, not a separate chat app. Choose another filename if it already exists.
 
-## Try it
+If you already downloaded the `.tgz`, install it with `npm.cmd install "full-path\memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0`, replacing the path with its actual location, then run the same `Copy-Item` command. Do not extract the archive.
 
-This example saves a flight-time exchange and retrieves the original user message. It uses NVIDIA embeddings and makes no chat-model request.
+On macOS/Linux, use `npm`, then `cp node_modules/memory-system-v2/examples-product/chat-entry.mjs ./memory-chat.mjs`.
 
-### 1. Create a folder
+## 2. Configure
 
-```sh
-mkdir memory-v2-demo
-cd memory-v2-demo
-npm init -y
-npm install memory-system-v2@beta
+In the same backend folder, create `.env` only if it does not exist, then open it:
+
+```powershell
+if (!(Test-Path -LiteralPath .\.env)) { New-Item -ItemType File -Path .\.env | Out-Null }
+notepad .\.env
 ```
 
-In PowerShell, use `npm.cmd` for both npm commands if script execution is blocked.
-
-### 2. Configure embeddings
-
-Get a key for [NVIDIA nemotron-3-embed-1b](https://build.nvidia.com/nvidia/nemotron-3-embed-1b). Create `.env` in this folder:
+Enter your settings below, press **Ctrl+S**, and close Notepad. Edit existing duplicate keys instead of adding a second copy; preserve unrelated settings. Use each full API key without a `Bearer ` prefix. The filename is `.env`, not `.env.txt`. Keep it out of Git.
 
 ```dotenv
-EMBED_API_KEY=your_nvidia_api_key
+# Keep your existing chat provider settings
+CHAT_BASE_URL=https://your-chat-provider.example/v1
+CHAT_MODEL=your-chat-model
+CHAT_API_KEY=your-chat-key
+
+# Embeddings are configured separately; this example uses NVIDIA
+EMBED_PROVIDER=nvidia
+EMBED_BASE_URL=https://integrate.api.nvidia.com/v1
+EMBED_MODEL=nvidia/nemotron-3-embed-1b
+EMBED_DIMENSION=2048
+EMBED_API_KEY=your-nvidia-key
+
+MEMORY_DB_PATH=./data/memory.sqlite
 ```
 
-Replace the placeholder with your key. Keep this file out of Git. This provider receives the saved messages and search queries; embedding requests may incur costs. You can also use [other providers or local Ollama](docs/sdk.md#embedding-configuration).
+In that same PowerShell window, check configuration loading without printing any secrets:
 
-### 3. Run the example
+```powershell
+node --env-file=.env --input-type=module -e "const m = await import('./memory-chat.mjs'); await m.close(); console.log('Configuration loaded');"
+```
 
-Save the following as `demo.mjs`:
+`Configuration loaded` confirms that Node read the file and initialized the integration module. This makes **no model request** and does not validate provider credentials.
+
+For another compatible embedding endpoint, use `EMBED_PROVIDER=openai` and its actual URL, embedding model and dimension. A chat model is not an embedding model. [Embedding settings](docs/sdk.md#embedding-configuration)
+
+## 3. Replace the chat call
+
+Import the integration module into your existing chat handler, adjusting the path:
 
 ```js
-import { createMemory } from 'memory-system-v2';
+import { reply, close } from './memory-chat.mjs';
+```
 
-if (!process.env.EMBED_API_KEY) {
-  throw new Error('Set EMBED_API_KEY in .env first');
-}
+Replace:
 
-const memory = createMemory({
-  dbPath: './memory.sqlite',
-  embedding: {
-    kind: 'nvidia',
-    baseUrl: 'https://integrate.api.nvidia.com/v1',
-    model: 'nvidia/nemotron-3-embed-1b',
-    dimension: 2048,
-    apiKey: process.env.EMBED_API_KEY,
-  },
+```js
+const response = await client.chat.completions.create({ model, messages });
+```
+
+with:
+
+```js
+const response = await reply({
+  userId: signedInUser.id,
+  sessionId: conversation.id,
+  messages,
 });
-
-try {
-  const saved = await memory.remember({
-    sessionId: 'flight-demo',
-    turnId: 'flight-1',
-    user: 'My flight leaves at 7:40 tomorrow morning.',
-    assistant: 'Understood: your flight leaves at 7:40 tomorrow morning.',
-  });
-  if (saved.failed.length) throw new Error('Embedding failed; original messages were saved. Check your provider/key and rerun.');
-
-  const recalled = await memory.recall({
-    sessionId: 'flight-demo',
-    query: 'What time is my flight?',
-  });
-  if (recalled.trace.error) throw new Error(recalled.trace.error);
-  const original = recalled.sources.find(source => source.sourceId === 'flight-1:user');
-  if (!original) throw new Error('The flight message was not retrieved');
-  console.log('Source:', original.sourceId);
-  console.log('Original message:', original.text);
-} finally {
-  await memory.close();
-}
 ```
 
-```sh
-node --env-file=.env demo.mjs
-```
+Use your existing text `messages` and trusted backend user/conversation IDs. Add `personaId` when characters need separate memories. Do not trust arbitrary identity claims from the client.
 
-Expected output:
+Read `response.choices[0].message.content` as before. For streaming, add `stream: true` and consume with `for await`. Call `await close()` when shutting down.
 
-```text
-Source: flight-1:user
-Original message: My flight leaves at 7:40 tomorrow morning.
-```
+No separate recall, prompt assembly or save calls are needed. To reuse your configured client or pass more model parameters, use [createMemoryChat directly](docs/sdk.md#automatic-chat-entry).
 
-The assistant text in this example is sample data. In your app, save the actual completed response from your chat model.
+The shown `import` works in `.mjs` files or projects with `"type": "module"`. CommonJS handlers can use `const { reply } = await import('./memory-chat.mjs')`; TypeScript applications can use the typed direct wrapper. Do not change the entire application's module format just for this integration.
 
-## Connect a chat app
+## 4. Load configuration when starting your app
 
-**To chat from PowerShell, follow the [step-by-step guide](docs/chat-quickstart.md).** It includes installation, configuration, commands and a way to inspect saved messages.
+The configuration check above only loaded `.env` for that one command. **Your actual server startup must load it too.**
 
-The flight example above only checks memory storage and retrieval. The chat guide calls your configured chat model. Each command retrieves older messages, sends your question, prints the real reply and saves the exchange.
+| Original startup | Updated startup |
+| --- | --- |
+| `node server.mjs` | `node --env-file=.env server.mjs` |
+| `node server.js` | `node --env-file=.env server.js` |
+| `npm.cmd start`, where `scripts.start` in `package.json` is `node server.js` | Change that value to `node --env-file=.env server.js`, then keep using `npm.cmd start` |
 
-For an existing chat application, the guide shows where to add the two memory calls. See the [SDK guide](docs/sdk.md) for sessions, recent-message exclusions, corrections and deletion.
+Keep your real entry filename; only insert `--env-file=.env` after `node` and before the filename. Do not create an empty `server.mjs`. Run from the folder containing `.env`.
 
-## Storage and limits
+If your framework already loads environment settings, put these settings in the file it actually reads and keep that loader. Do not replace arbitrary framework `npm run dev` scripts with a plain Node command. Restart after configuration changes. Existing process environment variables take precedence over `.env`; check deployment settings if old values persist.
 
-Original messages and search data are stored in one local SQLite file. The example uses `./memory.sqlite`; the default is `~/.memory-system-mvp/memory.sqlite`.
+Send a message through **your original app**, receive a real reply, then restart its backend and continue with the same user, persona and conversation IDs. The default data file is `data/memory.sqlite` under the backend folder. SQLite may also create `-wal` and `-shm` files; do not delete them while running. There is no separate memory chat page.
 
-Recall returns source IDs and original text, with a size limit. Long messages may be excerpted, and some searches may miss relevant history. Corrections must be supplied explicitly. Rebuilds can make new embedding requests.
+| Problem | Check |
+| --- | --- |
+| Missing `.env` | Use `Get-Location` and `Get-Item -Force .\.env` to check the folder and exact filename. |
+| Required setting missing | Fill it in, save, and make sure the real startup command loads `.env`. |
+| `ERR_MODULE_NOT_FOUND` | Install in the same backend folder and check the integration-module path. |
+| Provider 401/403 | Verify that provider's full key, permissions and Base URL. Chat and embeddings may use different keys. |
+| Memory index/retrieval error | Check embedding endpoint, model, key and dimension. A working chat reply alone does not prove memory indexing succeeded. |
 
-Memory management makes no extra generative-model calls. Embeddings still require a provider. There is no bundled proxy, setup page or browser SDK. See [privacy and deletion](docs/privacy.md).
+Add `.env` and `data/` to your application's `.gitignore`, preserving existing rules. Use a persistent database path in deployment.
 
-## Tests
+## Scope
 
-24 SDK and example tests pass, with CI on Windows/Linux and Node 22/24. The npm installation and NVIDIA example have also been checked in a fresh folder.
+- **Node.js 22/24 backends**, using the **OpenAI-compatible Chat Completions** interface. OpenAI models or keys are not required.
+- Ordinary and streamed text; one response, alternating user/assistant messages, with system instructions first.
+- Tools, images, multiple choices and unsupported message shapes go to the original client without automatic memory.
+- No adapter for OpenAI Responses, native Claude Messages or native Gemini APIs in this release. This is not a universal drop-in plugin for finished apps. [Interface compatibility](docs/compatibility.md)
+- An embedding provider is required and can differ from the chat provider. Run on your own computer or backend; no author-operated server is needed.
+- Original text and indexes are stored in local SQLite. Remote embedding providers receive messages and queries and may charge for them. Memory management makes no additional generative calls.
 
-A synthetic benchmark used 200 exchanges across eight sessions and 50 queries:
+## Timeouts and recovery
 
-| Check | This SDK | Pinned LongMemory baseline |
-| --- | ---: | ---: |
-| Expected user source in the first five results, 35 shared queries | 33/35 | 21/35 |
-| Original messages recovered after restart | 400/400 | 400/400 |
+| Failure | Behavior |
+| --- | --- |
+| Chat model timeout | Existing memory remains. The app receives the error; incomplete replies are not stored as completed exchanges. The integration module configures at most one client retry. |
+| Embedding failure after transcript save | Original text remains; failed indexes can be repaired on reopening the session after recovery, or by an explicit rebuild. |
+| Retrieval unavailable | Chat continues with bounded recent context. |
+| Database write failure | A valid model response is returned with a memory error event. This does not guarantee the exchange was saved. |
 
-Two Chinese-history/English-query cases were missed. This small test measures retrieval, not final-answer accuracy or token savings. [Method](benchmarks-product/blind/README.md) · [Full results](benchmarks-product/blind/RESULTS.md)
+Persistence is not a separate disaster-recovery backup. The SDK does not journal unfinished user requests; the app retains pending/failed messages and retry state. Database backups remain a deployment responsibility. [Recovery details](docs/sdk.md#timeouts-and-recovery) · [Privacy](docs/privacy.md)
+
+Retrieval can miss history and model answers can be wrong.
+
+Validated in a real AI chat backend. The before/after integration experiment is an [attached report](docs/integration-validation.md).
 
 ## Source and license
 
-The SDK includes a modified [LongMemory core](https://github.com/CaviraOSS/LongMemory). Conversation storage and the public SDK are in `src/product/`. [ATTRIBUTION](ATTRIBUTION.md) lists the upstream revision and changes.
-
-Project code: [MIT](LICENSE). LongMemory code: [Apache-2.0](UPSTREAM-LONGMEMORY-LICENSE), with its [NOTICE](NOTICE).
-
-For source installation, install Git and run:
-
-```sh
-npm install "git+https://github.com/ziningshu-code/memory-system-mvp.git#main"
-```
-
-This builds the SDK from `main`, which may include changes after the npm release.
-
-For development:
-
-```sh
-npm ci
-npm run typecheck
-npm test
-npm run smoke:consumer
-```
+The retrieval core reuses [LongMemory](https://github.com/CaviraOSS/LongMemory). Project code is [MIT](LICENSE); upstream code retains [Apache-2.0](UPSTREAM-LONGMEMORY-LICENSE) and [NOTICE](NOTICE). See [ATTRIBUTION](ATTRIBUTION.md) for provenance and modifications.

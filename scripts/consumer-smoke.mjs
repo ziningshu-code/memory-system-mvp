@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,10 +11,16 @@ const require = createRequire(import.meta.url);
 const npm = process.env.npm_execpath ?? join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js');
 const folder = mkdtempSync(join(tmpdir(), 'memory-consumer-'));
 const runNpm = (args, cwd) => execFileSync(process.execPath, [npm, ...args], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-const packOutput = runNpm(['pack', '--json', '--pack-destination', folder], root);
+// Allows checking an already compiled artifact when Windows holds the build directory open.
+// The normal path still runs prepack; callers using this flag must compile first.
+const packOutput = runNpm(['pack', '--json', '--pack-destination', folder,
+  ...(process.env.MEMORY_CONSUMER_PREBUILT === '1' ? ['--ignore-scripts'] : [])], root);
 const pack = JSON.parse(packOutput.slice(packOutput.indexOf('[\n')))[0];
 writeFileSync(join(folder, 'package.json'), JSON.stringify({ name: 'clean-sdk-consumer', private: true, type: 'module' }));
 runNpm(['install', '--no-audit', '--no-fund', '--package-lock=false', join(folder, pack.filename)], folder);
+assert.equal(existsSync(join(folder, 'node_modules', 'openai')), false, 'core-only installation must not install optional OpenAI peer');
+const consumerRequire = createRequire(join(folder, 'package.json'));
+assert.throws(() => consumerRequire.resolve('openai'), { code: 'MODULE_NOT_FOUND' });
 writeFileSync(join(folder, 'consumer.ts'), `import { createMemory, type MemoryConfig } from 'memory-system-v2';
 const config: MemoryConfig = { embedding: { kind: 'custom', id: 'compile', dimension: 2, embed: async () => [1, 0] } };
 const memory = createMemory(config); void memory.close();\n`);
@@ -47,10 +53,79 @@ await new Promise(resolve => server.close(resolve));
 console.log('fresh consumer: import, TypeScript, native SQLite, remember/recall/restart/history/rebuild/erase/close, failure persistence passed');
 `);
 const output = execFileSync(process.execPath, [join(folder, 'consumer.mjs')], { cwd: folder, encoding: 'utf8' });
+// Install the application's own client only after the core-only consumer has passed.
+const packageJson = JSON.parse(readFileSync(join(root, 'package.json')));
+runNpm(['install', '--save-dev', '--save-exact', '--no-audit', '--no-fund', '--package-lock=false', `openai@${packageJson.devDependencies.openai}`], folder);
+writeFileSync(join(folder, 'chat-consumer.ts'), `import OpenAI from 'openai';
+import type { ChatCompletion } from 'openai/resources/chat/completions';
+import { createMemoryChat, type MemoryChatStream } from 'memory-system-v2/chat';
+const client = new OpenAI({ apiKey: 'local-fixture' });
+const chat = createMemoryChat({ client, memory: { embedding: { kind: 'custom', id: 'compile-chat', dimension: 2, embed: async () => [1, 0] } } });
+const params = { userId: 'user', sessionId: 'conversation', personaId: 'assistant', model: 'existing-model', messages: [{ role: 'user' as const, content: 'Hello' }] };
+const options: OpenAI.RequestOptions = { signal: new AbortController().signal, timeout: 1000, maxRetries: 0 };
+const reply: ChatCompletion = await chat.create(params, options);
+const explicitReply: ChatCompletion = await chat.create({ ...params, stream: false }, options);
+const stream: MemoryChatStream = await chat.create({ ...params, stream: true }, options);
+for await (const chunk of stream) { const content: string | null | undefined = chunk.choices[0]?.delta.content; void content; }
+stream.controller.abort();
+const dynamic: ChatCompletion | MemoryChatStream = await chat.create({ ...params, stream: Math.random() > 0.5 }, options);
+void reply; void explicitReply; void dynamic; await chat.close();
+`);
+execFileSync(process.execPath, [require.resolve('typescript/bin/tsc'), '--noEmit', '--strict', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', '--target', 'ES2022', join(folder, 'chat-consumer.ts')], { cwd: folder, stdio: 'pipe' });
+writeFileSync(join(folder, 'chat-consumer.mjs'), `import assert from 'node:assert/strict';
+import { join } from 'node:path';
+import OpenAI from 'openai';
+import { createMemory } from 'memory-system-v2';
+import { createMemoryChat } from 'memory-system-v2/chat';
+const requests = [];
+const completion = { id: 'completion-fixture', object: 'chat.completion', created: 1, model: 'existing-model', choices: [{ index: 0, finish_reason: 'stop', message: { role: 'assistant', content: 'Your appointment is at 09:15.', refusal: null } }], usage: { prompt_tokens: 10, completion_tokens: 8, total_tokens: 18 } };
+const chunk = (delta, finish_reason = null) => ({ id: 'stream-fixture', object: 'chat.completion.chunk', created: 2, model: 'existing-model', choices: [{ index: 0, delta, finish_reason }] });
+const client = new OpenAI({ apiKey: 'local-fixture', baseURL: 'https://chat.example.invalid/v1', maxRetries: 0, fetch: async (_url, init) => {
+  const body = JSON.parse(init.body); requests.push(body);
+  assert.equal(new Headers(init.headers).get('x-consumer-check'), 'preserved');
+  if (!body.stream) return new Response(JSON.stringify(completion), { headers: { 'content-type': 'application/json' } });
+  const chunks = [chunk({ role: 'assistant', content: 'I remember ' }), chunk({ content: '09:15.' }), chunk({}, 'stop')];
+  return new Response(chunks.map(value => 'data: ' + JSON.stringify(value) + '\\n\\n').join('') + 'data: [DONE]\\n\\n', { headers: { 'content-type': 'text/event-stream' } });
+} });
+const config = { dbPath: join(process.cwd(), 'chat.sqlite'), minSemanticSimilarity: 0.8, maxEvidenceTokens: 512, embedding: { kind: 'custom', id: 'deterministic-chat-consumer', dimension: 2, embed: async () => [1, 0] } };
+const events = [];
+const chat = createMemoryChat({ client, memory: config, recentTurns: 0, onMemoryEvent: event => events.push(event) });
+const identity = { userId: 'consumer-user', sessionId: 'conversation' };
+const options = { headers: { 'x-consumer-check': 'preserved' }, signal: new AbortController().signal };
+const reply = await chat.create({ ...identity, model: 'existing-model', temperature: 0.2, messages: [{ role: 'user', content: 'My appointment is at 09:15.' }] }, options);
+assert.deepEqual(reply, completion);
+assert.equal(requests[0].temperature, 0.2);
+assert.ok(!('userId' in requests[0]) && !('sessionId' in requests[0]));
+const stream = await chat.create({ ...identity, model: 'existing-model', stream: true, stream_options: { include_usage: true }, messages: [{ role: 'user', content: 'What time is my appointment?' }] }, options);
+let text = ''; let chunkCount = 0;
+for await (const value of stream) { text += value.choices[0]?.delta.content ?? ''; chunkCount++; }
+assert.equal(text, 'I remember 09:15.'); assert.equal(chunkCount, 3);
+assert.ok(stream.controller instanceof AbortController);
+const evidence = requests[1].messages.find(message => message.content.includes('<memory_evidence>'));
+assert.ok(evidence); assert.match(evidence.content, /My appointment is at 09:15\\./);
+assert.deepEqual(requests[1].stream_options, { include_usage: true });
+assert.equal(events.filter(event => event.stage === 'save' && event.status === 'ok').length, 2);
+assert.ok(events.some(event => event.stage === 'retrieve' && event.sourceIds?.length));
+await chat.close();
+const memory = createMemory({ ...config, ownerId: identity.userId });
+const history = await memory.history(JSON.stringify([null, identity.sessionId]));
+assert.deepEqual(history.map(source => source.exactText), ['My appointment is at 09:15.', 'Your appointment is at 09:15.', 'What time is my appointment?', 'I remember 09:15.']);
+assert.ok(history.every(source => !source.exactText.includes('<memory_evidence>')));
+await memory.close();
+console.log('fresh chat consumer: official OpenAI client, typed nonstream/stream/dynamic overloads, request options, automatic recall/injection/save, SSE chunks, exact transcript after restart passed; no external model calls');
+`);
+const chatOutput = execFileSync(process.execPath, [join(folder, 'chat-consumer.mjs')], { cwd: folder, encoding: 'utf8' });
 const files = pack.files.map((file) => file.path);
 assert.ok(files.includes('build-product/longmemory/stores/sqlite/schema.sql'));
+assert.ok(files.includes('build-product/product/chat.js'));
+assert.ok(files.includes('build-product/product/chat.d.ts'));
+for (const file of ['README.zh-CN.md', 'docs/integration-validation.md', 'docs/compatibility.md', 'examples-product/chat-entry.mjs']) {
+  assert.ok(files.includes(file), `missing installation documentation: ${file}`);
+  assert.ok(existsSync(join(folder, 'node_modules', 'memory-system-v2', file)));
+}
 assert.ok(!files.some((file) => /^(?:src|plugin|site|benchmarks|tests)\//.test(file) || /(?:\.env|\.sqlite|\.tgz)$/.test(file)));
-const manifest = { version: JSON.parse(readFileSync(join(root, 'package.json'))).version,
+const manifest = { version: packageJson.version,
   fileCount: files.length, packageBytes: pack.size, unpackedBytes: pack.unpackedSize,
-  sha512: pack.integrity, checks: output.trim(), node: process.version };
+  sha512: pack.integrity, checks: [output.trim(), chatOutput.trim()], coreInstallsWithoutOpenAI: true,
+  openaiVersion: packageJson.devDependencies.openai, consumerDirectory: folder, node: process.version };
 console.log(JSON.stringify(manifest, null, 2));

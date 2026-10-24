@@ -2,33 +2,125 @@
 
 ## Install
 
-Use Node.js 22 or 24:
+Use Node.js 22 or 24. Install the packaged SDK in your application's backend folder:
 
-```sh
-npm install memory-system-v2@beta
+```powershell
+npm.cmd install "https://github.com/ziningshu-code/memory-system-mvp/releases/download/v0.5.0-beta.3/memory-system-v2-0.5.0-beta.3.tgz" openai@7.42.0
 ```
 
-In Windows PowerShell, use `npm.cmd` if script execution is blocked. Start with the [runnable example](../README.md#try-it), then use the [chat integration example](../examples-product/openai-compatible-chat.mjs).
+Use `npm` on macOS/Linux. This installs beta.3 from GitHub without a source checkout. The chat entry is tested with OpenAI Node 7.42; the client can connect to an OpenAI-compatible provider. Existing low-level `createMemory()` integrations still work and do not require the OpenAI client.
 
 SQLite uses `better-sqlite3`. If installation fails, check the Node version first. Platforms without a prebuilt binary need Python and C/C++ build tools for `node-gyp`. See [SQLite troubleshooting](https://github.com/WiseLibs/better-sqlite3/blob/master/docs/troubleshooting.md).
 
-## Create an instance
+## Automatic chat entry
 
-Call `createMemory()` with a persistent `dbPath` and an embedding configuration. The README shows NVIDIA; other options are below. The defaults are tenant `local`, owner `default`, and database `~/.memory-system-mvp/memory.sqlite`. Use stable tenant/owner IDs when your application has more than one user. In-memory SQLite databases are not supported.
+Create one instance per backend process using your existing OpenAI client:
 
-## Chat flow
+```js
+import { createMemoryChat } from 'memory-system-v2/chat';
 
-For a complete runnable setup, use the [PowerShell chat guide](chat-quickstart.md) or [中文教程](chat-quickstart.zh-CN.md).
+const chat = createMemoryChat({
+  client,
+  memory: {
+    dbPath: './data/memory.sqlite',
+    embedding: {
+      kind: 'openai',
+      baseUrl: process.env.EMBED_BASE_URL,
+      apiKey: process.env.EMBED_API_KEY,
+      model: process.env.EMBED_MODEL,
+      dimension: Number(process.env.EMBED_DIMENSION),
+    },
+  },
+});
+```
 
-1. Call `recall({sessionId, query, excludeTurnIds?})` before the chat-model request.
-2. Include `result.context` in a separate system/developer block as historical data. Supply your application's bounded recent conversation separately.
-3. Call your normal chat model.
-4. Call `remember({sessionId, turnId?, user, assistant})` with the completed visible exchange.
-5. Call `close()` on shutdown.
+Use your provider's embedding model and its actual vector dimension. Chat and embeddings can use different providers. The [application example](../examples-product/chat-entry.mjs) reads and validates environment settings.
 
-Use `excludeTurnIds` for turns already included in recent context. The SDK does not know which messages your application has sent to the model.
+Replace `client.chat.completions.create(params, options)` with:
 
-## Methods
+```js
+const response = await chat.create({
+  ...params, // The existing model, messages and other model settings.
+  userId: signedInUser.id,
+  sessionId: conversation.id,
+}, options);
+```
+
+Build `userId`, `sessionId` and optional `personaId` from trusted backend data. Never let a caller claim another user's identity or conversation. Different users, personas and sessions have separate memories. These IDs are stripped before forwarding the model request.
+
+For supported text conversations, the wrapper automatically selects recent context, retrieves older original messages, adds bounded evidence, calls the model and saves the completed visible exchange. The completion object is returned unchanged. Model errors still propagate; memory errors do not discard a valid reply.
+
+```js
+const stream = await chat.create({
+  userId: signedInUser.id,
+  sessionId: conversation.id,
+  model,
+  messages,
+  stream: true,
+}, { signal });
+
+for await (const chunk of stream) {
+  sendTextToYourClient(chunk.choices[0]?.delta?.content ?? '');
+}
+```
+
+Streaming forwards chunks as they arrive and saves after natural completion. Breaking the loop or calling `stream.controller.abort()` cancels it. Finish consuming or cancel every stream: requests in the same user/persona/session wait for the previous request to finish. `await chat.close()` cancels open streams, waits for work and closes memory.
+
+The wrapper returns a Promise, or a Promise of an async iterable for streaming. OpenAI helpers such as `.withResponse()`, `.tee()` and `.toReadableStream()` are not exposed. Its types are checked against OpenAI Node 7.42.
+
+### Context and diagnostics
+
+- `recentTurns`: maximum recent completed pairs, default 5.
+- `recentMaxChars`: combined recent user/assistant string length, default 6000. Complete pairs are kept; oversized pairs are not cut.
+- `memory.maxEvidenceTokens`: estimated historical-evidence budget, default 512, including source markers and wrapper delimiters.
+- `onMemoryEvent(event)`: optional callback with retrieval source IDs, estimated evidence size, omitted sources or failure stage. No message text or API keys are included.
+
+If your request contains earlier text pairs, the wrapper bounds those pairs. If you send only the current user message, it loads recent saved pairs. Saved exchanges still present in the outgoing recent context are excluded from long-term retrieval. System/developer instructions and the current user message are not counted in the recent-window limit.
+
+The supported shape is alternating text user/assistant messages ending with a user message, optionally preceded by system/developer instructions. Tool calls, images, multiple choices and other unsupported shapes pass through unchanged, without memory. Only nonempty text answers ending with `finish_reason: 'stop'` are saved. Truncated, refused, failed or cancelled answers are not saved as completed exchanges.
+
+For provider/API boundaries, see [interface compatibility](compatibility.md). A provider exposing an OpenAI-compatible route is not the same as a live-tested SDK integration.
+
+## Timeouts and recovery
+
+The SQLite transcript is durable local storage, not an independent backup copy. Keep a normal database backup policy; close all writers before copying the database, or use a SQLite-aware backup procedure. Copying a live main file without its outstanding WAL data is not a reliable backup.
+
+- **Main model timeout:** the original error propagates. Previously saved history remains unchanged. No absent or partial answer is saved as a completed exchange. Your application owns pending messages and the retry button; the wrapper does not keep a durable queue of unfinished requests.
+- **Embedding timeout while saving:** both original messages are committed first. Failed search derivations remain marked for repair. When a new memory instance opens that session after the service recovers, it attempts missing derivations automatically. Existing healthy indexes are not routinely re-embedded. In a running instance you can explicitly rebuild via the low-level API; there is no background retry daemon.
+- **Retrieval failure:** a memory event reports the failure and the main request continues with available recent context. The SDK cannot guarantee old evidence will be included during an outage.
+- **Storage failure:** a valid model reply still returns and a `save` error is reported. If the disk write failed, there is no guarantee that this exchange exists in memory. Keep the application's own transcript and repair/replay it using stable low-level turn IDs as needed.
+
+`onMemoryEvent` reports memory faults; catch chat errors in the application's usual error handler. The copyable integration file logs memory-error stages without message text or keys. It sets the OpenAI client's request timeout to 120 seconds and `maxRetries: 1`; adjust these to your application's latency budget. That retry is managed by the client, not a second memory loop. It can incur provider cost and does not resume a partially consumed stream.
+
+After an embedding outage, close the chat entry before opening a separate low-level instance for explicit repair:
+
+```js
+await chat.close();
+const memory = createMemory({ ...memoryConfig, ownerId: userId });
+try {
+  const result = await memory.rebuild(JSON.stringify([personaId ?? null, sessionId]));
+  if (result.failed) console.warn('Some sources still need indexing');
+} finally {
+  await memory.close();
+}
+```
+
+Here `createMemory` comes from `memory-system-v2`, and `memoryConfig` is the same database, tenant and embedding configuration used by the chat entry. Stop new chat requests while closing/repairing, then recreate the chat entry. Full rebuild can re-embed healthy sources; reopening normally is the smaller recovery step for a few failed entries.
+
+## Low-level memory API details
+
+Use `createMemory` from `memory-system-v2` when your application needs to control retrieval and saving itself. The automatic chat entry does not require these calls:
+
+1. `recall({sessionId, query, excludeTurnIds?})` retrieves history.
+2. Your app includes `result.context` as historical data and calls its model.
+3. `remember({sessionId, turnId?, user, assistant})` saves the completed visible exchange.
+4. `close()` finishes queued work.
+
+Pass a persistent `dbPath` and embedding configuration to `createMemory()`. Defaults are tenant `local`, owner `default`, and database `~/.memory-system-mvp/memory.sqlite`. In-memory databases are not supported. Set stable owner IDs for separate users.
+
+The automatic entry uses `ownerId = userId` and the low-level session ID `JSON.stringify([personaId ?? null, sessionId])`. Use that mapping if you access its history, correction or deletion methods through a separate low-level instance; close the chat entry first to keep a single writer.
+
+### Methods
 
 | Method | Result |
 | --- | --- |
@@ -84,8 +176,8 @@ Missing configuration fails at initialization. Provider failures or invalid vect
 
 ## Errors and deployment
 
-If recall fails or `trace.error` is set, continue with recent context. If saving fails, still return a valid chat-model response. Avoid logging keys or private message text.
+The automatic chat entry handles retrieval/save failures and reports them through `onMemoryEvent`. With the low-level API, handle these yourself: if recall fails or `trace.error` is set, continue with recent context; if saving fails, still return a valid chat-model response. Avoid logging keys or private message text.
 
 Use one writer per local database. Paired saves are transactional, but the SDK and your application's own history store do not share a transaction. Your application should reconcile a missed save after a crash. Session IDs are application-controlled, not an authentication mechanism.
 
-The example is text-only and non-streaming. For streaming applications, save the exact completed reply after the stream finishes. No automatic backfill or V1 archive import is provided.
+No automatic backfill or V1 archive import is provided. The chat entry saves new completed exchanges; passing older messages as recent context does not import them into long-term storage.
